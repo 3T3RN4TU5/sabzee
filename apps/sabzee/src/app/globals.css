@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --color-brand-50: #effbf2;
+  --color-brand-100: #d8f5df;
+  --color-brand-200: #b2eac2;
+  --color-brand-300: #7dd99c;
+  --color-brand-400: #46bf72;
+  --color-brand-500: #23a455;
+  --color-brand-600: #168544;
+  --color-brand-700: #146a39;
+  --color-brand-800: #145431;
+  --color-brand-900: #12452a;
+  --color-saffron-400: #ffb547;
+  --color-saffron-500: #ff9a1f;
+  --color-ink: #10231a;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f7faf7;
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-brand-200);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(4deg);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.25s ease-out;
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
