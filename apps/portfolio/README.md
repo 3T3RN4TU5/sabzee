@@ -1,5 +1,7 @@
 # 👋 Developer portfolio
 
+**Live demo:** [jeevan-portfolio.vercel.app](https://jeevan-portfolio.vercel.app)
+
 A fast, dark-themed single-page portfolio that showcases my projects, skills and live GitHub activity.
 
 **Tech:** Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind CSS v4 · Lucide icons

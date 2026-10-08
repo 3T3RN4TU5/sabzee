@@ -1,5 +1,7 @@
 # 💸 FinTrack — Personal finance dashboard
 
+**Live demo:** [fintrack-jeevan.vercel.app](https://fintrack-jeevan.vercel.app)
+
 Track income and expenses, set monthly budgets per category and understand where your money goes with interactive charts. All amounts are in Indian Rupees (₹).
 
 **Tech:** React 19 · TypeScript · Vite · Recharts · Tailwind CSS v4 · Zustand (persisted) · Lucide icons

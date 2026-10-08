@@ -1,5 +1,7 @@
 # 🔭 GitScope — GitHub profile analytics
 
+**Live demo:** [gitscope-jeevan.vercel.app](https://gitscope-jeevan.vercel.app)
+
 Type any GitHub username and get an instant dashboard: languages, stars, forks, yearly activity, a searchable repository explorer and a **portfolio health checklist** that tells developers what to improve before a job hunt.
 
 **Tech:** React 19 · TypeScript · Vite · Recharts · Tailwind CSS v4 · GitHub REST API · Lucide icons

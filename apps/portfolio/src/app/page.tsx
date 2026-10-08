@@ -185,7 +185,7 @@ export default function Home() {
           <div className="grid gap-10 rounded-3xl border border-white/10 bg-linear-to-br from-violet-500/10 via-transparent to-cyan-500/10 p-8 lg:grid-cols-[1fr_1.2fr] lg:p-12">
             <div>
               <p className="text-lg leading-relaxed text-slate-300">
-                I&apos;m currently looking for frontend / full-stack developer roles. Whether you have an opening, a project or just want to say hi, I'd love to hear from you.
+                I&apos;m currently looking for frontend / full-stack developer roles. Whether you have an opening, a project or just want to say hi, I&apos;d love to hear from you.
               </p>
               <ul className="mt-8 space-y-3 text-sm">
                 <li>
