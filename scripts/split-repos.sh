@@ -12,6 +12,9 @@ cd "$(git rev-parse --show-toplevel)"
 
 # app folder -> repository name (the monorepo itself is already called "sabzee")
 declare -A REPO=(
+  [interview-coach]="ai-interview-coach"
+  [codearena]="codearena"
+  [algoviz]="algoviz"
   [sabzee]="sabzee-store"
   [portfolio]="portfolio"
   [taskflow]="taskflow-kanban"
@@ -21,7 +24,7 @@ declare -A REPO=(
 )
 
 apps=("$@")
-[ ${#apps[@]} -eq 0 ] && apps=(sabzee portfolio taskflow fintrack resumeforge gitscope)
+[ ${#apps[@]} -eq 0 ] && apps=(interview-coach codearena algoviz portfolio taskflow fintrack resumeforge gitscope sabzee)
 
 for app in "${apps[@]}"; do
   repo="${REPO[$app]:-$app}"

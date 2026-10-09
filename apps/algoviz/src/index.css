@@ -1,0 +1,237 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  /* Pathfinding palette — shared by the board and its legend. */
+  --cell-bg: #0b1324;
+  --cell-line: #1a2540;
+  --cell-wall: #4a5872;
+  --cell-visited: #0f5f73;
+  --cell-path: #fbbf24;
+  --cell-start: #10b981;
+  --cell-target: #f43f5e;
+  --visit-ms: 900ms;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-200 antialiased;
+    background-image:
+      radial-gradient(60rem 30rem at 15% -10%, rgb(34 211 238 / 0.08), transparent 70%),
+      radial-gradient(50rem 28rem at 95% 0%, rgb(139 92 246 / 0.1), transparent 70%);
+    background-repeat: no-repeat;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-cyan-400);
+    outline-offset: 2px;
+  }
+
+  option {
+    background-color: var(--color-slate-900);
+  }
+}
+
+@layer components {
+  .card {
+    /* No backdrop-filter: it would force a re-raster of the card on every animation frame. */
+    @apply rounded-2xl border border-white/[0.07] bg-slate-900/70 shadow-xl shadow-black/20;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-semibold tracking-wider text-slate-400 uppercase;
+  }
+
+  .select {
+    @apply w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-slate-900 py-2 pr-9 pl-3 text-sm text-slate-100 transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.6rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+  }
+
+  /* Range slider with a filled track (--fill is set inline, 0–100%). */
+  .range {
+    @apply h-5 w-full cursor-pointer appearance-none bg-transparent disabled:cursor-not-allowed disabled:opacity-50;
+    --fill: 50%;
+  }
+  .range::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, var(--color-cyan-400) var(--fill), rgb(255 255 255 / 0.1) var(--fill));
+  }
+  .range::-moz-range-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.1);
+  }
+  .range::-moz-range-progress {
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--color-cyan-400);
+  }
+  .range::-webkit-slider-thumb {
+    appearance: none;
+    margin-top: -5px;
+    height: 16px;
+    width: 16px;
+    border-radius: 9999px;
+    border: 3px solid var(--color-slate-950);
+    background: var(--color-cyan-300);
+    box-shadow: 0 0 0 1px rgb(34 211 238 / 0.6);
+  }
+  .range::-moz-range-thumb {
+    height: 12px;
+    width: 12px;
+    border-radius: 9999px;
+    border: 3px solid var(--color-slate-950);
+    background: var(--color-cyan-300);
+  }
+  .range:focus-visible {
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+}
+
+/* ─── Pathfinding board ──────────────────────────────────────────────────
+   Cells are plain <div>s whose className is set imperatively by Board. */
+
+.board {
+  display: grid;
+  gap: 1px;
+  width: max-content;
+  margin-inline: auto;
+  background: var(--cell-line);
+  border: 1px solid var(--cell-line);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: crosshair;
+}
+.board[data-busy] {
+  cursor: progress;
+}
+.board[data-dragging='start'],
+.board[data-dragging='target'] {
+  cursor: grabbing;
+}
+
+.cell {
+  position: relative;
+  background-color: var(--cell-bg);
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.cell--wall {
+  background-color: var(--cell-wall);
+}
+.cell--weight {
+  background-size: 62%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b' fill-opacity='.3' stroke='%23fbbf24' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='5' r='3' fill='none'/%3E%3Cpath d='M6.5 8a2 2 0 0 0-1.9 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.93-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z'/%3E%3C/svg%3E");
+}
+.cell--visited {
+  background-color: var(--cell-visited);
+}
+.cell--path {
+  background-color: var(--cell-path);
+}
+.cell--path.cell--weight {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2378350f' fill-opacity='.35' stroke='%2378350f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='5' r='3' fill='none'/%3E%3Cpath d='M6.5 8a2 2 0 0 0-1.9 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.93-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z'/%3E%3C/svg%3E");
+}
+.cell--start {
+  z-index: 2;
+  border-radius: 22%;
+  background-color: var(--cell-start);
+  background-size: 70%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E");
+  box-shadow: 0 0 12px rgb(16 185 129 / 0.6);
+}
+.cell--target {
+  z-index: 2;
+  border-radius: 50%;
+  background-color: var(--cell-target);
+  background-size: 74%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.6'%3E%3Ccircle cx='12' cy='12' r='7.5'/%3E%3Ccircle cx='12' cy='12' r='2.5' fill='white'/%3E%3C/svg%3E");
+  box-shadow: 0 0 12px rgb(244 63 94 / 0.6);
+}
+.board:not([data-busy]) .cell--start,
+.board:not([data-busy]) .cell--target {
+  cursor: grab;
+}
+.cell--cursor {
+  z-index: 3;
+  outline: 2px solid var(--color-cyan-300);
+  outline-offset: -1px;
+}
+
+/* `is-new` is added only to cells that change during an animated run, so
+   instant recomputes and initial paints never replay these keyframes. */
+.is-new.cell--visited {
+  animation: cell-visit var(--visit-ms) ease-out;
+}
+.is-new.cell--path {
+  animation: cell-path 450ms ease-out;
+}
+.is-new.cell--wall,
+.is-new.cell--weight {
+  animation: cell-pop 260ms ease-out;
+}
+
+@keyframes cell-visit {
+  0% {
+    transform: scale(0.3);
+    background-color: #a855f7;
+  }
+  45% {
+    background-color: #6366f1;
+  }
+  75% {
+    transform: scale(1.12);
+    background-color: #22d3ee;
+  }
+  100% {
+    transform: scale(1);
+    background-color: var(--cell-visited);
+  }
+}
+@keyframes cell-path {
+  0% {
+    transform: scale(0.5);
+    background-color: #fef3c7;
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes cell-pop {
+  0% {
+    transform: scale(0.4);
+  }
+  70% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

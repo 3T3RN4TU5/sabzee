@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-ink-950: #07070d;
+  --color-ink-900: #0c0c15;
+  --color-ink-800: #13131f;
+  --color-ink-700: #1c1c2b;
+
+  --animate-ring-fill: ring-fill 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-bar-grow: bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-up: fade-up 0.45s ease-out both;
+  --animate-caret: caret 1s steps(1) infinite;
+
+  @keyframes ring-fill {
+    from {
+      stroke-dashoffset: var(--ring-circumference);
+    }
+  }
+  @keyframes bar-grow {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes caret {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background-color: var(--color-ink-950);
+    color: var(--color-zinc-100);
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-violet-500) 45%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-violet-400);
+    outline-offset: 2px;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  [popover] {
+    color: inherit;
+  }
+
+  dialog::backdrop {
+    background: rgb(3 3 8 / 0.7);
+    backdrop-filter: blur(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Printing the report: swap the dark neutrals for a light, ink-friendly palette. */
+@media print {
+  :root {
+    --color-ink-950: #ffffff;
+    --color-ink-900: #ffffff;
+    --color-ink-800: #f4f4f5;
+    --color-ink-700: #e4e4e7;
+    --color-white: #000000;
+    --color-zinc-50: #09090b;
+    --color-zinc-100: #09090b;
+    --color-zinc-200: #18181b;
+    --color-zinc-300: #27272a;
+    --color-zinc-400: #3f3f46;
+    --color-zinc-500: #52525b;
+    --color-zinc-600: #71717a;
+
+    /* Light accent tints are unreadable on paper: print them as deep tones. */
+    --color-violet-200: #5b21b6;
+    --color-violet-300: #6d28d9;
+    --color-emerald-200: #047857;
+    --color-emerald-300: #047857;
+    --color-sky-200: #0369a1;
+    --color-sky-300: #0369a1;
+    --color-amber-200: #b45309;
+    --color-amber-300: #b45309;
+    --color-rose-200: #be123c;
+    --color-rose-300: #be123c;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print-avoid-break {
+    break-inside: avoid;
+  }
+}

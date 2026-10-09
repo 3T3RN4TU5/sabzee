@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [sabzee, portfolio, taskflow, fintrack, resumeforge, gitscope]
+        app: [interview-coach, codearena, algoviz, portfolio, taskflow, fintrack, resumeforge, gitscope, sabzee]
     defaults:
       run:
         working-directory: apps/${{ matrix.app }}

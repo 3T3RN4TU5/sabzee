@@ -5,10 +5,10 @@
 export const profile = {
   name: "Jeevan",
   role: "Full-Stack Web Developer",
-  tagline: "I build fast, accessible and delightful web apps with React, Next.js and TypeScript.",
+  tagline: "I build fast, accessible web apps — from AI-powered tools to developer tooling — with React, Next.js and TypeScript.",
   about: [
     "I'm a developer who enjoys turning ideas into polished products — from pixel-perfect interfaces to the data and state management that power them.",
-    "My recent work spans e-commerce, productivity, fintech dashboards and developer tools. I care about clean architecture, real-world UX details (loading states, validation, accessibility) and shipping to production with CI/CD on Vercel.",
+    "My recent work spans AI-powered apps built on the Claude API, in-browser developer tools, data dashboards and productivity apps. I care about clean architecture, real-world UX details (loading states, validation, accessibility) and shipping to production with CI/CD on Vercel.",
   ],
   location: "India",
   openToWork: true,
@@ -20,16 +20,10 @@ export const profile = {
   repoUrl: "https://github.com/Jeevan2410/sabzee",
 };
 
-export const highlights = [
-  { value: "5", label: "Production apps shipped" },
-  { value: "100%", label: "TypeScript" },
-  { value: "CI/CD", label: "Auto-deploys on Vercel" },
-];
-
 export const skills: { group: string; items: string[] }[] = [
   { group: "Languages", items: ["TypeScript", "JavaScript (ES2023)", "HTML5", "CSS3", "SQL"] },
-  { group: "Frontend", items: ["React 19", "Next.js 16 (App Router)", "Tailwind CSS v4", "Zustand", "Recharts", "dnd-kit"] },
-  { group: "Backend & Data", items: ["Node.js", "Route Handlers / REST APIs", "GitHub REST API", "localStorage / sessionStorage", "CSV & JSON pipelines"] },
+  { group: "Frontend", items: ["React 19", "Next.js 16 (App Router)", "Tailwind CSS v4", "Zustand", "Recharts", "CodeMirror 6", "Web Workers"] },
+  { group: "Backend, AI & Data", items: ["Claude API (Anthropic SDK)", "Streaming & structured outputs", "Node.js Route Handlers", "Zod validation", "GitHub REST API"] },
   { group: "Tooling", items: ["Git & GitHub", "Vite", "ESLint / oxlint", "Playwright", "Vercel", "npm"] },
 ];
 
@@ -51,18 +45,46 @@ const source = (app: string) => `${profile.repoUrl}/tree/main/apps/${app}`;
 
 export const projects: Project[] = [
   {
-    slug: "sabzee",
-    name: "Sabzee",
-    emoji: "🥬",
-    tagline: "Quick-commerce grocery storefront",
+    slug: "interview-coach",
+    name: "AI Interview Coach",
+    emoji: "🤖",
+    tagline: "AI mock interviews powered by Claude",
     description:
-      "A Blinkit-style store for fresh vegetables and fruits with URL-driven filters, statically generated product pages, a persistent cart, a coupon engine, validated checkout and live order tracking.",
-    highlights: ["36 SSG product pages + REST API", "Coupon & delivery-fee engine", "Hydration-safe persisted cart", "Checkout validation (phone, pincode, UPI)"],
-    stack: ["Next.js 16", "TypeScript", "Tailwind CSS", "Zustand"],
-    live: "https://sabzee.vercel.app",
-    source: source("sabzee"),
-    from: "#16a34a",
-    to: "#84cc16",
+      "Practice realistic technical and behavioral interviews for your target role and level. The AI interviewer streams one question at a time, scores every answer against a rubric and builds a final readiness report.",
+    highlights: ["Streaming Claude responses", "Structured, schema-validated scoring", "Voice answers via Web Speech API", "Demo mode, rate limiting & refusal fallbacks"],
+    stack: ["Next.js 16", "Claude API", "Zod", "Tailwind CSS"],
+    live: "https://ai-interview-coach-jeevan.vercel.app",
+    source: source("interview-coach"),
+    from: "#7c3aed",
+    to: "#06b6d4",
+  },
+  {
+    slug: "codearena",
+    name: "CodeArena",
+    emoji: "🧑‍💻",
+    tagline: "LeetCode-style coding practice in the browser",
+    description:
+      "Solve classic interview problems in a CodeMirror editor and run your JavaScript against sample and hidden tests in a sandboxed Web Worker, with timeouts, hints, solutions and progress tracking.",
+    highlights: ["Sandboxed Web Worker test runner", "Hidden tests & time-limit detection", "Hints, solutions & submissions history", "Progress dashboard & daily streak"],
+    stack: ["React 19", "CodeMirror 6", "Web Workers", "Vite"],
+    live: "https://codearena-jeevan.vercel.app",
+    source: source("codearena"),
+    from: "#f59e0b",
+    to: "#ef4444",
+  },
+  {
+    slug: "algoviz",
+    name: "AlgoViz",
+    emoji: "📊",
+    tagline: "Interactive algorithm visualizer",
+    description:
+      "Watch sorting algorithms and graph searches run step by step: scrub through every comparison and swap, or draw walls and mazes and race BFS, Dijkstra and A* to the target.",
+    highlights: ["7 sorting algorithms with step-back & scrubbing", "BFS, DFS, Dijkstra, A*, Greedy, Bidirectional", "Maze generation & weighted nodes", "Smooth animation without full re-renders"],
+    stack: ["React 19", "TypeScript", "Tailwind CSS", "Vite"],
+    live: "https://algoviz-jeevan.vercel.app",
+    source: source("algoviz"),
+    from: "#0ea5e9",
+    to: "#22c55e",
   },
   {
     slug: "taskflow",
@@ -120,4 +142,24 @@ export const projects: Project[] = [
     from: "#34d399",
     to: "#22d3ee",
   },
+  {
+    slug: "sabzee",
+    name: "Sabzee",
+    emoji: "🥬",
+    tagline: "Quick-commerce grocery storefront",
+    description:
+      "A Blinkit-style store for fresh vegetables and fruits with URL-driven filters, statically generated product pages, a persistent cart, a coupon engine, validated checkout and live order tracking.",
+    highlights: ["36 SSG product pages + REST API", "Coupon & delivery-fee engine", "Hydration-safe persisted cart", "Checkout validation (phone, pincode, UPI)"],
+    stack: ["Next.js 16", "TypeScript", "Tailwind CSS", "Zustand"],
+    live: "https://sabzee.vercel.app",
+    source: source("sabzee"),
+    from: "#16a34a",
+    to: "#84cc16",
+  },
+];
+
+export const highlights = [
+  { value: String(projects.length), label: "Production apps shipped" },
+  { value: "100%", label: "TypeScript" },
+  { value: "CI/CD", label: "Auto-deploys on Vercel" },
 ];

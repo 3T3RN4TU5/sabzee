@@ -99,7 +99,7 @@ export default function Home() {
         </Section>
 
         {/* Projects */}
-        <Section id="projects" eyebrow="Projects" title="Selected work" subtitle="Five production-ready apps — each one live, open-source and auto-deployed.">
+        <Section id="projects" eyebrow="Projects" title="Selected work" subtitle={`${projects.length} production-ready apps — each one live, open-source and auto-deployed.`}>
           <div className="grid gap-6 md:grid-cols-2">
             {projects.map((p, i) => (
               <article
