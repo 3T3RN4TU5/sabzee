@@ -15,6 +15,7 @@ declare -A REPO=(
   [interview-coach]="ai-interview-coach"
   [codearena]="codearena"
   [algoviz]="algoviz"
+  [chat]="devchat"
   [sabzee]="sabzee-store"
   [portfolio]="portfolio"
   [taskflow]="taskflow-kanban"
@@ -24,7 +25,7 @@ declare -A REPO=(
 )
 
 apps=("$@")
-[ ${#apps[@]} -eq 0 ] && apps=(interview-coach codearena algoviz portfolio taskflow fintrack resumeforge gitscope sabzee)
+[ ${#apps[@]} -eq 0 ] && apps=(interview-coach codearena algoviz chat portfolio taskflow fintrack resumeforge gitscope sabzee)
 
 for app in "${apps[@]}"; do
   repo="${REPO[$app]:-$app}"

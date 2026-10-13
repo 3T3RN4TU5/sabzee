@@ -2,13 +2,14 @@
 
 [![CI](https://github.com/Jeevan2410/sabzee/actions/workflows/ci.yml/badge.svg)](https://github.com/Jeevan2410/sabzee/actions/workflows/ci.yml)
 
-Nine production-ready web applications built with **React 19, Next.js 16, TypeScript and Tailwind CSS v4** — AI-powered tools, developer tools, dashboards and productivity apps — each one live on Vercel with automatic deployments on every push to `main`.
+Ten production-ready web applications built with **React 19, Next.js 16, TypeScript and Tailwind CSS v4** — AI-powered tools, real-time collaboration, developer tools and dashboards — each one live on Vercel with automatic deployments on every push to `main`.
 
 | App | What it is | Stack | Live | Code |
 | --- | --- | --- | --- | --- |
 | 🤖 **AI Interview Coach** | AI mock interviews by role & level: streamed questions, rubric-scored feedback, readiness report | Next.js 16, Claude API, Zod | [Open](https://ai-interview-coach-jeevan.vercel.app) | [`apps/interview-coach`](apps/interview-coach) |
 | 🧑‍💻 **CodeArena** | LeetCode-style practice: CodeMirror editor, tests run in a sandboxed Web Worker, hints & progress | React, CodeMirror 6, Web Workers | [Open](https://codearena-jeevan.vercel.app) | [`apps/codearena`](apps/codearena) |
 | 📊 **AlgoViz** | Step-through sorting visualizer and pathfinding playground (BFS, Dijkstra, A*, mazes) | React, TypeScript | [Open](https://algoviz-jeevan.vercel.app) | [`apps/algoviz`](apps/algoviz) |
+| 💬 **DevChat** | Real-time chat rooms with presence, typing indicators and RLS-secured Postgres | React, Supabase Realtime | [Open](https://devchat-jeevan.vercel.app) | [`apps/chat`](apps/chat) |
 | 👋 **Portfolio** | Personal developer site with live GitHub stats | Next.js 16, Cache Components | [Open](https://jeevan-portfolio.vercel.app) | [`apps/portfolio`](apps/portfolio) |
 | ⚡ **TaskFlow** | Trello-style Kanban with drag & drop, labels, checklists, insights, dark mode | React, dnd-kit, Zustand | [Open](https://taskflow-kanban-jeevan.vercel.app) | [`apps/taskflow`](apps/taskflow) |
 | 💸 **FinTrack** | Personal finance dashboard: charts, budgets, CSV import/export | React, Recharts | [Open](https://fintrack-jeevan.vercel.app) | [`apps/fintrack`](apps/fintrack) |
@@ -19,6 +20,7 @@ Nine production-ready web applications built with **React 19, Next.js 16, TypeSc
 ## What these projects demonstrate
 
 - **AI engineering** — Claude API with streaming responses, schema-validated structured outputs, refusal fallbacks, input validation and rate limiting
+- **Real-time & databases** — Supabase Realtime (Postgres changes, Presence, Broadcast), Row Level Security policies and trigger-based rate limits
 - **Developer tooling** — CodeMirror 6 editor, sandboxed Web Worker code execution with timeouts, step-through algorithm engines
 - **Modern React & Next.js** — App Router, Server Components, Cache Components (`"use cache"`), static generation, Route Handlers, Suspense streaming
 - **State management** — Zustand stores with `persist`, hydration-safe rendering, derived/memoised selectors
@@ -34,6 +36,7 @@ apps/
 ├── interview-coach/  Next.js 16 — AI mock interviews (Claude API)
 ├── codearena/        Vite + React — coding practice platform
 ├── algoviz/          Vite + React — algorithm visualizer
+├── chat/             Vite + React — real-time chat (Supabase)
 ├── portfolio/        Next.js 16 — personal site
 ├── taskflow/         Vite + React — Kanban board
 ├── fintrack/         Vite + React — finance dashboard

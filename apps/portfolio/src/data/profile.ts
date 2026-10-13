@@ -5,10 +5,10 @@
 export const profile = {
   name: "Jeevan",
   role: "Full-Stack Web Developer",
-  tagline: "I build fast, accessible web apps — from AI-powered tools to developer tooling — with React, Next.js and TypeScript.",
+  tagline: "I build fast, accessible web apps — from AI-powered tools to real-time collaboration — with React, Next.js and TypeScript.",
   about: [
     "I'm a developer who enjoys turning ideas into polished products — from pixel-perfect interfaces to the data and state management that power them.",
-    "My recent work spans AI-powered apps built on the Claude API, in-browser developer tools, data dashboards and productivity apps. I care about clean architecture, real-world UX details (loading states, validation, accessibility) and shipping to production with CI/CD on Vercel.",
+    "My recent work spans AI-powered apps built on the Claude API, real-time collaboration with Supabase, in-browser developer tools, data dashboards and productivity apps. I care about clean architecture, real-world UX details (loading states, validation, accessibility) and shipping to production with CI/CD on Vercel.",
   ],
   location: "India",
   openToWork: true,
@@ -23,7 +23,7 @@ export const profile = {
 export const skills: { group: string; items: string[] }[] = [
   { group: "Languages", items: ["TypeScript", "JavaScript (ES2023)", "HTML5", "CSS3", "SQL"] },
   { group: "Frontend", items: ["React 19", "Next.js 16 (App Router)", "Tailwind CSS v4", "Zustand", "Recharts", "CodeMirror 6", "Web Workers"] },
-  { group: "Backend, AI & Data", items: ["Claude API (Anthropic SDK)", "Streaming & structured outputs", "Node.js Route Handlers", "Zod validation", "GitHub REST API"] },
+  { group: "Backend, AI & Data", items: ["Claude API (Anthropic SDK)", "Streaming & structured outputs", "Supabase (Postgres, Realtime, RLS)", "Node.js Route Handlers", "Zod validation", "GitHub REST API"] },
   { group: "Tooling", items: ["Git & GitHub", "Vite", "ESLint / oxlint", "Playwright", "Vercel", "npm"] },
 ];
 
@@ -85,6 +85,20 @@ export const projects: Project[] = [
     source: source("algoviz"),
     from: "#0ea5e9",
     to: "#22c55e",
+  },
+  {
+    slug: "devchat",
+    name: "DevChat",
+    emoji: "💬",
+    tagline: "Real-time chat rooms for developers",
+    description:
+      "Join rooms and chat live with presence, typing indicators and unread counts. Messages stream over Supabase Realtime, with Postgres Row Level Security and database-level rate limiting.",
+    highlights: ["Supabase Realtime + Presence + Broadcast", "Row Level Security & rate-limit triggers", "Pagination & optimistic sending", "Dark / light themes, mobile drawer"],
+    stack: ["React 19", "Supabase", "PostgreSQL", "Vite"],
+    live: "https://devchat-jeevan.vercel.app",
+    source: source("chat"),
+    from: "#ec4899",
+    to: "#8b5cf6",
   },
   {
     slug: "taskflow",
