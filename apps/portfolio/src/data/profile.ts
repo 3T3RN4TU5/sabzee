@@ -17,7 +17,7 @@ export const profile = {
   email: "",
   resumeBuilderUrl: "https://resumeforge-jeevan.vercel.app",
   siteUrl: "https://jeevan-portfolio.vercel.app",
-  repoUrl: "https://github.com/Jeevan2410/sabzee",
+  repoUrl: "https://github.com/Jeevan2410/portfolio.",
 };
 
 export const skills: { group: string; items: string[] }[] = [
@@ -41,7 +41,7 @@ export interface Project {
   to: string;
 }
 
-const source = (app: string) => `${profile.repoUrl}/tree/main/apps/${app}`;
+const source = (repo: string) => `https://github.com/${profile.github}/${repo}`;
 
 export const projects: Project[] = [
   {
@@ -54,7 +54,7 @@ export const projects: Project[] = [
     highlights: ["Streaming Claude responses", "Structured, schema-validated scoring", "Voice answers via Web Speech API", "Demo mode, rate limiting & refusal fallbacks"],
     stack: ["Next.js 16", "Claude API", "Zod", "Tailwind CSS"],
     live: "https://ai-interview-coach-jeevan.vercel.app",
-    source: source("interview-coach"),
+    source: source("ai-interview-coach"),
     from: "#7c3aed",
     to: "#06b6d4",
   },
@@ -96,7 +96,7 @@ export const projects: Project[] = [
     highlights: ["Supabase Realtime + Presence + Broadcast", "Row Level Security & rate-limit triggers", "Pagination & optimistic sending", "Dark / light themes, mobile drawer"],
     stack: ["React 19", "Supabase", "PostgreSQL", "Vite"],
     live: "https://devchat-jeevan.vercel.app",
-    source: source("chat"),
+    source: source("devchat"),
     from: "#ec4899",
     to: "#8b5cf6",
   },
@@ -110,7 +110,7 @@ export const projects: Project[] = [
     highlights: ["Pointer + keyboard drag & drop", "Insights: completion & overdue", "Rich task editor with checklists", "Offline-first persistence"],
     stack: ["React 19", "dnd-kit", "Zustand", "Vite"],
     live: "https://taskflow-kanban-jeevan.vercel.app",
-    source: source("taskflow"),
+    source: source("taskflow-kanban"),
     from: "#6366f1",
     to: "#a855f7",
   },
@@ -124,7 +124,7 @@ export const projects: Project[] = [
     highlights: ["Bar, donut & area charts", "Budget pace tracking & alerts", "CSV import/export (RFC 4180)", "Vendor chunk splitting"],
     stack: ["React 19", "Recharts", "Zustand", "Tailwind CSS"],
     live: "https://fintrack-jeevan.vercel.app",
-    source: source("fintrack"),
+    source: source("fintrack-dashboard"),
     from: "#10b981",
     to: "#6366f1",
   },
@@ -166,7 +166,7 @@ export const projects: Project[] = [
     highlights: ["36 SSG product pages + REST API", "Coupon & delivery-fee engine", "Hydration-safe persisted cart", "Checkout validation (phone, pincode, UPI)"],
     stack: ["Next.js 16", "TypeScript", "Tailwind CSS", "Zustand"],
     live: "https://sabzee.vercel.app",
-    source: source("sabzee"),
+    source: source("sabzee-store"),
     from: "#16a34a",
     to: "#84cc16",
   },

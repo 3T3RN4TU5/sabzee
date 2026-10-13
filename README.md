@@ -4,18 +4,18 @@
 
 Ten production-ready web applications built with **React 19, Next.js 16, TypeScript and Tailwind CSS v4** — AI-powered tools, real-time collaboration, developer tools and dashboards — each one live on Vercel with automatic deployments on every push to `main`.
 
-| App | What it is | Stack | Live | Code |
+| App | What it is | Stack | Live | Repo |
 | --- | --- | --- | --- | --- |
-| 🤖 **AI Interview Coach** | AI mock interviews by role & level: streamed questions, rubric-scored feedback, readiness report | Next.js 16, Claude API, Zod | [Open](https://ai-interview-coach-jeevan.vercel.app) | [`apps/interview-coach`](apps/interview-coach) |
-| 🧑‍💻 **CodeArena** | LeetCode-style practice: CodeMirror editor, tests run in a sandboxed Web Worker, hints & progress | React, CodeMirror 6, Web Workers | [Open](https://codearena-jeevan.vercel.app) | [`apps/codearena`](apps/codearena) |
-| 📊 **AlgoViz** | Step-through sorting visualizer and pathfinding playground (BFS, Dijkstra, A*, mazes) | React, TypeScript | [Open](https://algoviz-jeevan.vercel.app) | [`apps/algoviz`](apps/algoviz) |
-| 💬 **DevChat** | Real-time chat rooms with presence, typing indicators and RLS-secured Postgres | React, Supabase Realtime | [Open](https://devchat-jeevan.vercel.app) | [`apps/chat`](apps/chat) |
-| 👋 **Portfolio** | Personal developer site with live GitHub stats | Next.js 16, Cache Components | [Open](https://jeevan-portfolio.vercel.app) | [`apps/portfolio`](apps/portfolio) |
-| ⚡ **TaskFlow** | Trello-style Kanban with drag & drop, labels, checklists, insights, dark mode | React, dnd-kit, Zustand | [Open](https://taskflow-kanban-jeevan.vercel.app) | [`apps/taskflow`](apps/taskflow) |
-| 💸 **FinTrack** | Personal finance dashboard: charts, budgets, CSV import/export | React, Recharts | [Open](https://fintrack-jeevan.vercel.app) | [`apps/fintrack`](apps/fintrack) |
-| ✨ **ResumeForge** | Resume builder: live A4 preview, 3 templates, strength score, PDF export | React, Print CSS | [Open](https://resumeforge-jeevan.vercel.app) | [`apps/resumeforge`](apps/resumeforge) |
-| 🔭 **GitScope** | GitHub profile analytics with charts and a recruiter-readiness checklist | React, GitHub API, Recharts | [Open](https://gitscope-jeevan.vercel.app) | [`apps/gitscope`](apps/gitscope) |
-| 🥬 **Sabzee** | Quick-commerce grocery store: filters, cart, coupons, checkout, order tracking, REST API | Next.js 16, Zustand | [Open](https://sabzee.vercel.app) | [`apps/sabzee`](apps/sabzee) |
+| 🤖 **AI Interview Coach** | AI mock interviews by role & level: streamed questions, rubric-scored feedback, readiness report | Next.js 16, Claude API, Zod | [Open](https://ai-interview-coach-jeevan.vercel.app) | [`ai-interview-coach`](https://github.com/Jeevan2410/ai-interview-coach) |
+| 🧑‍💻 **CodeArena** | LeetCode-style practice: CodeMirror editor, tests run in a sandboxed Web Worker, hints & progress | React, CodeMirror 6, Web Workers | [Open](https://codearena-jeevan.vercel.app) | [`codearena`](https://github.com/Jeevan2410/codearena) |
+| 📊 **AlgoViz** | Step-through sorting visualizer and pathfinding playground (BFS, Dijkstra, A*, mazes) | React, TypeScript | [Open](https://algoviz-jeevan.vercel.app) | [`algoviz`](https://github.com/Jeevan2410/algoviz) |
+| 💬 **DevChat** | Real-time chat rooms with presence, typing indicators and RLS-secured Postgres | React, Supabase Realtime | [Open](https://devchat-jeevan.vercel.app) | [`devchat`](https://github.com/Jeevan2410/devchat) |
+| 👋 **Portfolio** | Personal developer site with live GitHub stats | Next.js 16, Cache Components | [Open](https://jeevan-portfolio.vercel.app) | [`portfolio.`](https://github.com/Jeevan2410/portfolio.) |
+| ⚡ **TaskFlow** | Trello-style Kanban with drag & drop, labels, checklists, insights, dark mode | React, dnd-kit, Zustand | [Open](https://taskflow-kanban-jeevan.vercel.app) | [`taskflow-kanban`](https://github.com/Jeevan2410/taskflow-kanban) |
+| 💸 **FinTrack** | Personal finance dashboard: charts, budgets, CSV import/export | React, Recharts | [Open](https://fintrack-jeevan.vercel.app) | [`fintrack-dashboard`](https://github.com/Jeevan2410/fintrack-dashboard) |
+| ✨ **ResumeForge** | Resume builder: live A4 preview, 3 templates, strength score, PDF export | React, Print CSS | [Open](https://resumeforge-jeevan.vercel.app) | [`resumeforge`](https://github.com/Jeevan2410/resumeforge) |
+| 🔭 **GitScope** | GitHub profile analytics with charts and a recruiter-readiness checklist | React, GitHub API, Recharts | [Open](https://gitscope-jeevan.vercel.app) | [`gitscope`](https://github.com/Jeevan2410/gitscope) |
+| 🥬 **Sabzee** | Quick-commerce grocery store: filters, cart, coupons, checkout, order tracking, REST API | Next.js 16, Zustand | [Open](https://sabzee.vercel.app) | [`sabzee-store`](https://github.com/Jeevan2410/sabzee-store) |
 
 ## What these projects demonstrate
 
@@ -63,9 +63,6 @@ Every app is a separate Vercel project linked to this repository with its **Root
 
 **AI Interview Coach** runs in demo mode until you add an `ANTHROPIC_API_KEY` environment variable to its Vercel project (Settings → Environment Variables) and redeploy.
 
-## Want separate repositories?
+## Separate repositories
 
-```bash
-gh auth login               # once
-./scripts/split-repos.sh    # creates ai-interview-coach, codearena, taskflow-kanban, … with full history
-```
+Each app is also published as its own repository (linked in the table above) and deployed from it. This monorepo stays the place to work across apps; `scripts/split-repos.sh` re-publishes an app's folder, with history, to its own repository.
