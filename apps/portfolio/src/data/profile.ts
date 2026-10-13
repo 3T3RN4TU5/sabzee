@@ -16,7 +16,7 @@ export const profile = {
   linkedin: "",
   email: "",
   resumeBuilderUrl: "https://resumeforge-jeevan.vercel.app",
-  siteUrl: "https://jeevan-portfolio.vercel.app",
+  siteUrl: "https://jeevan2410-portfolio.vercel.app",
   repoUrl: "https://github.com/Jeevan2410/portfolio.",
 };
 

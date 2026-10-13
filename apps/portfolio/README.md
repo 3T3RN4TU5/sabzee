@@ -1,6 +1,6 @@
 # 👋 Developer portfolio
 
-**Live demo:** [jeevan-portfolio.vercel.app](https://jeevan-portfolio.vercel.app)
+**Live demo:** [jeevan2410-portfolio.vercel.app](https://jeevan2410-portfolio.vercel.app)
 
 A fast, dark-themed single-page portfolio that showcases my projects, skills and live GitHub activity.
 
