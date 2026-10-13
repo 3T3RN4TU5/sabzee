@@ -59,7 +59,7 @@ npm run dev
 
 ## Deployment
 
-Every app is a separate Vercel project linked to this repository with its **Root Directory** set to `apps/<app>`. Pushing to `main` deploys to production; an ignored-build-step (`git diff --quiet HEAD^ HEAD -- . || exit 1`) means only the apps that actually changed are rebuilt.
+Every app is a separate Vercel project linked to **its own repository** (see the Repo column above). Pushing to that repository's `main` branch deploys it to production, and pull requests get preview deployments.
 
 **AI Interview Coach** runs in demo mode until you add an `ANTHROPIC_API_KEY` environment variable to its Vercel project (Settings → Environment Variables) and redeploy.
 
