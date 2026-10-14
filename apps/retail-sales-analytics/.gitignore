@@ -1,0 +1,7 @@
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+.venv/
+# Raw data and the generated warehouse are rebuilt by `python analysis/run_pipeline.py`
+analysis/data/
