@@ -32,7 +32,7 @@ export function useData<K extends keyof DataFiles>(...names: K[]): LoadState<Pic
     Promise.all(list.map((n) => load(n)))
       .then((values) => {
         if (!alive) return
-        const data = Object.fromEntries(list.map((n, i) => [n, values[i]])) as Picked<K>
+        const data = Object.fromEntries(list.map((n, i) => [n, values[i]])) as unknown as Picked<K>
         setState({ status: 'ready', data })
       })
       .catch((e: unknown) => alive && setState({ status: 'error', error: e instanceof Error ? e.message : String(e) }))

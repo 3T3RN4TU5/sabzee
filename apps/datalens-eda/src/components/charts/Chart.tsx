@@ -4,11 +4,11 @@
  */
 import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode, type RefObject } from 'react'
 import type { ChartType } from '../../lib/chartSql.ts'
-import { formatCompact, formatDate, formatFloat, formatNumber, formatTimestamp } from '../../lib/format.ts'
-import { formatTimeTick, linear, niceTicks, OTHER_COLOR, sequential, SERIES_COLORS, timeTicks } from '../../lib/scale.ts'
+import { formatCompact, formatFloat, formatNumber } from '../../lib/format.ts'
+import { colorFor, formatX, isMidnight, POINT_R, scatterGeometry, seriesOf, toNum, type Row } from './chartUtils.ts'
+import { formatTimeTick, linear, niceTicks, sequential, SERIES_COLORS, timeTicks } from '../../lib/scale.ts'
 import { isNumeric, isTemporal, type TypeCategory } from '../../lib/types.ts'
 
-export type Row = Record<string, unknown>
 
 export interface ChartProps {
   kind: ChartType
@@ -27,43 +27,6 @@ const INK = 'var(--chart-ink)'
 const MUTED = 'var(--chart-muted)'
 const GRID = 'var(--chart-grid)'
 const AXIS = 'var(--chart-axis)'
-// Exported SVGs can't resolve CSS variables, so the export path swaps these for literals.
-export const CSS_VARS: Record<string, string> = {
-  'var(--chart-ink)': '#e2e8f0',
-  'var(--chart-muted)': '#8b93a7',
-  'var(--chart-grid)': '#232b3d',
-  'var(--chart-axis)': '#3a4458',
-}
-
-const toNum = (v: unknown): number => (typeof v === 'number' ? v : typeof v === 'bigint' ? Number(v) : v instanceof Date ? v.getTime() : Number(v))
-
-function isMidnight(values: number[]): boolean {
-  return values.every((v) => v % 86_400_000 === 0)
-}
-
-export function formatX(v: unknown, cat: TypeCategory | undefined, allMidnight = false): string {
-  if (v == null) return 'NULL'
-  if (cat && isTemporal(cat)) {
-    const ms = toNum(v)
-    return cat === 'date' || allMidnight ? formatDate(ms) : formatTimestamp(ms)
-  }
-  if (typeof v === 'number') return formatFloat(v, 4)
-  if (typeof v === 'bigint') return v.toString()
-  return String(v)
-}
-
-function seriesOf(rows: Row[]): string[] {
-  const set = new Set<string>()
-  for (const r of rows) if (r.series != null) set.add(String(r.series))
-  return [...set].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-}
-
-function colorFor(series: string[], s: string | undefined): string {
-  if (s == null) return SERIES_COLORS[0]
-  const i = series.indexOf(s)
-  return i >= 0 && i < SERIES_COLORS.length ? SERIES_COLORS[i] : OTHER_COLOR
-}
-
 interface Tip {
   x: number
   y: number
@@ -93,22 +56,18 @@ function Tooltip({ tip, width }: { tip: Tip | null; width: number }) {
 
 function Legend({ series, x, y }: { series: string[]; x: number; y: number }) {
   if (series.length < 2) return null
-  let cx = x
+  const items = series.slice(0, SERIES_COLORS.length).map((s) => ({ s, label: s.length > 18 ? `${s.slice(0, 17)}…` : s }))
+  const offsets = items.reduce<number[]>((acc, _it, i) => [...acc, i === 0 ? x : acc[i - 1] + 24 + items[i - 1].label.length * 6.4], [])
   return (
     <g transform={`translate(0 ${y})`}>
-      {series.slice(0, SERIES_COLORS.length).map((s) => {
-        const label = s.length > 18 ? `${s.slice(0, 17)}…` : s
-        const el = (
-          <g key={s} transform={`translate(${cx} 0)`}>
-            <rect width={10} height={10} rx={2} y={-9} fill={colorFor(series, s)} />
-            <text x={14} fontSize={11} fill={MUTED}>
-              {label}
-            </text>
-          </g>
-        )
-        cx += 24 + label.length * 6.4
-        return el
-      })}
+      {items.map(({ s, label }, i) => (
+        <g key={s} transform={`translate(${offsets[i]} 0)`}>
+          <rect width={10} height={10} rx={2} y={-9} fill={colorFor(series, s)} />
+          <text x={14} fontSize={11} fill={MUTED}>
+            {label}
+          </text>
+        </g>
+      ))}
     </g>
   )
 }
@@ -275,7 +234,7 @@ function LineChart({ rows, xCat, xLabel, yLabel, width, height, svgRef }: ChartP
     return vals
   }, [rows, continuous])
   const xIndex = useMemo(() => new Map(xKeys.map((x, i) => [String(x), i])), [xKeys])
-  const keys = series.length ? series : ['']
+  const keys = useMemo(() => (series.length ? series : ['']), [series])
   const bySeries = useMemo(() => {
     const m = new Map<string, (number | null)[]>()
     for (const k of keys) m.set(k, new Array(xKeys.length).fill(null))
@@ -637,37 +596,6 @@ function Heatmap({ rows, xCat, yCat, xLabel, yLabel, width, height, svgRef }: Ch
 
 // ─── Scatter (canvas points + SVG axes) ───────────────────────────────────────
 
-export function scatterGeometry(rows: Row[], width: number, height: number, xCat?: TypeCategory) {
-  const xsv = rows.map((r) => toNum(r.x))
-  const ysv = rows.map((r) => toNum(r.y))
-  const fx = xsv.filter(Number.isFinite)
-  const fy = ysv.filter(Number.isFinite)
-  const xmin = fx.length ? fx.reduce((a, b) => Math.min(a, b)) : 0
-  const xmax = fx.length ? fx.reduce((a, b) => Math.max(a, b)) : 1
-  const ymin = fy.length ? fy.reduce((a, b) => Math.min(a, b)) : 0
-  const ymax = fy.length ? fy.reduce((a, b) => Math.max(a, b)) : 1
-  const temporal = !!xCat && isTemporal(xCat)
-  const xt = temporal ? null : niceTicks(xmin, xmax, Math.max(2, Math.floor(width / 90)))
-  const yt = niceTicks(ymin, ymax, 5)
-  const top = 34
-  const left = 58
-  const right = 16
-  const bottom = 50
-  const innerW = Math.max(10, width - left - right)
-  const innerH = Math.max(10, height - top - bottom)
-  const xd: [number, number] = xt ? xt.domain : [xmin, xmax === xmin ? xmin + 1 : xmax]
-  const x = linear(xd, [left, left + innerW])
-  const y = linear(yt.domain, [top + innerH, top])
-  let xTicks: { v: number; label: string }[]
-  if (temporal) {
-    const tt = timeTicks(xmin, xmax, Math.max(2, Math.floor(innerW / 90)))
-    xTicks = tt.ticks.map((v) => ({ v, label: formatTimeTick(v, tt.unit) }))
-  } else xTicks = xt!.ticks.map((v) => ({ v, label: formatCompact(v) }))
-  return { xsv, ysv, x, y, xTicks, yTicks: yt.ticks, top, left, right, bottom, innerW, innerH }
-}
-
-const POINT_R = 2.6
-
 function Scatter({ rows, xCat, xLabel, yLabel, width, height, svgRef, canvasRef }: ChartProps) {
   const [tip, setTip] = useState<Tip | null>(null)
   const series = useMemo(() => {
@@ -753,24 +681,6 @@ function Scatter({ rows, xCat, xLabel, yLabel, width, height, svgRef, canvasRef 
       <Tooltip tip={tip} width={width} />
     </div>
   )
-}
-
-/** SVG circles for exporting a scatter (the on-screen points live on a canvas). */
-export function scatterSvgPoints(rows: Row[], width: number, height: number, xCat?: TypeCategory): string {
-  const geo = scatterGeometry(rows, width, height, xCat)
-  const counts = new Map<string, number>()
-  for (const r of rows) if (r.series != null) counts.set(String(r.series), (counts.get(String(r.series)) ?? 0) + 1)
-  const series = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([k]) => k)
-  const opacity = rows.length > 5000 ? 0.45 : 0.7
-  let out = `<g fill-opacity="${opacity}">`
-  for (let i = 0; i < rows.length; i++) {
-    const xv = geo.xsv[i]
-    const yv = geo.ysv[i]
-    if (!Number.isFinite(xv) || !Number.isFinite(yv)) continue
-    const fill = series.length ? colorFor(series, String(rows[i].series)) : SERIES_COLORS[0]
-    out += `<circle cx="${geo.x(xv).toFixed(1)}" cy="${geo.y(yv).toFixed(1)}" r="${POINT_R}" fill="${fill}"/>`
-  }
-  return out + '</g>'
 }
 
 export function Chart(props: ChartProps) {

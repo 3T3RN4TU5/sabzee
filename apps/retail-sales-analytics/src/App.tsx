@@ -1,10 +1,11 @@
-import { BarChart3, Github } from 'lucide-react'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
+import { BarChart3, FolderGit2 } from 'lucide-react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, type KeyboardEvent } from 'react'
 import { ErrorState, Loading } from './components/ui.tsx'
 import type { Filters } from './lib/cube.ts'
 import { useData } from './lib/data.ts'
 import { defaultFilters, filtersFromParams, paramsFromFilters } from './lib/filters.ts'
 import { dateLabel, fmt } from './lib/format.ts'
+import { REPO_URL } from './lib/config.ts'
 import { PAGES, useRoute, type PageId } from './lib/route.ts'
 
 const Overview = lazy(() => import('./pages/Overview.tsx'))
@@ -14,7 +15,6 @@ const ExperimentPage = lazy(() => import('./pages/Experiment.tsx'))
 const QualityPage = lazy(() => import('./pages/Quality.tsx'))
 const Methodology = lazy(() => import('./pages/Methodology.tsx'))
 
-export const REPO_URL = 'https://github.com/Jeevan2410/retail-sales-analytics'
 
 export default function App() {
   const [route, navigate] = useRoute()
@@ -40,7 +40,7 @@ export default function App() {
   }
 
   // WAI-ARIA tabs: arrow keys move between tabs
-  const onTabKey = (e: React.KeyboardEvent, i: number) => {
+  const onTabKey = (e: KeyboardEvent, i: number) => {
     const n = PAGES.length
     const next = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i - 1 + n) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1
     if (next < 0) return
@@ -75,7 +75,7 @@ export default function App() {
             rel="noreferrer"
             className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-slate-300 hover:border-white/20 hover:text-white"
           >
-            <Github className="size-3.5" aria-hidden /> <span className="hidden sm:inline">Source &amp; SQL</span>
+            <FolderGit2 className="size-3.5" aria-hidden /> <span className="hidden sm:inline">Source &amp; SQL</span>
           </a>
           <nav className="-mb-px w-full overflow-x-auto" aria-label="Sections">
             <div role="tablist" aria-label="Dashboard pages" className="flex min-w-max gap-1">

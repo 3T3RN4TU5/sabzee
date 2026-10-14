@@ -352,7 +352,7 @@ def run_quality_checks(con: duckdb.DuckDBPyConnection, res: CleanResult, report:
 
     guest_share = q("SELECT coalesce(sum(revenue) FILTER (WHERE customer_key = 0), 0) / sum(revenue) FROM fact_sales")
     report.check("Guest (missing CustomerID) revenue share", stage="load", category="completeness",
-                 ok=guest_share < 0.20, observed=float(guest_share), expected="< 20% of revenue",
+                 ok=guest_share < 0.20, observed=f"{guest_share:.1%}", expected="< 20% of revenue",
                  detail="Guest lines are kept for revenue KPIs but excluded from customer analytics.",
                  severity="warn")
 
@@ -380,7 +380,7 @@ def run_quality_checks(con: duckdb.DuckDBPyConnection, res: CleanResult, report:
                  expected=f"all in [{PERIOD_START}, {PERIOD_END_EXCLUSIVE})")
     max_line = q("SELECT max(revenue) FROM fact_sales")
     report.check("Largest single line after outlier rules", stage="load", category="validity",
-                 ok=max_line < 50_000, observed=float(max_line), expected="< £50,000",
+                 ok=max_line < 50_000, observed=f"£{max_line:,.2f}", expected="< £50,000",
                  detail="Guards against keying errors such as the 80,995-unit line in the raw data.")
 
     rev_db = q("SELECT round(sum(revenue), 2) FROM fact_sales")
@@ -397,7 +397,7 @@ def run_quality_checks(con: duckdb.DuckDBPyConnection, res: CleanResult, report:
     other_share = q(f"""SELECT coalesce(sum(f.revenue) FILTER (WHERE p.category = '{OTHER}'), 0) / sum(f.revenue)
                         FROM fact_sales f JOIN dim_product p USING (product_key)""")
     report.check("Category rules cover the catalogue", stage="transform", category="coverage",
-                 ok=other_share < 0.25, observed=float(other_share),
+                 ok=other_share < 0.25, observed=f"{other_share:.1%}",
                  expected="'Other' < 25% of revenue", severity="warn")
 
     unknown_desc = q("SELECT count(*) FROM dim_product WHERE description = 'UNKNOWN PRODUCT'")
@@ -412,5 +412,5 @@ def run_quality_checks(con: duckdb.DuckDBPyConnection, res: CleanResult, report:
 
     ret_ratio = q("SELECT (SELECT sum(revenue) FROM fact_returns) / (SELECT sum(revenue) FROM fact_sales)")
     report.check("Returns value as share of sales", stage="load", category="validity",
-                 ok=0 < ret_ratio < 0.10, observed=float(ret_ratio), expected="between 0% and 10%",
+                 ok=0 < ret_ratio < 0.10, observed=f"{ret_ratio:.2%}", expected="between 0% and 10%",
                  severity="warn")

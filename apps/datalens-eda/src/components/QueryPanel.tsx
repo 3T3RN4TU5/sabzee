@@ -5,7 +5,8 @@ import { formatDuration, formatNumber } from '../lib/format.ts'
 import { ResultsGrid, type GridHandle } from './ResultsGrid.tsx'
 import { Splitter } from './Splitter.tsx'
 import type { EditorApi } from './SqlEditor.tsx'
-import { cx, EmptyState, MOD, Spinner } from './ui.tsx'
+import { EmptyState, Spinner } from './ui.tsx'
+import { cx, MOD } from '../lib/cx.ts'
 
 const SqlEditor = lazy(() => import('./SqlEditor.tsx'))
 
@@ -36,7 +37,7 @@ export function QueryPanel({
   onChartResult,
   onCopy,
   editorApi,
-  gridHandle,
+  onGridHandle,
 }: {
   sql: string
   onSqlChange: (v: string) => void
@@ -55,15 +56,14 @@ export function QueryPanel({
   onChartResult: () => void
   onCopy: (text: string) => void
   editorApi: RefObject<EditorApi | null>
-  gridHandle: RefObject<GridHandle | null>
+  onGridHandle: (h: GridHandle) => void
 }) {
   const container = useRef<HTMLDivElement>(null)
-  const [view, setView] = useState<'results' | 'plan'>('results')
+  // A fresh plan opens the Plan view; the user can flip back to Results for that plan.
+  const [resultsFor, setResultsFor] = useState<object | null>(null)
+  const view: 'results' | 'plan' = plan && resultsFor !== plan ? 'plan' : 'results'
+  const setView = (v: 'results' | 'plan') => setResultsFor(v === 'results' ? plan : null)
   const [exportOpen, setExportOpen] = useState(false)
-  useEffect(() => setView(plan ? 'plan' : 'results'), [plan])
-  useEffect(() => {
-    if (state.status === 'running' || state.status === 'done') setView('results')
-  }, [state.status])
 
   const runnable = () => editorApi.current?.getRunnable() ?? sql
   const running = state.status === 'running'
@@ -182,7 +182,7 @@ export function QueryPanel({
           {view === 'plan' && plan ? (
             <pre className="h-full overflow-auto p-4 font-mono text-[11.5px] leading-snug text-slate-300">{plan.text}</pre>
           ) : (
-            <ResultsBody state={state} ready={ready} onCopy={onCopy} gridHandle={gridHandle} />
+            <ResultsBody state={state} ready={ready} onCopy={onCopy} onGridHandle={onGridHandle} />
           )}
         </div>
       </div>
@@ -217,7 +217,7 @@ function StatusLine({ state }: { state: QueryState }) {
   return null
 }
 
-function ResultsBody({ state, ready, onCopy, gridHandle }: { state: QueryState; ready: boolean; onCopy: (t: string) => void; gridHandle: RefObject<GridHandle | null> }) {
+function ResultsBody({ state, ready, onCopy, onGridHandle }: { state: QueryState; ready: boolean; onCopy: (t: string) => void; onGridHandle: (h: GridHandle) => void }) {
   if (state.status === 'error')
     return (
       <div className="h-full overflow-auto p-4">
@@ -245,9 +245,7 @@ function ResultsBody({ state, ready, onCopy, gridHandle }: { state: QueryState; 
       <ResultsGrid
         table={state.result.table}
         onCopy={onCopy}
-        onHandle={(h) => {
-          gridHandle.current = h
-        }}
+        onHandle={onGridHandle}
       />
     )
   }

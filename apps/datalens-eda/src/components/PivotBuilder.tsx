@@ -7,7 +7,8 @@ import { formatDuration, formatNumber } from '../lib/format.ts'
 import { buildPivotSql, type PivotSpec, type PivotValue } from '../lib/pivotSql.ts'
 import { isNumeric } from '../lib/types.ts'
 import { ResultsGrid } from './ResultsGrid.tsx'
-import { cx, EmptyState, Field, Spinner, TypeBadge } from './ui.tsx'
+import { EmptyState, Field, Spinner, TypeBadge } from './ui.tsx'
+import { cx } from '../lib/cx.ts'
 
 export function PivotBuilder({
   engine,
@@ -24,30 +25,29 @@ export function PivotBuilder({
   onOpenSql: (sql: string) => void
   onCopy: (t: string) => void
 }) {
-  const [result, setResult] = useState<{ table: Table; ms: number } | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [out, setOut] = useState<{ sql: string; table?: Table; ms: number; error?: string } | null>(null)
   const meta = tables.find((t) => t.name === spec?.source)
   const sql = useMemo(() => (spec && meta ? buildPivotSql(spec) : null), [spec, meta])
 
   useEffect(() => {
     if (!engine || !sql) return
     let alive = true
-    setBusy(true)
-    setError(null)
     const t0 = performance.now()
     const id = setTimeout(() => {
       engine
         .q(sql)
-        .then((t) => alive && setResult({ table: t, ms: performance.now() - t0 }))
-        .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
-        .finally(() => alive && setBusy(false))
+        .then((t) => alive && setOut({ sql, table: t, ms: performance.now() - t0 }))
+        .catch((e: unknown) => alive && setOut({ sql, ms: 0, error: e instanceof Error ? e.message : String(e) }))
     }, 150)
     return () => {
       alive = false
       clearTimeout(id)
     }
   }, [engine, sql])
+
+  const busy = !!sql && out?.sql !== sql
+  const error = out?.error ?? null
+  const result = out?.table ? { table: out.table, ms: out.ms } : null
 
   if (!spec || !meta)
     return (

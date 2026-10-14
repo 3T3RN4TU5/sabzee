@@ -6,7 +6,8 @@ import { formatCompact, formatDate, formatDuration, formatFloat, formatNumber, f
 import { outlierRowsSql, type Severity } from '../lib/profileSql.ts'
 import { diverging, SERIES_COLORS } from '../lib/scale.ts'
 import { isNumeric, isTemporal } from '../lib/types.ts'
-import { cx, EmptyState, Spinner, TypeBadge } from './ui.tsx'
+import { EmptyState, Spinner, TypeBadge } from './ui.tsx'
+import { cx } from '../lib/cx.ts'
 
 const cache = new Map<string, TableProfile>()
 
@@ -24,34 +25,32 @@ export function ProfileView({
   onOpenSql: (sql: string) => void
 }) {
   const meta = tables.find((t) => t.name === table) ?? null
-  const [profile, setProfile] = useState<TableProfile | null>(null)
-  const [step, setStep] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const key = meta ? `${meta.name}:${meta.rows}:${meta.columns.length}` : null
   const [nonce, setNonce] = useState(0)
+  const [done, setDone] = useState<{ key: string; nonce: number; profile?: TableProfile; error?: string } | null>(null)
+  const [step, setStep] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!engine || !meta) return
-    const key = `${meta.name}:${meta.rows}:${meta.columns.length}`
-    const cached = cache.get(key)
-    if (cached && nonce === 0) {
-      setProfile(cached)
-      return
-    }
+    if (!engine || !meta || !key || cache.has(key)) return
     let alive = true
-    setProfile(null)
-    setError(null)
-    setStep('Starting')
     profileTable(engine, meta, (s) => alive && setStep(s))
       .then((p) => {
         cache.set(key, p)
-        if (alive) setProfile(p)
+        if (alive) setDone({ key, nonce, profile: p })
       })
-      .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => alive && setStep(null))
+      .catch((e: unknown) => alive && setDone({ key, nonce, error: e instanceof Error ? e.message : String(e) }))
     return () => {
       alive = false
     }
-  }, [engine, meta, nonce])
+  }, [engine, meta, key, nonce])
+
+  const profile = key ? (cache.get(key) ?? null) : null
+  const error = done && done.key === key && done.nonce === nonce ? (done.error ?? null) : null
+  const running = !!meta && !profile && !error
+  const rerun = () => {
+    if (key) cache.delete(key)
+    setNonce((n) => n + 1)
+  }
 
   if (!tables.length)
     return (
@@ -75,7 +74,7 @@ export function ProfileView({
               ))}
             </select>
           </label>
-          <button type="button" className="btn" disabled={!!step || !meta} onClick={() => setNonce((n) => n + 1)}>
+          <button type="button" className="btn" disabled={running || !meta} onClick={rerun}>
             <RefreshCw className="size-3.5" /> Re-run
           </button>
           {profile && (
@@ -91,9 +90,9 @@ export function ProfileView({
             Profiling failed: {error}
           </div>
         )}
-        {step && (
+        {running && (
           <div className="card flex items-center gap-3 p-4 text-[13px] text-slate-300" aria-live="polite">
-            <Spinner /> {step}…
+            <Spinner /> {step ?? 'Starting'}…
           </div>
         )}
         {profile && meta && <ProfileBody p={profile} onOpenSql={onOpenSql} />}

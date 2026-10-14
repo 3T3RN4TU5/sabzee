@@ -7,8 +7,10 @@ import { downloadBlob, svgToPng, svgToString, timestampSlug } from '../lib/downl
 import { formatDuration, formatNumber } from '../lib/format.ts'
 import { isQueryStatement, stripTrailingSemicolons } from '../lib/sql.ts'
 import { categoryFromDuckType, isNumeric, isTemporal, type TypeCategory } from '../lib/types.ts'
-import { Chart, CSS_VARS, scatterSvgPoints, type Row } from './charts/Chart.tsx'
-import { cx, EmptyState, Field, Spinner, TypeBadge } from './ui.tsx'
+import { Chart } from './charts/Chart.tsx'
+import { CSS_VARS, scatterSvgPoints, type Row } from './charts/chartUtils.ts'
+import { EmptyState, Field, Spinner, TypeBadge } from './ui.tsx'
+import { cx } from '../lib/cx.ts'
 
 const TYPES: { value: ChartType; label: string; icon: typeof BarChart3 }[] = [
   { value: 'bar', label: 'Bar', icon: BarChart3 },
@@ -44,15 +46,13 @@ export function ChartBuilder({
   onOpenSql: (sql: string) => void
   notify: (msg: string, tone?: 'info' | 'success' | 'error') => void
 }) {
-  const [cols, setCols] = useState<Col[]>([])
-  const [rows, setRows] = useState<Row[] | null>(null)
-  const [ms, setMs] = useState(0)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [described, setDescribed] = useState<{ source: string; cols: Col[]; error?: string } | null>(null)
+  const [out, setOut] = useState<{ sql: string; rows?: Row[]; ms: number; error?: string } | null>(null)
   const svgRef = useRef<SVGSVGElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const box = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ w: 800, h: 420 })
+  const hasSpec = spec != null
 
   useLayoutEffect(() => {
     const el = box.current
@@ -60,28 +60,29 @@ export function ChartBuilder({
     const ro = new ResizeObserver(() => setSize({ w: Math.max(280, el.clientWidth), h: Math.max(260, Math.min(560, el.clientHeight)) }))
     ro.observe(el)
     return () => ro.disconnect()
-  }, [spec != null])
+  }, [hasSpec])
 
-  const isQuerySource = spec ? !tables.some((t) => t.name === spec.source) : false
+  const source = spec?.source ?? null
+  const sourceTable = tables.find((t) => t.name === source)
+  const isQuerySource = !!spec && !sourceTable
 
-  // Columns of the source (table metadata, or DESCRIBE of the query).
+  // Columns of a query source come from DESCRIBE; tables use their metadata.
   useEffect(() => {
-    if (!spec || !engine) return
-    const t = tables.find((x) => x.name === spec.source)
-    if (t) {
-      setCols(t.columns.map((c) => ({ name: c.name, category: c.category })))
-      return
-    }
+    if (!source || !engine || tables.some((t) => t.name === source)) return
     let alive = true
     engine
-      .rows<{ column_name: string; column_type: string }>(`DESCRIBE ${stripTrailingSemicolons(spec.source)}`)
-      .then((r) => alive && setCols(r.map((c) => ({ name: c.column_name, category: categoryFromDuckType(c.column_type) }))))
-      .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
+      .rows<{ column_name: string; column_type: string }>(`DESCRIBE ${stripTrailingSemicolons(source)}`)
+      .then((r) => alive && setDescribed({ source, cols: r.map((c) => ({ name: c.column_name, category: categoryFromDuckType(c.column_type) })) }))
+      .catch((e: unknown) => alive && setDescribed({ source, cols: [], error: e instanceof Error ? e.message : String(e) }))
     return () => {
       alive = false
     }
-  }, [spec?.source, engine, tables]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [source, engine, tables])
 
+  const cols: Col[] = useMemo(
+    () => (sourceTable ? sourceTable.columns.map((c) => ({ name: c.name, category: c.category })) : described?.source === source ? described.cols : []),
+    [sourceTable, described, source],
+  )
   const types = useMemo(() => Object.fromEntries(cols.map((c) => [c.name, c.category])), [cols])
   const validation = spec ? validateSpec(spec, types) : { ok: false }
   const sql = useMemo(() => {
@@ -94,27 +95,23 @@ export function ChartBuilder({
   }, [spec, types, validation.ok, cols.length])
 
   useEffect(() => {
-    if (!engine || !sql) {
-      setRows(null)
-      return
-    }
+    if (!engine || !sql) return
     let alive = true
-    setBusy(true)
-    setError(null)
     const t0 = performance.now()
     engine
       .q(sql)
-      .then((t) => {
-        if (!alive) return
-        setRows(toObjects(t))
-        setMs(performance.now() - t0)
-      })
-      .catch((e: unknown) => alive && setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => alive && setBusy(false))
+      .then((t) => alive && setOut({ sql, rows: toObjects(t), ms: performance.now() - t0 }))
+      .catch((e: unknown) => alive && setOut({ sql, ms: 0, error: e instanceof Error ? e.message : String(e) }))
     return () => {
       alive = false
     }
   }, [engine, sql])
+
+  const current = out && out.sql === sql ? out : null
+  const rows = current?.rows ?? null
+  const ms = current?.ms ?? 0
+  const busy = !!sql && !current
+  const error = current?.error ?? (described?.source === source ? (described?.error ?? null) : null)
 
   if (!spec)
     return (

@@ -12,8 +12,7 @@ import ehWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url'
 import mvpWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url'
 import ehWasm from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url'
 import mvpWasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url'
-import type { RecordBatch, Schema, Table } from 'apache-arrow'
-import { tableFromBatches } from './arrow.ts'
+import { Table, type RecordBatch, type Schema } from 'apache-arrow'
 import { createTableSql, detectFormat, quoteIdent, stripTrailingSemicolons, tableNameFromFile, type FileFormat } from '../lib/sql.ts'
 import { categoryFromDuckType, type TypeCategory } from '../lib/types.ts'
 
@@ -42,6 +41,11 @@ export interface InitProgress {
   stage: 'download' | 'instantiate' | 'ready'
   loaded?: number
   total?: number
+}
+
+function tableFromBatches(schema: Schema | undefined, batches: RecordBatch[]): Table {
+  if (batches.length) return new Table(batches)
+  return schema ? new Table(schema) : new Table()
 }
 
 export class QueryCancelledError extends Error {
@@ -194,7 +198,7 @@ export class Engine {
     const virtualName = `upload_${Date.now()}_${file.name.replace(/[^\w.-]/g, '_')}`
     await this.db.registerFileHandle(virtualName, file, duckdb.DuckDBDataProtocol.BROWSER_FILEREADER, true)
     const name = tableNameFromFile(file.name, taken)
-    await this.createFrom(name, format, virtualName)
+    await this.createFrom(name, format, virtualName, async () => new Uint8Array(await file.arrayBuffer()))
     this.sources.set(name, file.name)
     return name
   }
@@ -206,14 +210,42 @@ export class Engine {
     if (!res.ok) throw new Error(`Could not download ${fileName} (${res.status})`)
     const buf = new Uint8Array(await res.arrayBuffer())
     await this.db.registerFileBuffer(fileName, buf)
-    await this.createFrom(tableName, format, fileName)
+    await this.createFrom(tableName, format, fileName, async () => buf)
     this.sources.set(tableName, fileName)
     return tableName
   }
 
-  private async createFrom(table: string, format: FileFormat, fileName: string) {
-    await this.internal.query(createTableSql(table, format, fileName))
+  /**
+   * Materialize a registered file as a table. Parquet and JSON readers live in DuckDB
+   * extensions that are autoloaded over the network; if that fails we fall back to
+   * extension-free paths (parquet-wasm → Arrow IPC, and DuckDB-WASM's built-in JSON importer).
+   */
+  private async createFrom(table: string, format: FileFormat, fileName: string, bytes: () => Promise<Uint8Array>) {
+    let nativeError: unknown
+    try {
+      await this.internal.query(createTableSql(table, format, fileName))
+      return
+    } catch (err) {
+      if (format !== 'parquet' && format !== 'json') throw err
+      nativeError = err
+    }
+    try {
+      await this.internal.query(`DROP TABLE IF EXISTS ${quoteIdent(table)}`)
+      if (format === 'parquet') {
+        const { parquetToIpc } = await import('./parquetFallback.ts')
+        await this.internal.insertArrowFromIPCStream(await parquetToIpc(await bytes()), { name: table, create: true })
+      } else {
+        await this.internal.insertJSONFromPath(fileName, { name: table, create: true })
+      }
+    } catch (fallbackError) {
+      const msg = (e: unknown) => (e instanceof Error ? e.message : String(e))
+      throw new Error(`${msg(nativeError)} (fallback reader also failed: ${msg(fallbackError)})`)
+    }
+    this.fallbacks.add(table)
   }
+
+  /** Tables that were loaded through a fallback reader (for the UI to mention). */
+  readonly fallbacks = new Set<string>()
 
   async dropTable(name: string, kind: 'table' | 'view'): Promise<void> {
     await this.internal.query(`DROP ${kind === 'view' ? 'VIEW' : 'TABLE'} IF EXISTS ${quoteIdent(name)}`)
@@ -222,11 +254,19 @@ export class Engine {
 
   /** Write a query result to Parquet inside DuckDB's virtual FS and return the bytes. */
   async exportParquet(sql: string): Promise<Uint8Array> {
+    const query = stripTrailingSemicolons(sql)
     const out = `export_${Date.now()}.parquet`
-    await this.internal.query(`COPY (${stripTrailingSemicolons(sql)}) TO '${out}' (FORMAT PARQUET, COMPRESSION ZSTD)`)
-    const bytes = await this.db.copyFileToBuffer(out)
-    await this.db.dropFile(out).catch(() => null)
-    return bytes
+    try {
+      await this.internal.query(`COPY (${query}) TO '${out}' (FORMAT PARQUET, COMPRESSION ZSTD)`)
+      const bytes = await this.db.copyFileToBuffer(out)
+      await this.db.dropFile(out).catch(() => null)
+      return bytes
+    } catch {
+      // Parquet extension unavailable: encode the Arrow result with parquet-wasm instead.
+      const [{ ipcToParquet }, arrow] = await Promise.all([import('./parquetFallback.ts'), import('apache-arrow')])
+      const table = await this.internal.query(query)
+      return ipcToParquet(arrow.tableToIPC(table, 'stream'))
+    }
   }
 
   /** Physical plan text for EXPLAIN. */

@@ -120,11 +120,11 @@ def main() -> int:
     all_rows = cube[(cube["country"] == "__all__") & (cube["category"] == "__all__")].set_index("month")["revenue"]
     diff = (all_rows - monthly.set_index("month_label")["revenue"]).abs().max()
     report.check("Dashboard cube reconciles to monthly revenue mart", stage="publish", category="reconciliation",
-                 ok=bool(diff < 0.05), observed=float(diff), expected="max monthly difference < £0.05")
+                 ok=bool(diff < 0.05), observed=f"£{diff:,.2f}", expected="max monthly difference < £0.05")
     cat_sum = cube[(cube["country"] == "__all__") & (cube["category"] != "__all__")].groupby("month")["revenue"].sum()
     diff2 = (cat_sum - all_rows).abs().max()
     report.check("Category slices sum to the monthly total", stage="publish", category="reconciliation",
-                 ok=bool(diff2 < 0.5), observed=float(diff2), expected="max difference < £0.50")
+                 ok=bool(diff2 < 0.5), observed=f"£{diff2:,.2f}", expected="max difference < £0.50")
     cohort_total = int(cohorts[cohorts["months_since"] == 0]["cohort_size"].sum())
     report.check("Cohort sizes sum to identified customers", stage="publish", category="reconciliation",
                  ok=cohort_total == len(rfm), observed=cohort_total, expected=f"= {len(rfm):,}")
@@ -140,13 +140,13 @@ def main() -> int:
     for r in clv["top_customers"]:
         r["customer_id"] = id_map.get(r.pop("customer_key"), "?")
     report.check("MBG/NBD holdout: predicted vs actual repeat transactions", stage="model", category="validation",
-                 ok=abs(clv["validation_error"]) < 0.20, observed=clv["validation_error"],
+                 ok=abs(clv["validation_error"]) < 0.20, observed=f"{clv['validation_error']:+.1%}",
                  expected="within ±20%", severity="warn")
     hw = next(m for m in fc["models"] if m["key"] == "hw")
     naive = next(m for m in fc["models"] if m["key"] == "naive")
     report.check("Forecast beats the seasonal-naive baseline (weekly MAPE)", stage="model", category="validation",
-                 ok=hw["mape_weekly"] < naive["mape_weekly"], observed=hw["mape_weekly"],
-                 expected=f"< {naive['mape_weekly']:.3f} (naive)", severity="warn")
+                 ok=hw["mape_weekly"] < naive["mape_weekly"], observed=f"{hw['mape_weekly']:.1%}",
+                 expected=f"< {naive['mape_weekly']:.1%} (seasonal naive)", severity="warn")
 
     log("simulating + analysing A/B test")
     order_values = (
@@ -156,7 +156,7 @@ def main() -> int:
     visitors.to_csv(EXPERIMENT_CSV, index=False)
     ab = models.analyze_experiment(visitors, gx.PRE_REG)
     report.check("A/B test sample-ratio mismatch (chi-square)", stage="model", category="validation",
-                 ok=ab["srm"]["passed"], observed=round(ab["srm"]["p_value"], 4), expected="p >= 0.001")
+                 ok=ab["srm"]["passed"], observed=f"p = {ab['srm']['p_value']:.3f}", expected="p ≥ 0.001")
 
     # ── Export ─────────────────────────────────────────────────────────────
     log("writing JSON")

@@ -1,10 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { X } from 'lucide-react'
+import { cx } from '../lib/cx.ts'
 import { badgeTone, typeBadge, type TypeCategory } from '../lib/types.ts'
-
-export function cx(...parts: (string | false | null | undefined)[]): string {
-  return parts.filter(Boolean).join(' ')
-}
 
 export function Spinner({ className = 'size-4' }: { className?: string }) {
   return (
@@ -114,6 +111,3 @@ export function Dialog({ open, onClose, title, children, wide }: { open: boolean
 export function Kbd({ children }: { children: ReactNode }) {
   return <kbd className="kbd">{children}</kbd>
 }
-
-export const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
-export const MOD = isMac ? '⌘' : 'Ctrl'

@@ -18,7 +18,8 @@ import { QueryPanel, type ExportFormat, type QueryState } from './components/Que
 import { Sidebar } from './components/Sidebar.tsx'
 import { Splitter } from './components/Splitter.tsx'
 import type { EditorApi } from './components/SqlEditor.tsx'
-import { cx, Dialog, Kbd, MOD, Spinner, Toasts, type Toast } from './components/ui.tsx'
+import { Dialog, Kbd, Spinner, Toasts, type Toast } from './components/ui.tsx'
+import { cx, MOD } from './lib/cx.ts'
 
 const ProfileView = lazy(() => import('./components/ProfileView.tsx').then((m) => ({ default: m.ProfileView })))
 const ChartBuilder = lazy(() => import('./components/ChartBuilder.tsx').then((m) => ({ default: m.ChartBuilder })))
@@ -56,6 +57,9 @@ export default function App() {
   const gridHandle = useRef<GridHandle | null>(null)
   const fileInput = useRef<HTMLInputElement | null>(null)
   const bootstrapped = useRef(false)
+  const setGridHandle = useCallback((h: GridHandle) => {
+    gridHandle.current = h
+  }, [])
 
   useEffect(() => write(KEYS.editor, sql), [sql])
   useEffect(() => write(KEYS.history, history), [history])
@@ -429,7 +433,7 @@ export default function App() {
                 onChartResult={chartResult}
                 onCopy={(t) => void copyCell(t)}
                 editorApi={editorApi}
-                gridHandle={gridHandle}
+                onGridHandle={setGridHandle}
               />
             </div>
             <Suspense
@@ -473,6 +477,7 @@ export default function App() {
       )}
 
       <SaveDialog
+        key={saveOpen ? 'open' : 'closed'}
         open={saveOpen}
         sql={sql}
         onClose={() => setSaveOpen(false)}
@@ -530,10 +535,7 @@ function LoadBar({ progress }: { progress: { stage: string; loaded?: number; tot
 }
 
 function SaveDialog({ open, sql, onClose, onSave }: { open: boolean; sql: string; onClose: () => void; onSave: (name: string) => void }) {
-  const [name, setName] = useState('')
-  useEffect(() => {
-    if (open) setName(queryTitle(sql, 40).replace(/^--\s*/, ''))
-  }, [open, sql])
+  const [name, setName] = useState(() => queryTitle(sql, 40).replace(/^--\s*/, ''))
   return (
     <Dialog open={open} onClose={onClose} title="Save query">
       <form

@@ -1,5 +1,5 @@
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
-import { cx } from './ui.tsx'
+import { cx } from '../lib/cx.ts'
 
 /**
  * Drag handle between two panels. `value` is whatever unit the parent uses (pixels or a

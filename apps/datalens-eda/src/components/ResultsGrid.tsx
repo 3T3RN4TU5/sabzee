@@ -4,7 +4,8 @@ import type { Table } from 'apache-arrow'
 import { cellValue, resultColumns, sortPermutation, type ResultColumn } from '../db/arrow.ts'
 import { estimateColumnWidth, formatCell } from '../lib/format.ts'
 import { isNumeric } from '../lib/types.ts'
-import { cx, Spinner, TypeBadge } from './ui.tsx'
+import { Spinner, TypeBadge } from './ui.tsx'
+import { cx } from '../lib/cx.ts'
 
 const ROW_H = 28
 const HEADER_H = 34
@@ -46,24 +47,26 @@ export function ResultsGrid({
   const [perm, setPerm] = useState<Uint32Array | null>(null)
   const [sorting, setSorting] = useState(false)
   const [sel, setSel] = useState<{ r: number; c: number } | null>(null)
-  const [widths, setWidths] = useState<number[]>([])
-
-  // Reset view state when a new result arrives.
-  useEffect(() => {
+  // Reset view state when a new result arrives (derived-state pattern, no effect needed).
+  const [prevTable, setPrevTable] = useState(table)
+  if (prevTable !== table) {
+    setPrevTable(table)
     setSort(null)
     setPerm(null)
     setSel(null)
     setScrollTop(0)
+  }
+  useLayoutEffect(() => {
     if (scroller.current) scroller.current.scrollTop = 0
+  }, [table])
+  const widths = useMemo(() => {
     const sample = Math.min(rowCount, 60)
-    setWidths(
-      columns.map((c) => {
-        const vals: string[] = []
-        for (let i = 0; i < sample; i++) vals.push(formatCell(cellValue(c, i), c.category))
-        return estimateColumnWidth(c.name, vals)
-      }),
-    )
-  }, [table, columns, rowCount])
+    return columns.map((c) => {
+      const vals: string[] = []
+      for (let i = 0; i < sample; i++) vals.push(formatCell(cellValue(c, i), c.category))
+      return estimateColumnWidth(c.name, vals)
+    })
+  }, [columns, rowCount])
 
   useLayoutEffect(() => {
     const el = scroller.current

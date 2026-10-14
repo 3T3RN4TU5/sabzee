@@ -1,10 +1,5 @@
-import { Table, type RecordBatch, type Schema, type Vector } from 'apache-arrow'
+import type { Table, Vector } from 'apache-arrow'
 import { categoryFromArrowType, type TypeCategory } from '../lib/types.ts'
-
-export function tableFromBatches(schema: Schema | undefined, batches: RecordBatch[]): Table {
-  if (batches.length) return new Table(batches)
-  return schema ? new Table(schema) : new Table()
-}
 
 export interface ResultColumn {
   name: string

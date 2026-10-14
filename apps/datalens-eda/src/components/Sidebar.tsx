@@ -4,7 +4,8 @@ import type { TableMeta } from '../db/engine.ts'
 import { formatDuration, formatNumber } from '../lib/format.ts'
 import { queryTitle, type HistoryEntry, type SavedQuery } from '../lib/workspace.ts'
 import { SAMPLES, type Sample } from '../samples.ts'
-import { cx, Spinner, TypeBadge } from './ui.tsx'
+import { Spinner, TypeBadge } from './ui.tsx'
+import { cx } from '../lib/cx.ts'
 
 export const FILE_ACCEPT = '.csv,.tsv,.tab,.txt,.json,.jsonl,.ndjson,.parquet,.pq'
 
