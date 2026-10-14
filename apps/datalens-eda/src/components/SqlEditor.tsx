@@ -90,7 +90,7 @@ const highlight = HighlightStyle.define([
   { tag: t.comment, color: '#64748b', fontStyle: 'italic' },
   { tag: [t.operator, t.punctuation], color: '#94a3b8' },
   { tag: [t.typeName, t.standard(t.name)], color: '#f0abfc' },
-  { tag: [t.special(t.name), t.quoted(t.name)], color: '#fda4af' },
+  { tag: t.special(t.name), color: '#fda4af' },
   { tag: t.name, color: '#e2e8f0' },
 ])
 

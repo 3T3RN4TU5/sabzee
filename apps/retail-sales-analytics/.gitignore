@@ -1,7 +1,14 @@
 node_modules/
 dist/
+dist-ssr/
+*.local
+*.log
 __pycache__/
 .pytest_cache/
 .venv/
+.vscode/*
+.idea
+.DS_Store
 # Raw data and the generated warehouse are rebuilt by `python analysis/run_pipeline.py`
+# (analysis/fetch_data.py downloads the 45 MB raw CSV; warehouse.duckdb is ~45 MB).
 analysis/data/
