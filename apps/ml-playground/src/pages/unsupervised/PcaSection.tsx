@@ -1,7 +1,8 @@
 import { Pause, Play, RotateCcw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BarChart } from '../../components/charts/BarChart.tsx'
-import { autoBounds, Scatter, type ToPx } from '../../components/charts/Scatter.tsx'
+import { Scatter, type ToPx } from '../../components/charts/Scatter.tsx'
+import { autoBounds } from '../../lib/bounds.ts'
 import { Button, Card, Legend, Segmented, Slider, Toggle } from '../../components/ui/controls.tsx'
 import { fitPca, fromJson, pcaTransform, takeRows, TSNE, type RealDataset, type RealDatasetJson } from '../../engine/index.ts'
 import { classColor } from '../../lib/colors.ts'
@@ -9,6 +10,8 @@ import { num, pct } from '../../lib/format.ts'
 import { useAnimationFrame } from '../../lib/hooks.ts'
 
 type Source = 'iris' | 'wine' | 'digits'
+
+const EMPTY = new Float64Array(0)
 
 const loaders: Record<Source, () => Promise<{ default: unknown }>> = {
   iris: () => import('../../data/iris.json'),
@@ -69,11 +72,9 @@ export function PcaSection() {
   const result = useMemo(() => {
     if (!ds) return null
     const std = standardize && source !== 'digits'
-    const t0 = performance.now()
     const pca = fitPca(ds.X, { standardize: std, method, k: method === 'power' ? Math.min(ds.X.cols, 10) : undefined })
-    const ms = performance.now() - t0
     const Z = pcaTransform(pca, ds.X, 2)
-    return { pca, Z, ms }
+    return { pca, Z }
   }, [ds, standardize, method, source])
 
   const bounds = useMemo(() => (result ? autoBounds(result.Z.data) : undefined), [result])
@@ -113,7 +114,7 @@ export function PcaSection() {
           {source !== 'digits' && <Toggle label="Standardise features" checked={standardize} onChange={setStandardize} />}
           {ds && (
             <p className="text-xs leading-relaxed text-slate-500">
-              {ds.name}: {ds.X.rows} samples × {ds.X.cols} features, {ds.numClasses} classes. Solved in {result ? result.ms.toFixed(1) : '…'} ms. Colours are the true labels; PCA never sees them.
+              {ds.name}: {ds.X.rows} samples × {ds.X.cols} features, {ds.numClasses} classes. Colours are the true labels; PCA never sees them.
               {source !== 'digits' && ' Arrows are feature loadings.'}
             </p>
           )}
@@ -157,7 +158,6 @@ export function TsneSection() {
   const [running, setRunning] = useState(false)
   const [version, setVersion] = useState(0)
   const [restart, setRestart] = useState(0)
-  const tsneRef = useRef<TSNE | null>(null)
 
   // 50 samples per digit = 500 points (exact t-SNE is O(n²) per step).
   const subset = useMemo(() => {
@@ -168,14 +168,10 @@ export function TsneSection() {
     return { X: takeRows(digits.X, idx), y: Int32Array.from(idx, (i) => digits.y[i]) }
   }, [digits])
 
-  useEffect(() => {
-    if (!subset) return
-    tsneRef.current = new TSNE(subset.X, { perplexity, seed: 3 + restart })
-    setVersion((v) => v + 1)
-  }, [subset, perplexity, restart])
+  // A mutable optimiser; `version` bumps re-render as it iterates in place.
+  const t = useMemo(() => (subset ? new TSNE(subset.X, { perplexity, seed: 3 + restart }) : null), [subset, perplexity, restart])
 
   useAnimationFrame(running, () => {
-    const t = tsneRef.current
     if (!t) return
     const start = performance.now()
     while (performance.now() - start < 9 && t.iteration < 1000) t.step()
@@ -183,9 +179,8 @@ export function TsneSection() {
     setVersion((v) => v + 1)
   })
 
-  const t = tsneRef.current
-  const xy = useMemo(() => (t ? t.Y.slice() : new Float64Array(0)), [t, version])
-  const bounds = useMemo(() => autoBounds(xy, 0.05), [xy])
+  const xy = t ? t.Y : EMPTY
+  const bounds = autoBounds(xy, 0.05)
 
   return (
     <Card title="t-SNE · 500 handwritten digits (64-D → 2-D)">

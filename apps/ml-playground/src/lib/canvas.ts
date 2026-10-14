@@ -22,7 +22,7 @@ export function setupCanvas(canvas: HTMLCanvasElement, width: number, height: nu
  * Colour = probability-weighted mix of class colours, faded towards the
  * background as confidence drops to chance level.
  */
-export function probsToImage(probs: ArrayLike<number>, res: number, k: number, discretize = false, strength = 0.75): ImageData {
+export function probsToImage(probs: ArrayLike<number>, res: number, k: number, discretize = false, strength = 0.55): ImageData {
   const img = new ImageData(res, res)
   const px = img.data
   for (let i = 0; i < res * res; i++) {

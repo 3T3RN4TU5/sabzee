@@ -18,8 +18,10 @@ export interface LiveHyper {
   schedule: LrSchedule
 }
 
+export type StructuralSettings = Omit<NNSettings, keyof LiveHyper>
+
 export type ToNNWorker =
-  | { type: 'init'; settings: NNSettings }
+  | { type: 'init'; settings: StructuralSettings }
   | { type: 'update'; hyper: LiveHyper }
   | { type: 'play' }
   | { type: 'pause' }

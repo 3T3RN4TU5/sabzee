@@ -1,5 +1,5 @@
 import { Pause, Play, RotateCcw, StepForward } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { LineChart } from '../components/charts/LineChart.tsx'
 import { PageIntro } from '../components/PageIntro.tsx'
 import { Tex } from '../components/Tex.tsx'
@@ -50,7 +50,7 @@ export default function OptimizerRacePage() {
   const [start, setStart] = useState<[number, number]>(surface.start)
   const [running, setRunning] = useState(false)
   const [, setTick] = useState(0)
-  const runners = useRef<Map<OptimizerName, SurfaceRunner>>(new Map())
+  const [generation, setGeneration] = useState(0)
   const [wrapRef, width] = useElementWidth<HTMLDivElement>()
   const size = Math.max(0, Math.min(width, 640))
   const baseRef = useRef<HTMLCanvasElement>(null)
@@ -67,16 +67,14 @@ export default function OptimizerRacePage() {
     [surface, size],
   )
 
-  const rebuild = useCallback(() => {
+  // Runners are mutable simulation objects; a new generation starts a fresh race.
+  const runners = useMemo(() => {
     const m = new Map<OptimizerName, SurfaceRunner>()
     for (const name of enabled) m.set(name, new SurfaceRunner(surface, name, surface.lr[name] * lrScale, start))
-    runners.current = m
-    setTick((t) => t + 1)
-  }, [enabled, surface, lrScale, start])
-
-  useEffect(() => {
-    rebuild()
-  }, [rebuild])
+    return m
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, surface, lrScale, start, generation])
+  const rebuild = () => setGeneration((g) => g + 1)
 
   // Static layer: heatmap + contour lines + minima.
   useEffect(() => {
@@ -131,7 +129,7 @@ export default function OptimizerRacePage() {
     ctx.beginPath()
     ctx.arc(sx, sy, 5, 0, Math.PI * 2)
     ctx.fill()
-    for (const [name, r] of runners.current) {
+    for (const [name, r] of runners) {
       const color = OPTIMIZER_COLORS[name]
       ctx.strokeStyle = color
       ctx.lineWidth = 2
@@ -153,14 +151,14 @@ export default function OptimizerRacePage() {
       ctx.fill()
       ctx.stroke()
     }
-  }, [size, start, toCanvas])
+  }, [size, start, toCanvas, runners])
 
   useEffect(() => {
     drawPaths()
   })
 
   const stepAll = (n: number) => {
-    for (const r of runners.current.values()) for (let i = 0; i < n; i++) if (r.losses.length < MAX_STEPS) r.step()
+    for (const r of runners.values()) for (let i = 0; i < n; i++) if (r.losses.length < MAX_STEPS) r.step()
   }
 
   useAnimationFrame(running, () => {
@@ -168,7 +166,7 @@ export default function OptimizerRacePage() {
     drawPaths()
     frame.current++
     if (frame.current % 6 === 0) setTick((t) => t + 1)
-    const done = [...runners.current.values()].every((r) => r.diverged || r.losses.length >= MAX_STEPS)
+    const done = [...runners.values()].every((r) => r.diverged || r.losses.length >= MAX_STEPS)
     if (done) setRunning(false)
   })
 
@@ -178,7 +176,7 @@ export default function OptimizerRacePage() {
     setRunning(false)
   }
 
-  const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const onCanvasClick = (e: MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const { xMin, xMax, yMin, yMax } = surface.domain
     const x = xMin + ((e.clientX - rect.left) / rect.width) * (xMax - xMin)
@@ -186,7 +184,7 @@ export default function OptimizerRacePage() {
     setStart([x, y])
   }
 
-  const list = [...runners.current.entries()]
+  const list = [...runners.entries()]
   const series = list.map(([name, r]) => ({ label: OPTIMIZER_LABELS[name], color: OPTIMIZER_COLORS[name], y: r.losses.map((v) => v - field.fmin + 1e-12) }))
   const distToMin = (r: SurfaceRunner) => Math.min(...surface.minima.map(([mx, my]) => Math.hypot(r.position[0] - mx, r.position[1] - my)))
 
@@ -230,7 +228,7 @@ export default function OptimizerRacePage() {
           <Card title="Racers">
             <div className="space-y-2">
               {RACERS.map((name) => {
-                const r = runners.current.get(name)
+                const r = runners.get(name)
                 const on = enabled.includes(name)
                 return (
                   <button
@@ -242,7 +240,7 @@ export default function OptimizerRacePage() {
                   >
                     <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: OPTIMIZER_COLORS[name] }} />
                     <span className="w-20 font-medium text-slate-200">{OPTIMIZER_LABELS[name]}</span>
-                    <span className="font-mono text-xs text-slate-500">η={num(surface.lr[name] * lrScale, 4)}</span>
+                    <span className="font-mono text-xs text-slate-500">η={+(surface.lr[name] * lrScale).toPrecision(2)}</span>
                     <span className="ml-auto text-right font-mono text-xs tabular-nums text-slate-300">
                       {r ? (r.diverged ? <span className="text-rose-400">diverged</span> : <>f={num(r.losses[r.losses.length - 1], 3)}<br /><span className="text-slate-500">{r.losses.length - 1} steps · d*={num(distToMin(r), 2)}</span></>) : '—'}
                     </span>

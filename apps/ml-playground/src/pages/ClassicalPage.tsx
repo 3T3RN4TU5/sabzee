@@ -208,7 +208,7 @@ export default function ClassicalPage() {
           <Card title="Confusion matrix (test set)">{result && <ConfusionMatrix matrix={result.confusion} labels={result.classNames.map((c) => (c.length > 6 ? c.slice(0, 6) : c))} />}</Card>
           {result?.roc && (
             <Card title="ROC curve (test set)">
-              <LineChart series={rocSeries} height={190} yMin={0} yMax={1} formatX={(v) => v.toFixed(2)} formatY={(v) => v.toFixed(1)} xLabel="false positive rate" ariaLabel="ROC curve" />
+              <LineChart series={rocSeries} height={190} yMin={0} yMax={1} formatX={(v) => v.toFixed(2)} formatY={(v) => v.toFixed(2)} xLabel="false positive rate" ariaLabel="ROC curve" />
             </Card>
           )}
         </div>

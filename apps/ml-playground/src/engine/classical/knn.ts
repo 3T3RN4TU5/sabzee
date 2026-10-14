@@ -79,7 +79,7 @@ export class KNNClassifier implements Classifier {
   readonly k: number
   readonly weighted: boolean
   private tree: KDTree | null = null
-  private y = new Int32Array(0)
+  private y: Int32Array<ArrayBufferLike> = new Int32Array(0)
 
   constructor(k = 5, weighted = false) {
     this.k = k

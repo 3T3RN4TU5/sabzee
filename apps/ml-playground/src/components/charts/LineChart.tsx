@@ -38,7 +38,7 @@ export function LineChart({ series, height = 160, logY, yMin, yMax, xLabel, yLab
     if (!canvas || width <= 0) return
     const ctx = setupCanvas(canvas, width, height)
     ctx.clearRect(0, 0, width, height)
-    const pad = { l: 46, r: 10, t: 8, b: xLabel ? 30 : 20 }
+    const pad = { l: 52, r: 10, t: 8, b: xLabel ? 30 : 20 }
     const W = width - pad.l - pad.r
     const H = height - pad.t - pad.b
     const tf = (v: number) => (logY ? Math.log10(Math.max(v, 1e-12)) : v)
@@ -155,7 +155,7 @@ export function LineChart({ series, height = 160, logY, yMin, yMax, xLabel, yLab
   return (
     <div ref={wrapRef} className="w-full">
       <canvas ref={canvasRef} role="img" aria-label={ariaLabel} className="block" />
-      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 pl-11 text-xs text-slate-400">
+      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 pl-12 text-xs text-slate-400">
         {series.map((s) => (
           <span key={s.label} className="inline-flex items-center gap-1.5">
             <span className="h-0.5 w-4 rounded" style={{ background: s.color, opacity: s.dashed ? 0.7 : 1 }} />

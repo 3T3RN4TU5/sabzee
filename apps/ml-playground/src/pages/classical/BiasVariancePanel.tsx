@@ -89,7 +89,8 @@ export function BiasVariancePanel() {
   const series = useMemo(
     () => [
       { label: 'train MSE', color: '#38bdf8', y: curves.tr },
-      { label: 'test MSE', color: '#f59e0b', y: curves.te, dashed: true },
+      // Clamp the exploding high-degree errors so the interesting range stays readable.
+      { label: 'test MSE', color: '#f59e0b', y: curves.te.map((v) => Math.min(v, 2)), dashed: true },
     ],
     [curves],
   )

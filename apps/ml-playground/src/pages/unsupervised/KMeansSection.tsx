@@ -31,11 +31,15 @@ export function KMeansSection() {
     const C = init === 'kmeans++' ? kmeansPlusPlus(ds.X, k, rng) : randomInit(ds.X, k, rng)
     return { centroids: C, labels: null, phase: 'assign', iteration: 0, trails: Array.from({ length: k }, (_, c) => [C.data[2 * c], C.data[2 * c + 1]]), converged: false }
   }, [ds, k, init, seed])
-  const [state, setState] = useState<KState>(fresh)
-  useEffect(() => {
-    setState(fresh())
+  // Re-initialise whenever the inputs change (state is keyed by its config).
+  const configKey = `${source}|${k}|${init}|${seed}`
+  const [run, setRun] = useState<{ key: string; state: KState }>(() => ({ key: configKey, state: fresh() }))
+  if (run.key !== configKey) {
+    setRun({ key: configKey, state: fresh() })
     setPlaying(false)
-  }, [fresh])
+  }
+  const state = run.state
+  const setState = useCallback((f: (s: KState) => KState) => setRun((r) => ({ ...r, state: f(r.state) })), [])
 
   const step = useCallback(() => {
     setState((s) => {
@@ -49,17 +53,14 @@ export function KMeansSection() {
       const trails = s.trails.map((t, c) => [...t, C.data[2 * c], C.data[2 * c + 1]])
       return { ...s, centroids: C, phase: 'assign', iteration: s.iteration + 1, trails }
     })
-  }, [ds])
+  }, [ds, setState])
 
+  const active = playing && !state.converged
   useEffect(() => {
-    if (!playing) return
-    if (state.converged) {
-      setPlaying(false)
-      return
-    }
+    if (!active) return
     const t = setTimeout(step, 450)
     return () => clearTimeout(t)
-  }, [playing, state, step])
+  }, [active, state, step])
 
   const elbow = useMemo(() => {
     const ks = Array.from({ length: 9 }, (_, i) => i + 1)
@@ -155,8 +156,8 @@ export function KMeansSection() {
             <Button onClick={() => setSeed(seed + 1)} title="Re-initialise centroids">
               <RotateCcw size={16} />
             </Button>
-            <Button variant="primary" onClick={() => setPlaying(!playing)} className="flex-1">
-              {playing ? <Pause size={16} /> : <Play size={16} />} {playing ? 'Pause' : 'Run'}
+            <Button variant="primary" onClick={() => setPlaying(!active)} className="flex-1">
+              {active ? <Pause size={16} /> : <Play size={16} />} {active ? 'Pause' : 'Run'}
             </Button>
             <Button onClick={step} title="Next half-step" disabled={state.converged}>
               <StepForward size={16} />

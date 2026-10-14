@@ -6,7 +6,7 @@ import { PageIntro } from '../components/PageIntro.tsx'
 import { Button, Card, Segmented, Select, Slider, Stat, StepSlider, Toggle } from '../components/ui/controls.tsx'
 import { DATASET_2D, FEATURES, OPTIMIZER_LABELS, OPTIMIZER_NAMES, type ActivationName, type FeatureName, type LrSchedule, type OptimizerName } from '../engine/index.ts'
 import { cn, num, pct } from '../lib/format.ts'
-import type { FromNNWorker, NNData, NNSettings, NNSnapshot, ToNNWorker } from '../workers/nnProtocol.ts'
+import type { FromNNWorker, NNData, NNSettings, NNSnapshot, StructuralSettings, ToNNWorker } from '../workers/nnProtocol.ts'
 import { NetworkDiagram, type HoveredNode } from './nn/NetworkDiagram.tsx'
 
 const LRS = [0.0001, 0.0003, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1] as const
@@ -69,16 +69,15 @@ export default function NeuralNetPage() {
   }, [])
 
   // Structural settings rebuild the dataset / model in the worker.
+  // Live hyper-parameters are sent first; the worker merges them into every init.
   const { lr, batchSize, l2, schedule, ...structural } = settings
-  const structuralKey = JSON.stringify(structural)
-  const settingsRef = useRef(settings)
-  settingsRef.current = settings
-  useEffect(() => {
-    send({ type: 'init', settings: settingsRef.current })
-  }, [structuralKey, send])
   useEffect(() => {
     send({ type: 'update', hyper: { lr, batchSize, l2, schedule } })
   }, [lr, batchSize, l2, schedule, send])
+  const structuralKey = JSON.stringify(structural)
+  useEffect(() => {
+    send({ type: 'init', settings: JSON.parse(structuralKey) as StructuralSettings })
+  }, [structuralKey, send])
   useEffect(() => {
     send({ type: 'speed', epochsPerSecond: Number(speed) })
   }, [speed, send])
@@ -317,7 +316,7 @@ export default function NeuralNetPage() {
                 <h4 className="eyebrow">Loss (cross-entropy)</h4>
                 <Toggle label={<span className="text-xs">log</span>} checked={logLoss} onChange={setLogLoss} />
               </div>
-              <LineChart series={lossSeries} logY={logLoss} height={170} xLabel="epoch" ariaLabel="Training and test loss per epoch" formatY={(v) => num(v, 2)} />
+              <LineChart series={lossSeries} logY={logLoss} height={170} xLabel="epoch" ariaLabel="Training and test loss per epoch" formatY={(v) => (v < 0.01 ? v.toExponential(0) : v.toFixed(2))} />
             </div>
             <div>
               <h4 className="eyebrow mb-1">Accuracy</h4>

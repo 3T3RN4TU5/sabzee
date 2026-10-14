@@ -2,13 +2,8 @@ import { useEffect, useRef } from 'react'
 import { setupCanvas } from '../../lib/canvas.ts'
 import { classColor } from '../../lib/colors.ts'
 import { useElementWidth } from '../../lib/hooks.ts'
+import type { Bounds } from '../../lib/bounds.ts'
 
-export interface Bounds {
-  xMin: number
-  xMax: number
-  yMin: number
-  yMax: number
-}
 
 export type ToPx = (x: number, y: number) => [number, number]
 
@@ -26,25 +21,6 @@ export interface ScatterProps {
   ariaLabel: string
   /** Changing this forces a redraw (for imperative data). */
   version?: number
-}
-
-export function autoBounds(xy: ArrayLike<number>, pad = 0.08): Bounds {
-  let xMin = Infinity
-  let xMax = -Infinity
-  let yMin = Infinity
-  let yMax = -Infinity
-  for (let i = 0; i < xy.length; i += 2) {
-    xMin = Math.min(xMin, xy[i])
-    xMax = Math.max(xMax, xy[i])
-    yMin = Math.min(yMin, xy[i + 1])
-    yMax = Math.max(yMax, xy[i + 1])
-  }
-  if (!Number.isFinite(xMin)) return { xMin: -1, xMax: 1, yMin: -1, yMax: 1 }
-  // Square aspect so distances are not distorted.
-  const span = Math.max(xMax - xMin, yMax - yMin, 1e-9) * (1 + 2 * pad)
-  const cx = (xMin + xMax) / 2
-  const cy = (yMin + yMax) / 2
-  return { xMin: cx - span / 2, xMax: cx + span / 2, yMin: cy - span / 2, yMax: cy + span / 2 }
 }
 
 const UNIT: Bounds = { xMin: -1, xMax: 1, yMin: -1, yMax: 1 }

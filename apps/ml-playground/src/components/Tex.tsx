@@ -1,4 +1,5 @@
 import katex from 'katex'
+import 'katex/dist/katex.min.css'
 import { useMemo } from 'react'
 
 /** KaTeX-rendered math (inline by default). */

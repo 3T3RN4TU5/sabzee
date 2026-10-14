@@ -5,8 +5,7 @@ export function BarChart({ values, labels, cumulative, height = 170, color = '#2
   const n = values.length
   const max = cumulative ? 1 : Math.max(...values, 1e-9)
   const bw = W / Math.max(n, 1)
-  let acc = 0
-  const cum = values.map((v) => (acc += v))
+  const cum = values.reduce<number[]>((out, v) => [...out, (out[out.length - 1] ?? 0) + v], [])
   return (
     <figure aria-label={ariaLabel} className="w-full">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ height }} className="w-full overflow-visible">

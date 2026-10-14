@@ -5,13 +5,14 @@
  * UI thread only ever draws.
  */
 import { make2D, matrix, seededRng, Trainer, trainTestSplit, type Dataset } from '../engine/index.ts'
-import type { FromNNWorker, LiveHyper, NNSettings, NNSnapshot, PointsBuffer, ToNNWorker } from './nnProtocol.ts'
+import type { FromNNWorker, LiveHyper, NNSettings, NNSnapshot, PointsBuffer, StructuralSettings, ToNNWorker } from './nnProtocol.ts'
 
 const OUT_RES = 72
 const THUMB_RES = 28
 const MAX_HISTORY = 3000
 
 let settings: NNSettings | null = null
+let hyper: LiveHyper = { lr: 0.01, batchSize: 16, l2: 0, schedule: { kind: 'constant' } }
 let trainer: Trainer | null = null
 let train: Dataset | null = null
 let test: Dataset | null = null
@@ -62,7 +63,8 @@ function buildTrainer() {
   record()
 }
 
-function init(s: NNSettings) {
+function init(structural: StructuralSettings) {
+  const s: NNSettings = { ...structural, ...hyper }
   settings = s
   const ds = make2D(s.dataset, { n: s.nPoints, noise: s.noise, seed: s.dataSeed, classes: s.classes })
   const split = trainTestSplit(ds, s.trainRatio, seededRng(s.dataSeed + 1))
@@ -167,6 +169,7 @@ function tick() {
 }
 
 function applyHyper(h: LiveHyper) {
+  hyper = h
   if (!settings || !trainer) return
   settings = { ...settings, ...h }
   Object.assign(trainer.cfg, h)
