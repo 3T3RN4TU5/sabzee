@@ -257,17 +257,77 @@ function aggOver(agg: Aggregation, alias: string): string {
   }
 }
 
+type Col = { name: string; category: TypeCategory }
+
+const ID_LIKE = /(^|_)(id|uuid|key|code|zip|phone)$/i
+const MEASURE_HINT = /(amount|revenue|sales|price|fare|total|cost|value|profit|income|spend|usd|eur|qty|quantity|count|score|duration|distance|miles|sessions|orders)/i
+const DIM_HINT = /(type|category|status|segment|region|country|state|city|borough|channel|vendor|product|brand|department|group|class|kind|tier|plan|gender|method|source)/i
+
+/** The most "measure-like" numeric column: hinted names first, then floats, never IDs. */
+export function bestMeasures(columns: readonly Col[]): string[] {
+  const score = (c: Col) => (MEASURE_HINT.test(c.name) ? 4 : 0) + (c.category === 'float' || c.category === 'decimal' ? 2 : 0)
+  return columns
+    .filter((c) => isNumeric(c.category) && !ID_LIKE.test(c.name))
+    .map((c, i) => ({ c, s: score(c), i }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map((x) => x.c.name)
+}
+
+/** The most "dimension-like" categorical columns: hinted names first, never IDs. */
+export function bestDimensions(columns: readonly Col[]): string[] {
+  return columns
+    .filter((c) => (c.category === 'string' || c.category === 'boolean') && !ID_LIKE.test(c.name))
+    .map((c, i) => ({ c, s: DIM_HINT.test(c.name) ? 1 : 0, i }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map((x) => x.c.name)
+}
+
+/**
+ * Re-target a spec to a new chart type, keeping fields that still make sense and filling the
+ * rest with sensible picks — so switching Bar → Box → Heatmap always shows something useful.
+ */
+export function adaptSpec(spec: ChartSpec, type: ChartType, columns: readonly Col[]): ChartSpec {
+  const cat = (n?: string) => columns.find((c) => c.name === n)?.category
+  const measures = bestMeasures(columns)
+  const dims = bestDimensions(columns)
+  const temporal = columns.find((c) => isTemporal(c.category))?.name
+  const numericOk = (n?: string) => !!n && !!cat(n) && isNumeric(cat(n)!)
+  const dimOk = (n?: string) => !!n && (cat(n) === 'string' || cat(n) === 'boolean')
+  const m0 = numericOk(spec.y) ? spec.y : measures[0]
+  const base = { source: spec.source, limit: spec.limit, bins: spec.bins, sample: spec.sample }
+  switch (type) {
+    case 'bar': {
+      const x = dimOk(spec.x) || (spec.x && isTemporal(cat(spec.x) ?? 'other')) ? spec.x : (dims[0] ?? temporal)
+      return { ...base, type, x, y: m0, agg: m0 ? (spec.agg === 'count' ? 'sum' : spec.agg) : 'count', color: dimOk(spec.color) && spec.color !== x ? spec.color : undefined, timeGrain: spec.timeGrain ?? 'month', limit: spec.limit ?? 20 }
+    }
+    case 'line': {
+      const x = spec.x && isTemporal(cat(spec.x) ?? 'other') ? spec.x : (temporal ?? spec.x ?? dims[0])
+      return { ...base, type, x, y: m0, agg: m0 ? (spec.agg === 'count' ? 'sum' : spec.agg) : 'count', color: dimOk(spec.color) ? spec.color : undefined, timeGrain: spec.timeGrain && spec.timeGrain !== 'none' ? spec.timeGrain : 'day' }
+    }
+    case 'scatter': {
+      const x = numericOk(spec.x) ? spec.x : measures.find((m) => m !== m0) ?? measures[0]
+      const y = m0 && m0 !== x ? m0 : measures.find((m) => m !== x)
+      return { ...base, type, x, y, agg: 'count', color: dimOk(spec.color) ? spec.color : undefined }
+    }
+    case 'histogram':
+      return { ...base, type, x: numericOk(spec.x) ? spec.x : m0, agg: 'count', bins: spec.bins ?? 30 }
+    case 'box':
+      return { ...base, type, y: m0, color: dimOk(spec.color) ? spec.color : dimOk(spec.x) ? spec.x : dims[0], agg: 'count', limit: spec.limit ?? 20 }
+    case 'heatmap': {
+      const x = dimOk(spec.x) || (spec.x && isTemporal(cat(spec.x) ?? 'other')) ? spec.x : dims[0]
+      const y = dimOk(spec.y) && spec.y !== x ? spec.y : dims.find((d) => d !== x)
+      return { ...base, type, x, y, color: m0, agg: m0 ? 'avg' : 'count', timeGrain: spec.timeGrain ?? 'month', limit: spec.limit ?? 20 }
+    }
+  }
+}
+
 /** Suggest a sensible default spec for a table, so the Chart tab is never blank. */
-export function suggestChart(source: string, columns: { name: string; category: TypeCategory }[]): ChartSpec {
+export function suggestChart(source: string, columns: Col[]): ChartSpec {
   const temporal = columns.find((c) => isTemporal(c.category))
-  const numeric = columns.filter((c) => isNumeric(c.category) && !/(^|_)id$/i.test(c.name))
-  const category = columns.find((c) => c.category === 'string')
-  if (temporal && numeric[0]) {
-    return { type: 'line', source, x: temporal.name, y: numeric[0].name, agg: 'sum', timeGrain: 'day' }
-  }
-  if (category) {
-    return { type: 'bar', source, x: category.name, y: numeric[0]?.name, agg: numeric[0] ? 'sum' : 'count', limit: 20 }
-  }
-  if (numeric[0]) return { type: 'histogram', source, x: numeric[0].name, agg: 'count', bins: 30 }
+  const measure = bestMeasures(columns)[0]
+  const dim = bestDimensions(columns)[0]
+  if (temporal && measure) return { type: 'line', source, x: temporal.name, y: measure, agg: 'sum', timeGrain: 'day' }
+  if (dim) return { type: 'bar', source, x: dim, y: measure, agg: measure ? 'sum' : 'count', limit: 20 }
+  if (measure) return { type: 'histogram', source, x: measure, agg: 'count', bins: 30 }
   return { type: 'bar', source, x: columns[0]?.name, agg: 'count', limit: 20 }
 }

@@ -313,11 +313,12 @@ function TopValues({ c, rowCount }: { c: ColumnProfile; rowCount: number }) {
 
 function CorrelationMatrix({ corr }: { corr: NonNullable<TableProfile['correlation']> }) {
   const n = corr.columns.length
-  const label = 150
+  const longest = Math.min(20, Math.max(...corr.columns.map((c) => c.length)))
+  const label = 24 + longest * 6.8
   const cell = Math.max(22, Math.min(46, Math.floor(520 / n)))
-  const W = label + n * cell
-  const H = label * 0.75 + n * cell
-  const top = label * 0.75
+  const top = 16 + Math.min(16, longest) * 5
+  const W = label + n * cell + top * 0.7
+  const H = top + n * cell
   return (
     <section className="card p-4" aria-labelledby="corr-title">
       <div className="mb-2 flex items-center justify-between">
@@ -372,7 +373,7 @@ function CorrelationMatrix({ corr }: { corr: NonNullable<TableProfile['correlati
 function MissingMatrix({ missing, rowCount }: { missing: NonNullable<TableProfile['missing']>; rowCount: number }) {
   const cols = missing.columns
   const cw = Math.max(18, Math.min(36, Math.floor(420 / cols.length)))
-  const label = 120
+  const label = 18 + Math.min(16, Math.max(...cols.map((c) => c.length))) * 5.2
   const rh = 20
   const W = cols.length * cw + 70
   return (

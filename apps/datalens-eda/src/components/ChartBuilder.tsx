@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { BarChart3, BoxSelect, Copy, Grid3x3, ImageDown, LineChart, ScatterChart, SquareCode, BarChartHorizontal } from 'lucide-react'
 import type { Engine, TableMeta } from '../db/engine.ts'
 import { toObjects } from '../db/arrow.ts'
-import { AGGREGATIONS, aggLabel, buildChartSql, validateSpec, type Aggregation, type ChartSpec, type ChartType, type TimeGrain } from '../lib/chartSql.ts'
+import { adaptSpec, AGGREGATIONS, aggLabel, buildChartSql, validateSpec, type Aggregation, type ChartSpec, type ChartType, type TimeGrain } from '../lib/chartSql.ts'
 import { downloadBlob, svgToPng, svgToString, timestampSlug } from '../lib/download.ts'
 import { formatDuration, formatNumber } from '../lib/format.ts'
 import { isQueryStatement, stripTrailingSemicolons } from '../lib/sql.ts'
@@ -156,7 +156,7 @@ export function ChartBuilder({
               type="button"
               role="radio"
               aria-checked={spec.type === t.value}
-              onClick={() => set({ type: t.value })}
+              onClick={() => onSpec(adaptSpec(spec, t.value, cols))}
               className={cx(
                 'flex cursor-pointer flex-col items-center gap-1 rounded-lg border py-2 text-[11.5px] transition',
                 spec.type === t.value ? 'border-cyan-400/60 bg-cyan-400/10 text-cyan-100' : 'border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200',
@@ -180,7 +180,7 @@ export function ChartBuilder({
         {spec.type === 'box' ? (
           <>
             <ColSelect label="Y (value)" value={spec.y} onChange={(v) => set({ y: v })} options={measures} />
-            <ColSelect label="Group by" value={spec.color} onChange={(v) => set({ color: v })} options={dims.filter((c) => !isNumeric(c.category) || c.category === 'integer')} allowNone="No grouping" />
+            <ColSelect label="Group by" value={spec.color} onChange={(v) => set({ color: v })} options={dims.filter((c) => c.category === 'string' || c.category === 'boolean' || c.category === 'integer')} allowNone="No grouping" />
           </>
         ) : (
           <>

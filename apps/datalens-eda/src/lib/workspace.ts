@@ -76,7 +76,7 @@ export function parseSaved(raw: unknown): SavedQuery[] | null {
 export function parseLayout(raw: unknown): Layout | null {
   if (!isRecord(raw)) return null
   const n = (v: unknown, lo: number, hi: number, d: number) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d)
-  return { sidebar: n(raw.sidebar, 200, 520, 272), editor: n(raw.editor, 0.15, 0.85, 0.42) }
+  return { sidebar: n(raw.sidebar, 200, 520, 300), editor: n(raw.editor, 0.15, 0.85, 0.42) }
 }
 
 /** Newest first; re-running the same SQL moves it to the top instead of duplicating it. */

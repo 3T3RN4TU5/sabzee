@@ -146,7 +146,9 @@ export function toPlain(value: unknown): unknown {
 
 /** Rough pixel width estimate used to size grid columns from sampled content. */
 export function estimateColumnWidth(header: string, samples: readonly string[], charPx = 7.4, min = 72, max = 360): number {
-  let longest = header.length + 5 // room for the badge + sort icon
+  // Header: name in a proportional font plus the type badge, sort icon and padding.
+  const headerPx = header.length * 7.2 + 78
+  let longest = 0
   for (const s of samples) if (s.length > longest) longest = s.length
-  return Math.round(Math.min(max, Math.max(min, longest * charPx + 24)))
+  return Math.round(Math.min(max, Math.max(min, headerPx, longest * charPx + 24)))
 }

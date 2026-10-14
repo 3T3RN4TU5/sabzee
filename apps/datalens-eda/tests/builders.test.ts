@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { aggExpr, aggLabel, buildChartSql, dimExpr, sourceSql, suggestChart, validateSpec, type ChartSpec } from '../src/lib/chartSql.ts'
+import { adaptSpec, aggExpr, aggLabel, bestDimensions, bestMeasures, buildChartSql, dimExpr, sourceSql, suggestChart, validateSpec, type ChartSpec } from '../src/lib/chartSql.ts'
 import { buildPivotSql, valueAlias } from '../src/lib/pivotSql.ts'
 import type { TypeCategory } from '../src/lib/types.ts'
 
@@ -77,6 +77,33 @@ describe('chart SQL', () => {
     assert.equal(validateSpec({ type: 'bar', source: 't', x: 'borough', agg: 'sum' }, types).ok, false)
     assert.equal(validateSpec({ type: 'scatter', source: 't', x: 'pickup_at', y: 'fare', agg: 'count' }, types).ok, true)
     assert.equal(validateSpec({ type: 'heatmap', source: 't', x: 'borough', agg: 'count' }, types).ok, false)
+  })
+  it('ranks measures and dimensions, skipping identifiers', () => {
+    const cols = [
+      { name: 'trip_id', category: 'integer' as const },
+      { name: 'passengers', category: 'integer' as const },
+      { name: 'fare_usd', category: 'float' as const },
+      { name: 'vendor', category: 'string' as const },
+      { name: 'order_id', category: 'string' as const },
+      { name: 'payment_type', category: 'string' as const },
+    ]
+    assert.deepEqual(bestMeasures(cols), ['fare_usd', 'passengers'])
+    assert.deepEqual(bestDimensions(cols), ['vendor', 'payment_type'])
+  })
+  it('adapts a spec when the chart type changes', () => {
+    const cols = Object.entries(types).map(([name, category]) => ({ name, category }))
+    const line: ChartSpec = { type: 'line', source: 't', x: 'pickup_at', y: 'fare', agg: 'sum', timeGrain: 'day' }
+    assert.deepEqual(adaptSpec(line, 'box', cols), { source: 't', type: 'box', y: 'fare', color: 'borough', agg: 'count', limit: 20, bins: undefined, sample: undefined })
+    const heat = adaptSpec(line, 'heatmap', cols)
+    assert.equal(heat.y, 'borough')
+    assert.equal(heat.color, 'fare')
+    assert.equal(heat.agg, 'avg')
+    const scatter = adaptSpec(line, 'scatter', cols)
+    assert.ok(scatter.x !== scatter.y && scatter.x && scatter.y)
+    assert.equal(adaptSpec(line, 'histogram', cols).x, 'fare')
+    for (const type of ['bar', 'line', 'scatter', 'histogram', 'box', 'heatmap'] as const) {
+      assert.equal(validateSpec(adaptSpec(line, type, cols), types).ok, true, type)
+    }
   })
   it('suggests a sensible default chart', () => {
     const cols = Object.entries(types).map(([name, category]) => ({ name, category }))

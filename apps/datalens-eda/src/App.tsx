@@ -2,14 +2,13 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { BarChart3, Code2, Keyboard, Lock, Menu, ScanSearch, Table2, UploadCloud } from 'lucide-react'
 import type { TableMeta } from './db/engine.ts'
 import { cellValue } from './db/arrow.ts'
-import { suggestChart, type ChartSpec } from './lib/chartSql.ts'
+import { bestDimensions, bestMeasures, suggestChart, type ChartSpec } from './lib/chartSql.ts'
 import { csvChunks, jsonChunks } from './lib/csv.ts'
 import { copyText, downloadBlob, downloadParts, timestampSlug } from './lib/download.ts'
 import { formatBytes } from './lib/format.ts'
 import type { PivotSpec } from './lib/pivotSql.ts'
 import { decodeShare, encodeShare, referencedTables } from './lib/share.ts'
 import { isQueryStatement, quoteIdent, stripTrailingSemicolons } from './lib/sql.ts'
-import { isNumeric } from './lib/types.ts'
 import { KEYS, parseHistory, parseLayout, parseSaved, pushHistory, queryTitle, read, upsertSaved, write, type HistoryEntry, type Layout, type SavedQuery } from './lib/workspace.ts'
 import { DEFAULT_SQL, SAMPLES, type Sample } from './samples.ts'
 import { useEngine } from './state/useEngine.ts'
@@ -42,7 +41,7 @@ export default function App() {
   const [sql, setSql] = useState<string>(() => read(KEYS.editor, (r) => (typeof r === 'string' ? r : null)) ?? DEFAULT_SQL)
   const [history, setHistory] = useState<HistoryEntry[]>(() => read(KEYS.history, parseHistory) ?? [])
   const [saved, setSaved] = useState<SavedQuery[]>(() => read(KEYS.saved, parseSaved) ?? [])
-  const [layout, setLayout] = useState<Layout>(() => read(KEYS.layout, parseLayout) ?? { sidebar: 272, editor: 0.42 })
+  const [layout, setLayout] = useState<Layout>(() => read(KEYS.layout, parseLayout) ?? { sidebar: 300, editor: 0.42 })
   const [query, setQuery] = useState<QueryState>({ status: 'idle' })
   const [plan, setPlan] = useState<{ sql: string; text: string } | null>(null)
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -494,12 +493,12 @@ export default function App() {
 }
 
 function defaultPivot(t: TableMeta): PivotSpec {
-  const dim = t.columns.find((c) => c.category === 'string')
-  const measure = t.columns.find((c) => isNumeric(c.category) && !/(^|_)id$/i.test(c.name))
+  const dim = bestDimensions(t.columns)[0]
+  const measure = bestMeasures(t.columns)[0]
   return {
     source: t.name,
-    rows: dim ? [dim.name] : [],
-    values: measure ? [{ agg: 'count' }, { agg: 'sum', column: measure.name }, { agg: 'avg', column: measure.name }] : [{ agg: 'count' }],
+    rows: dim ? [dim] : [],
+    values: measure ? [{ agg: 'count' }, { agg: 'sum', column: measure }, { agg: 'avg', column: measure }] : [{ agg: 'count' }],
     sortByValue: true,
   }
 }

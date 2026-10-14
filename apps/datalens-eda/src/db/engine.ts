@@ -95,8 +95,37 @@ export class Engine {
     engine.user = await db.connect()
     engine.internal = await db.connect()
     engine.version = await db.getVersion()
+    engine.extensionsReady = engine.probeExtensionRepository()
     onProgress?.({ stage: 'ready' })
     return engine
+  }
+
+  /** Resolves to true when DuckDB can autoload extensions (parquet, json) from the official repository. */
+  extensionsReady: Promise<boolean> = Promise.resolve(false)
+
+  /**
+   * DuckDB-WASM autoloads the parquet/json extensions from extensions.duckdb.org. If that host is
+   * unreachable (offline, blocked by a proxy) a failed autoload can wedge the worker, so we probe
+   * first and switch autoloading off when it isn't reachable — the fallback readers take over.
+   */
+  private async probeExtensionRepository(): Promise<boolean> {
+    const platform = this.bundle === 'eh' ? 'wasm_eh' : 'wasm_mvp'
+    const url = `https://extensions.duckdb.org/${this.version}/${platform}/parquet.duckdb_extension.wasm`
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 5000)
+    let ok = false
+    try {
+      ok = (await fetch(url, { method: 'HEAD', signal: ctrl.signal, cache: 'no-store' })).ok
+    } catch {
+      ok = false
+    } finally {
+      clearTimeout(timer)
+    }
+    if (!ok) {
+      await this.internal.query('SET GLOBAL autoinstall_known_extensions = false').catch(() => null)
+      await this.internal.query('SET GLOBAL autoload_known_extensions = false').catch(() => null)
+    }
+    return ok
   }
 
   /** Run on the internal connection and return the whole Arrow table. */
@@ -124,6 +153,7 @@ export class Engine {
     this.cancelRequested = false
     const t0 = performance.now()
     try {
+      await this.extensionsReady
       const reader = await this.user.send(stripTrailingSemicolons(sql), true)
       if (this.cancelRequested) throw new QueryCancelledError()
       const batches: RecordBatch[] = []
@@ -209,7 +239,8 @@ export class Engine {
     const res = await fetch(url)
     if (!res.ok) throw new Error(`Could not download ${fileName} (${res.status})`)
     const buf = new Uint8Array(await res.arrayBuffer())
-    await this.db.registerFileBuffer(fileName, buf)
+    // registerFileBuffer transfers (detaches) the buffer to the worker; keep our own copy for fallbacks.
+    await this.db.registerFileBuffer(fileName, buf.slice())
     await this.createFrom(tableName, format, fileName, async () => buf)
     this.sources.set(tableName, fileName)
     return tableName
@@ -221,6 +252,7 @@ export class Engine {
    * extension-free paths (parquet-wasm → Arrow IPC, and DuckDB-WASM's built-in JSON importer).
    */
   private async createFrom(table: string, format: FileFormat, fileName: string, bytes: () => Promise<Uint8Array>) {
+    if (format === 'parquet' || format === 'json') await this.extensionsReady
     let nativeError: unknown
     try {
       await this.internal.query(createTableSql(table, format, fileName))
@@ -254,6 +286,7 @@ export class Engine {
 
   /** Write a query result to Parquet inside DuckDB's virtual FS and return the bytes. */
   async exportParquet(sql: string): Promise<Uint8Array> {
+    await this.extensionsReady
     const query = stripTrailingSemicolons(sql)
     const out = `export_${Date.now()}.parquet`
     try {

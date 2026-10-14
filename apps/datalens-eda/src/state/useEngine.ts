@@ -29,6 +29,8 @@ export function useEngine() {
         .then((e) => {
           if (!alive) return
           engineRef.current = e
+          // `?debug` exposes the engine for console poking and end-to-end tests.
+          if (new URLSearchParams(window.location.search).has('debug')) Object.assign(window, { __datalens: e })
           setEngine(e)
           setStatus('ready')
         })
