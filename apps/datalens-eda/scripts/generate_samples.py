@@ -107,7 +107,10 @@ def ecommerce_orders(n: int = 15_000) -> pd.DataFrame:
         product, price = rng.choice(catalog[cat])
         qty = rng.choices([1, 2, 3, 4, 5, 10], [60, 22, 9, 5, 3, 1])[0]
         disc = rng.choice([0, 0, 0, 0.05, 0.1, 0.15, 0.2])
-        d = start + timedelta(days=int(min(729, abs(rng.gauss(400, 200)))))
+        offset = rng.gauss(400, 200)
+        while not 0 <= offset < 730:  # resample instead of clamping, so no spike at the edges
+            offset = rng.gauss(400, 200)
+        d = start + timedelta(days=int(offset))
         unit = round(price * rng.uniform(0.95, 1.05), 2)
         rating = rng.choices(["1", "2", "3", "4", "5", "", "N/A"], [3, 4, 10, 30, 38, 12, 3])[0]
         rows.append(
