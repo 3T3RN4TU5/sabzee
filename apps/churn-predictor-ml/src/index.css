@@ -1,0 +1,142 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  /* Chart palette — validated for CVD separation on the slate-900 surface. */
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --chart-grid: rgb(148 163 184 / 0.14);
+  --chart-axis: #94a3b8;
+  /* Contribution colours: pushes risk up (warm) vs down (cool). */
+  --push-up: #e66767;
+  --push-down: #3987e5;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-200 antialiased;
+    background-image:
+      radial-gradient(60rem 30rem at 15% -10%, rgb(57 135 229 / 0.1), transparent 70%),
+      radial-gradient(50rem 28rem at 95% 0%, rgb(217 89 38 / 0.07), transparent 70%);
+    background-repeat: no-repeat;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-sky-400);
+    outline-offset: 2px;
+  }
+
+  option {
+    background-color: var(--color-slate-900);
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-white/[0.07] bg-slate-900/70 shadow-xl shadow-black/20;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-semibold tracking-wider text-slate-400 uppercase;
+  }
+
+  .select {
+    @apply w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-slate-900 py-1.5 pr-8 pl-2.5 text-sm text-slate-100 transition hover:border-white/20 disabled:cursor-not-allowed disabled:opacity-50;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-white/10 bg-slate-900 px-2.5 py-1.5 text-sm text-slate-100 tabular-nums transition hover:border-white/20;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply border-sky-400/40 bg-sky-500/15 text-sky-100 hover:bg-sky-500/25;
+  }
+
+  .table {
+    @apply w-full text-left text-sm tabular-nums;
+  }
+  .table th {
+    @apply border-b border-white/10 px-2.5 py-2 text-[11px] font-semibold tracking-wider whitespace-nowrap text-slate-400 uppercase;
+  }
+  .table td {
+    @apply border-b border-white/[0.05] px-2.5 py-1.5 whitespace-nowrap;
+  }
+
+  /* Range slider with a filled track (--fill is set inline, 0–100%). */
+  .range {
+    @apply h-5 w-full cursor-pointer appearance-none bg-transparent;
+    --fill: 50%;
+  }
+  .range::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: linear-gradient(to right, var(--series-1) var(--fill), rgb(255 255 255 / 0.1) var(--fill));
+  }
+  .range::-moz-range-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.1);
+  }
+  .range::-moz-range-progress {
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--series-1);
+  }
+  .range::-webkit-slider-thumb {
+    appearance: none;
+    margin-top: -5px;
+    height: 16px;
+    width: 16px;
+    border-radius: 9999px;
+    border: 3px solid var(--color-slate-950);
+    background: #8bb8f0;
+    box-shadow: 0 0 0 1px rgb(57 135 229 / 0.7);
+  }
+  .range::-moz-range-thumb {
+    height: 12px;
+    width: 12px;
+    border-radius: 9999px;
+    border: 3px solid var(--color-slate-950);
+    background: #8bb8f0;
+  }
+}
+
+/* Recharts: recessive axes and tooltips that match the cards. */
+.recharts-cartesian-axis-tick-value {
+  fill: var(--chart-axis);
+  font-size: 11px;
+}
+.recharts-default-tooltip {
+  border-radius: 0.6rem !important;
+  border: 1px solid rgb(255 255 255 / 0.1) !important;
+  background: rgb(15 23 42 / 0.96) !important;
+  font-size: 12px;
+}
+.recharts-surface:focus,
+.recharts-wrapper:focus,
+.recharts-sector:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
