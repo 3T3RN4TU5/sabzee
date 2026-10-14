@@ -2,10 +2,15 @@
 
 [![CI](https://github.com/Jeevan2410/sabzee/actions/workflows/ci.yml/badge.svg)](https://github.com/Jeevan2410/sabzee/actions/workflows/ci.yml)
 
-Ten production-ready web applications built with **React 19, Next.js 16, TypeScript and Tailwind CSS v4** — AI-powered tools, real-time collaboration, developer tools and dashboards — each one live on Vercel with automatic deployments on every push to `main`.
+Fifteen live projects spanning **data analysis, machine learning, scientific computing and full-stack web development** — Python, pandas, scikit-learn, SQL/DuckDB, React 19, Next.js 16 and TypeScript — each deployed on Vercel with automatic deployments on every push to `main`.
 
 | App | What it is | Stack | Live | Repo |
 | --- | --- | --- | --- | --- |
+| 🎯 **Churn Predictor ML** | End-to-end ML on IBM Telco: CV model selection, calibration, profit-optimal threshold, exact SHAP, browser inference | Python, scikit-learn, React | [Open](https://churn-predictor-ml-jeevan.vercel.app) | [`churn-predictor-ml`](https://github.com/Jeevan2410/churn-predictor-ml) |
+| 📈 **Retail Sales Analytics** | 541k real transactions: ETL + data-quality checks, DuckDB star schema, cohorts, RFM/k-means, forecasting, A/B test, CLV | Python, pandas, DuckDB SQL | [Open](https://retail-sales-analytics-jeevan.vercel.app) | [`retail-sales-analytics`](https://github.com/Jeevan2410/retail-sales-analytics) |
+| 🔍 **DataLens** | In-browser SQL analytics & automated EDA with DuckDB-WASM, profiling, chart/pivot builders, 1M-row grid | DuckDB-WASM, React | [Open](https://datalens-eda-jeevan.vercel.app) | [`datalens-eda`](https://github.com/Jeevan2410/datalens-eda) |
+| 🧠 **ML Playground** | Autograd engine + ML algorithms from scratch: neural nets, optimizers, SVM, forests, PCA, t-SNE | TypeScript, Web Workers | [Open](https://ml-playground-jeevan.vercel.app) | [`ml-playground`](https://github.com/Jeevan2410/ml-playground) |
+| 🔬 **SciSim Lab** | Verified numerical methods: RK45, symplectic integrators, N-body, PDEs, Ising, FFT, model fitting | TypeScript, numerics | [Open](https://sci-sim-lab-jeevan.vercel.app) | [`sci-sim-lab`](https://github.com/Jeevan2410/sci-sim-lab) |
 | 🤖 **AI Interview Coach** | AI mock interviews by role & level: streamed questions, rubric-scored feedback, readiness report | Next.js 16, Claude API, Zod | [Open](https://ai-interview-coach-jeevan.vercel.app) | [`ai-interview-coach`](https://github.com/Jeevan2410/ai-interview-coach) |
 | 🧑‍💻 **CodeArena** | LeetCode-style practice: CodeMirror editor, tests run in a sandboxed Web Worker, hints & progress | React, CodeMirror 6, Web Workers | [Open](https://codearena-jeevan.vercel.app) | [`codearena`](https://github.com/Jeevan2410/codearena) |
 | 📊 **AlgoViz** | Step-through sorting visualizer and pathfinding playground (BFS, Dijkstra, A*, mazes) | React, TypeScript | [Open](https://algoviz-jeevan.vercel.app) | [`algoviz`](https://github.com/Jeevan2410/algoviz) |
@@ -19,6 +24,9 @@ Ten production-ready web applications built with **React 19, Next.js 16, TypeScr
 
 ## What these projects demonstrate
 
+- **Data analysis** — Python ETL with data-quality gates, star-schema SQL with window functions, cohort/RFM/basket analysis, forecasting, A/B testing with power analysis, stakeholder reporting
+- **Machine learning** — leakage-safe scikit-learn pipelines, cross-validation and tuning, calibration, cost-sensitive thresholds, SHAP explainability, model cards; autograd and classic algorithms implemented from scratch
+- **Scientific computing** — ODE/PDE solvers with measured convergence orders, Barnes–Hut, Monte Carlo, FFT, cross-checked against SciPy
 - **AI engineering** — Claude API with streaming responses, schema-validated structured outputs, refusal fallbacks, input validation and rate limiting
 - **Real-time & databases** — Supabase Realtime (Postgres changes, Presence, Broadcast), Row Level Security policies and trigger-based rate limits
 - **Developer tooling** — CodeMirror 6 editor, sandboxed Web Worker code execution with timeouts, step-through algorithm engines
@@ -33,6 +41,11 @@ Ten production-ready web applications built with **React 19, Next.js 16, TypeScr
 
 ```
 apps/
+├── churn-predictor-ml/     Python + React — explainable churn model
+├── retail-sales-analytics/ Python + DuckDB + React — analytics case study
+├── datalens-eda/           React + DuckDB-WASM — in-browser SQL & EDA
+├── ml-playground/          React — ML from first principles
+├── sci-sim-lab/            React — verified numerical simulations
 ├── interview-coach/  Next.js 16 — AI mock interviews (Claude API)
 ├── codearena/        Vite + React — coding practice platform
 ├── algoviz/          Vite + React — algorithm visualizer

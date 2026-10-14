@@ -99,7 +99,7 @@ export default function Home() {
         </Section>
 
         {/* Projects */}
-        <Section id="projects" eyebrow="Projects" title="Selected work" subtitle={`${projects.length} production-ready apps — each one live, open-source and auto-deployed.`}>
+        <Section id="projects" eyebrow="Projects" title="Selected work" subtitle={`${projects.length} projects — each one live, open-source and auto-deployed.`}>
           <div className="grid gap-6 md:grid-cols-2">
             {projects.map((p, i) => (
               <article
@@ -157,7 +157,7 @@ export default function Home() {
 
         {/* Skills */}
         <Section id="skills" eyebrow="Skills" title="My toolkit">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {skills.map((s) => (
               <div key={s.group} className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
                 <h3 className="font-mono text-sm font-semibold text-violet-300">{s.group}</h3>
@@ -185,7 +185,7 @@ export default function Home() {
           <div className="grid gap-10 rounded-3xl border border-white/10 bg-linear-to-br from-violet-500/10 via-transparent to-cyan-500/10 p-8 lg:grid-cols-[1fr_1.2fr] lg:p-12">
             <div>
               <p className="text-lg leading-relaxed text-slate-300">
-                I&apos;m currently looking for frontend / full-stack developer roles. Whether you have an opening, a project or just want to say hi, I&apos;d love to hear from you.
+                I&apos;m currently looking for data analyst, machine learning and full-stack developer roles. Whether you have an opening, a project or just want to say hi, I&apos;d love to hear from you.
               </p>
               <ul className="mt-8 space-y-3 text-sm">
                 <li>
