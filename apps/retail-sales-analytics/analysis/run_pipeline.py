@@ -150,7 +150,7 @@ def main() -> int:
 
     log("simulating + analysing A/B test")
     order_values = (
-        con.execute("SELECT sum(revenue) v FROM fact_sales WHERE customer_key <> 0 GROUP BY invoice_no").df()["v"].to_numpy()
+        con.execute("SELECT sum(revenue) v FROM fact_sales WHERE customer_key <> 0 GROUP BY invoice_no ORDER BY invoice_no").df()["v"].to_numpy()
     )
     visitors = gx.simulate(order_values)
     visitors.to_csv(EXPERIMENT_CSV, index=False)

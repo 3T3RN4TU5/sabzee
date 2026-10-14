@@ -285,13 +285,14 @@ function ArmsCard({ e, className }: { e: Experiment; className?: string }) {
         ]}
       />
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Callout title={`AOV ${fmt.signedPct(e.aov.rel_diff)} is noise`}>
+        <Callout title={`AOV ${fmt.signedPct(e.aov.rel_diff)} is ${e.aov.p_value < 0.05 ? 'statistically significant' : 'within noise'}`}>
           Welch t-test p = {fmt.num(e.aov.p_value, 3)}; the bootstrap CI for the difference is {fmt.money(e.aov.boot_ci_low)} to {fmt.money(e.aov.boot_ci_high)}.
-          The medians differ by only {fmt.money(e.aov.median_diff)}: a few very large wholesale orders landed in treatment.
+          The medians differ by only {fmt.money(e.aov.median_diff)}: the gap in means comes from a handful of very large wholesale orders.
         </Callout>
-        <Callout tone="warn" title="Don't book the revenue-per-visitor lift">
-          RPV is up {fmt.signedPct(e.rpv.rel_diff, 0)}, but most of that is the AOV noise above. For the business case, use the conversion lift × the pre-test AOV: about{' '}
-          {fmt.signedPct(e.conversion.rel_lift, 0)} revenue per visitor.
+        <Callout tone="warn" title="Revenue per visitor is too noisy to read directly">
+          RPV moved {fmt.signedPct(e.rpv.rel_diff)} (95% CI {fmt.signedPct(e.rpv.rel_ci_low, 0)} to {fmt.signedPct(e.rpv.rel_ci_high, 0)}): heavy-tailed order values swamp the
+          conversion signal at this sample size. For the business case use the conversion lift × the pre-test AOV: about {fmt.signedPct(e.conversion.rel_lift, 0)} revenue
+          per visitor.
         </Callout>
       </div>
     </Card>
@@ -332,7 +333,9 @@ function TruthCard({ e, className }: { e: Experiment; className?: string }) {
             Average order value
           </span>
           <span className="num text-right text-xs text-slate-400">
-            planted <strong className="text-white">±0%</strong> · not significant ✓
+            planted <strong className="text-white">±0%</strong> · estimated <strong className="text-white">{fmt.signedPct(e.aov.rel_diff)}</strong>
+            <br />
+            Welch p = {fmt.num(e.aov.p_value, 3)} {e.aov.p_value >= 0.05 ? '✓ no false alarm' : '✗ false positive'}
           </span>
         </div>
       </div>
