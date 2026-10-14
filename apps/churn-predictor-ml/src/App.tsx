@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { BookOpen, Gauge as GaugeIcon, LineChart, Table2 } from 'lucide-react'
 import { Loading, Segmented } from './components/ui.tsx'
 import { useArtefacts } from './lib/data.ts'
 import type { BusinessParams } from './ml/types.ts'
-import { BatchPage } from './pages/Batch.tsx'
-import { ModelCardPage } from './pages/ModelCard.tsx'
-import { PerformancePage } from './pages/Performance.tsx'
-import { PredictPage } from './pages/Predict.tsx'
+
+// Pages are code-split so the first paint does not wait for every chart.
+const PredictPage = lazy(() => import('./pages/Predict.tsx').then((m) => ({ default: m.PredictPage })))
+const BatchPage = lazy(() => import('./pages/Batch.tsx').then((m) => ({ default: m.BatchPage })))
+const PerformancePage = lazy(() => import('./pages/Performance.tsx').then((m) => ({ default: m.PerformancePage })))
+const ModelCardPage = lazy(() => import('./pages/ModelCard.tsx').then((m) => ({ default: m.ModelCardPage })))
 
 const ROUTES = [
   { id: 'predict', label: 'Predict', icon: GaugeIcon },
@@ -76,8 +78,8 @@ export default function App() {
             value={role}
             onChange={setRole}
             options={[
-              { value: 'champion', label: ready ? `Champion · ${short(ready.champion.model_name)}` : 'Champion' },
-              { value: 'challenger', label: ready ? `Challenger · ${short(ready.challenger.model_name)}` : 'Challenger' },
+              { value: 'champion', label: <>Champion<span className="hidden sm:inline"> · {ready ? short(ready.champion.model_name) : ''}</span></> },
+              { value: 'challenger', label: <>Challenger<span className="hidden sm:inline"> · {ready ? short(ready.challenger.model_name) : ''}</span></> },
             ]}
           />
           <a href={GITHUB} target="_blank" rel="noreferrer" className="btn hidden md:inline-flex" aria-label="Source code on GitHub">
@@ -111,12 +113,12 @@ export default function App() {
         {state.status === 'error' && <div className="card p-6 text-rose-300">Could not load model artefacts: {state.error}</div>}
         {state.status === 'loading' && <Loading />}
         {ready && settings && (
-          <>
+          <Suspense fallback={<Loading label="Loading page…" />}>
             {route === 'predict' && <PredictPage data={ready} settings={settings} />}
             {route === 'batch' && <BatchPage data={ready} settings={settings} />}
             {route === 'performance' && <PerformancePage data={ready} settings={settings} />}
             {route === 'model-card' && <ModelCardPage data={ready} />}
-          </>
+          </Suspense>
         )}
       </main>
 

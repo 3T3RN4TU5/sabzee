@@ -98,9 +98,3 @@ export function Slider({ label, value, min, max, step, onChange, format }: {
 export function Loading({ label = 'Loading model…' }: { label?: string }) {
   return <div className="card animate-pulse p-10 text-center text-sm text-slate-400">{label}</div>
 }
-
-export const tooltipStyle = {
-  contentStyle: { background: 'rgb(15 23 42 / 0.96)', border: '1px solid rgb(255 255 255 / 0.1)', borderRadius: 10, fontSize: 12 },
-  labelStyle: { color: '#cbd5e1' },
-  itemStyle: { color: '#e2e8f0' },
-} as const

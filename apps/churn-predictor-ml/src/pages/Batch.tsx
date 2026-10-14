@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from 'react'
 import { Download, FileUp, Table2 } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { Settings } from '../App.tsx'
-import { Card, Stat, tooltipStyle } from '../components/ui.tsx'
+import { Card, Stat } from '../components/ui.tsx'
+import { tooltipStyle } from '../lib/chart.ts'
 import type { Artefacts } from '../lib/data.ts'
 import { pct, usd } from '../lib/format.ts'
 import { riskTier } from '../lib/risk.ts'
@@ -78,7 +79,7 @@ export function BatchPage({ data, settings }: { data: Artefacts; settings: Setti
   const summary = useMemo(() => {
     if (!scored) return null
     const flagged = scored.filter((s) => s.p >= threshold)
-    const hist = Array.from({ length: 20 }, (_, b) => ({ bin: b / 20, label: `${b * 5}–${b * 5 + 5}%`, n: 0 }))
+    const hist: { bin: number; mid: number; label: string; n: number }[] = Array.from({ length: 20 }, (_, b) => ({ bin: b / 20, mid: b / 20 + 0.025, label: `${b * 5}–${b * 5 + 5}%`, n: 0 }))
     for (const s of scored) hist[Math.min(19, Math.floor(s.p * 20))].n++
     const labelled = scored.every((s) => s.label !== null)
     let eval_ = null
@@ -174,9 +175,9 @@ export function BatchPage({ data, settings }: { data: Artefacts; settings: Setti
           <div className="grid gap-5 xl:grid-cols-[1fr_1.4fr]">
             <Card eyebrow="Distribution" title="Predicted churn probability">
               <ResponsiveContainer width="100%" height={280} initialDimension={{ width: 500, height: 280 }}>
-                <BarChart data={summary.hist} margin={{ top: 8, right: 8, bottom: 18, left: 0 }} barCategoryGap={2}>
+                <BarChart data={summary.hist} margin={{ top: 22, right: 12, bottom: 18, left: 4 }} barCategoryGap={2}>
                   <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
-                  <XAxis dataKey="bin" type="number" domain={[0, 1]} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]} tickFormatter={(v: number) => `${v * 100}%`} stroke="var(--chart-grid)" label={{ value: 'P(churn)', position: 'insideBottom', offset: -10, fill: '#94a3b8', fontSize: 11 }} />
+                  <XAxis dataKey="mid" type="number" domain={[0, 1]} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]} tickFormatter={(v: number) => `${v * 100}%`} stroke="var(--chart-grid)" label={{ value: 'P(churn)', position: 'insideBottom', offset: -10, fill: '#94a3b8', fontSize: 11 }} />
                   <YAxis allowDecimals={false} stroke="var(--chart-grid)" width={36} />
                   <Tooltip {...tooltipStyle} cursor={{ fill: 'rgb(255 255 255 / 0.04)' }} labelFormatter={(_l, p) => (p[0]?.payload as { label: string } | undefined)?.label ?? ''} formatter={(v) => [v, 'customers']} />
                   <Bar dataKey="n" radius={[3, 3, 0, 0]} isAnimationActive={false}>

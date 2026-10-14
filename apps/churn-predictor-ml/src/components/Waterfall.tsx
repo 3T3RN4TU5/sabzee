@@ -3,7 +3,7 @@ import type { GroupContribution } from '../ml/explain.ts'
 import { FEATURE_LABELS } from '../ml/schema.ts'
 import type { CustomerRow } from '../ml/types.ts'
 import { signed } from '../lib/format.ts'
-import { tooltipStyle } from './ui.tsx'
+import { tooltipStyle } from '../lib/chart.ts'
 
 interface Step {
   name: string

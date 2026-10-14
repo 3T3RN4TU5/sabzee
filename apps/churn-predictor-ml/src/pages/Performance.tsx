@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, ErrorBar, Legend, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { Settings } from '../App.tsx'
-import { Card, Slider, Stat, tooltipStyle } from '../components/ui.tsx'
+import { Card, Slider, Stat } from '../components/ui.tsx'
+import { tooltipStyle } from '../lib/chart.ts'
 import type { Artefacts, Ci } from '../lib/data.ts'
 import { num, pct, usd } from '../lib/format.ts'
 import { averagePrecision, brier, campaignProfit, confusionAt, curves, profitCurve, rates, reliability, rocAuc, thin } from '../ml/metrics.ts'
@@ -258,7 +259,7 @@ export function PerformancePage({ data, settings }: { data: Artefacts; settings:
           <ResponsiveContainer width="100%" height={importance.length * 26 + 40} initialDimension={{ width: 500, height: 340 }}>
             <BarChart data={importance} layout="vertical" margin={{ top: 0, right: 16, bottom: 16, left: 4 }} barCategoryGap={4}>
               <CartesianGrid horizontal={false} stroke="var(--chart-grid)" />
-              <XAxis type="number" stroke="var(--chart-grid)" tickFormatter={(v: number) => v.toFixed(3)} label={{ value: 'drop in ROC-AUC when shuffled', position: 'insideBottom', offset: -8, fill: '#94a3b8', fontSize: 11 }} />
+              <XAxis type="number" domain={[0, 'auto']} allowDataOverflow stroke="var(--chart-grid)" tickFormatter={(v: number) => v.toFixed(2)} label={{ value: 'drop in ROC-AUC when shuffled', position: 'insideBottom', offset: -8, fill: '#94a3b8', fontSize: 11 }} />
               <YAxis type="category" dataKey="label" width={140} interval={0} tick={{ fontSize: 11.5 }} stroke="var(--chart-grid)" />
               <Tooltip {...tooltipStyle} cursor={{ fill: 'rgb(255 255 255 / 0.04)' }} formatter={(v) => [Number(v).toFixed(4), 'Δ AUC']} />
               <Bar dataKey="mean" fill="var(--series-1)" radius={3} isAnimationActive={false}>
@@ -266,6 +267,9 @@ export function PerformancePage({ data, settings }: { data: Artefacts; settings:
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          <p className="mt-1 text-xs text-slate-500">
+            Raw inputs are permuted <em>before</em> feature engineering, so shuffling tenure also scrambles the derived avg. monthly spend and charge ratio — part of its weight is that interaction. Partial dependence has the same caveat (other inputs, including total charges, are held fixed).
+          </p>
         </Card>
         <Card eyebrow="Average prediction when one input is set for every test customer · champion" title="Partial dependence">
           <div className="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -372,9 +376,18 @@ function CurveChart({ xKey, yKey, xLabel, yLabel, series, diagonal, baseline, po
   )
 }
 
+const SHORT: Record<string, string> = {
+  'Bank transfer (automatic)': 'Bank (auto)',
+  'Credit card (automatic)': 'Card (auto)',
+  'Electronic check': 'E-check',
+  'Mailed check': 'Mailed',
+  'No internet service': 'No internet',
+  'Month-to-month': 'Monthly',
+}
+
 function PdpChart({ name, pts }: { name: string; pts: { value: string | number; mean_prob: number }[] }) {
   const categorical = typeof pts[0].value === 'string'
-  const data = pts.map((p) => ({ x: categorical ? String(p.value).replace(' (automatic)', ' (auto)') : p.value, y: p.mean_prob }))
+  const data = pts.map((p) => ({ x: categorical ? (SHORT[String(p.value)] ?? String(p.value)) : p.value, y: p.mean_prob }))
   return (
     <div>
       <div className="mb-1 text-xs font-medium text-slate-300">{name}</div>
@@ -383,7 +396,7 @@ function PdpChart({ name, pts }: { name: string; pts: { value: string | number; 
           <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -18 }}>
             <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
             <XAxis dataKey="x" tick={{ fontSize: 9.5 }} interval={0} stroke="var(--chart-grid)" />
-            <YAxis domain={[0, 0.6]} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} stroke="var(--chart-grid)" tick={{ fontSize: 10 }} />
+            <YAxis domain={[0, (max: number) => Math.max(0.6, Math.ceil(max * 10) / 10)]} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} stroke="var(--chart-grid)" tick={{ fontSize: 10 }} />
             <Tooltip {...tooltipStyle} cursor={{ fill: 'rgb(255 255 255 / 0.04)' }} formatter={(v) => [pct(Number(v)), 'mean P(churn)']} />
             <Bar dataKey="y" fill="var(--series-1)" radius={[3, 3, 0, 0]} isAnimationActive={false} />
           </BarChart>
@@ -391,7 +404,7 @@ function PdpChart({ name, pts }: { name: string; pts: { value: string | number; 
           <LineChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -18 }}>
             <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
             <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} stroke="var(--chart-grid)" tick={{ fontSize: 10 }} />
-            <YAxis domain={[0, 0.6]} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} stroke="var(--chart-grid)" tick={{ fontSize: 10 }} />
+            <YAxis domain={[0, (max: number) => Math.max(0.6, Math.ceil(max * 10) / 10)]} tickFormatter={(v: number) => `${Math.round(v * 100)}%`} stroke="var(--chart-grid)" tick={{ fontSize: 10 }} />
             <Tooltip {...tooltipStyle} formatter={(v) => [pct(Number(v)), 'mean P(churn)']} />
             <Line dataKey="y" stroke="var(--series-1)" strokeWidth={2} dot={false} isAnimationActive={false} />
           </LineChart>

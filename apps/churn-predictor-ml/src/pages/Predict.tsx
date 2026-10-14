@@ -3,7 +3,8 @@ import { ArrowRight, Info, Shuffle, Sparkles } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { Settings } from '../App.tsx'
 import { Gauge } from '../components/Gauge.tsx'
-import { Card, Slider, tooltipStyle } from '../components/ui.tsx'
+import { Card, Slider } from '../components/ui.tsx'
+import { tooltipStyle } from '../lib/chart.ts'
 import { Waterfall } from '../components/Waterfall.tsx'
 import type { Artefacts } from '../lib/data.ts'
 import { pct, signed, usd } from '../lib/format.ts'
@@ -24,7 +25,7 @@ const effective = ({ row, autoTotal }: FormState): CustomerRow =>
 
 interface Lever {
   label: string
-  change: Partial<CustomerRow>
+  change: CustomerRow
 }
 
 function levers(row: CustomerRow): Lever[] {
@@ -79,7 +80,7 @@ export function PredictPage({ data, settings }: { data: Artefacts; settings: Set
     return pts
   }, [form, bundle])
 
-  const update = (patch: Partial<CustomerRow>) => {
+  const update = (patch: CustomerRow) => {
     setPresetId('custom')
     setRealId(null)
     setForm((f) => ({ ...f, row: normalizeCustomer({ ...f.row, ...patch }) }))
@@ -286,7 +287,7 @@ export function PredictPage({ data, settings }: { data: Artefacts; settings: Set
   )
 }
 
-function Field({ spec, row, onChange }: { spec: FieldSpec; row: CustomerRow; onChange: (p: Partial<CustomerRow>) => void }) {
+function Field({ spec, row, onChange }: { spec: FieldSpec; row: CustomerRow; onChange: (p: CustomerRow) => void }) {
   const id = `f-${spec.name}`
   const v = row[spec.name]
   const disabled =

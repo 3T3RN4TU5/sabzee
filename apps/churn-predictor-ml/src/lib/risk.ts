@@ -13,7 +13,7 @@ export function riskTier(p: number, threshold: number): Tier {
 export interface Action {
   title: string
   why: string
-  change: Partial<CustomerRow>
+  change: CustomerRow
 }
 
 /** Map the strongest risk-increasing drivers to concrete retention levers. */
