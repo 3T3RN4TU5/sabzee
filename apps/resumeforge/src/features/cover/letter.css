@@ -1,0 +1,30 @@
+/* Cover-letter body inside any template (.rf-doc). OWNER: cover agent. */
+.rf-doc .rf-letter__date,
+.rf-doc .rf-letter__recipient {
+  color: var(--rf-text);
+}
+.rf-doc .rf-letter__date {
+  color: var(--rf-muted);
+}
+.rf-doc .rf-letter__subject {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-doc .rf-letter__greeting {
+  font-weight: 600;
+  color: var(--rf-heading);
+}
+.rf-doc .rf-letter__p {
+  text-align: left;
+  hyphens: manual;
+}
+.rf-doc .rf-letter__closing {
+  margin-top: 0.6em;
+}
+.rf-doc .rf-letter__signature {
+  margin-top: 2.2em;
+  font-family: var(--rf-font-heading);
+  font-size: 1.15em;
+  font-weight: 700;
+  color: var(--rf-heading);
+}

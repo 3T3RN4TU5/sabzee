@@ -1,0 +1,164 @@
+/* Modern template — every selector is scoped to .rf-t-modern (the document root class). */
+
+.rf-t-modern .mo-page {
+  display: flex;
+  height: 100%;
+}
+
+/* ---------- sidebar ---------- */
+
+.rf-t-modern .mo-side {
+  flex: 0 0 34%;
+  min-width: 0;
+  padding: var(--rf-margin) calc(var(--rf-margin) * 0.72);
+  background: linear-gradient(180deg, var(--rf-accent) 0%, var(--rf-accent-deep) 100%);
+  color: var(--rf-on-accent);
+  font-size: 0.9em;
+  --rf-level-on: var(--rf-on-accent);
+  --rf-level-off: rgb(var(--rf-on-accent-rgb) / 0.24);
+}
+
+.rf-t-modern .mo-photo {
+  margin: 0 auto;
+  box-shadow: 0 0 0 3px rgb(var(--rf-on-accent-rgb) / 0.3);
+}
+
+.rf-t-modern .mo-sh {
+  font-family: var(--rf-font-heading);
+  font-size: 0.84em;
+  font-weight: 700;
+  letter-spacing: calc(var(--rf-heading-tracking) + 0.04em);
+  text-transform: var(--rf-heading-transform);
+  padding-bottom: 0.4em;
+  margin-bottom: 0.75em;
+  border-bottom: 1px solid rgb(var(--rf-on-accent-rgb) / 0.3);
+}
+
+.rf-t-modern .mo-contact {
+  row-gap: 0.55em;
+  font-size: 0.95em;
+}
+.rf-t-modern .mo-contact .rf-contact__icon {
+  opacity: 0.85;
+}
+
+.rf-t-modern .mo-side .rf-entry__title,
+.rf-t-modern .mo-side .rf-skill__name,
+.rf-t-modern .mo-side .rf-lang__name,
+.rf-t-modern .mo-side .rf-interest__name {
+  color: var(--rf-on-accent);
+  font-weight: 600;
+}
+.rf-t-modern .mo-side .rf-entry__sub,
+.rf-t-modern .mo-side .rf-entry__when,
+.rf-t-modern .mo-side .rf-entry__meta,
+.rf-t-modern .mo-side .rf-entry__location,
+.rf-t-modern .mo-side .rf-entry__dot,
+.rf-t-modern .mo-side .rf-entry__link,
+.rf-t-modern .mo-side .rf-skill__keywords,
+.rf-t-modern .mo-side .rf-skill__level,
+.rf-t-modern .mo-side .rf-lang__level,
+.rf-t-modern .mo-side .rf-interest__details,
+.rf-t-modern .mo-side .rf-keywords--inline,
+.rf-t-modern .mo-side .rf-keywords--comma {
+  color: rgb(var(--rf-on-accent-rgb) / 0.8);
+}
+.rf-t-modern .mo-side .rf-entry__sub {
+  font-weight: 400;
+}
+.rf-t-modern .mo-side .rf-skill__bar {
+  margin: 0.35em 0 0.3em;
+}
+.rf-t-modern .mo-side .rf-lang {
+  padding: 0.05em 0;
+}
+.rf-t-modern .mo-side .rf-bullets > li::before {
+  background: var(--rf-on-accent);
+}
+.rf-t-modern .mo-side .rf-chip {
+  background: rgb(var(--rf-on-accent-rgb) / 0.14);
+  color: var(--rf-on-accent);
+}
+.rf-t-modern .mo-side .rf-code {
+  background: rgb(var(--rf-on-accent-rgb) / 0.14);
+}
+
+/* ---------- main column ---------- */
+
+.rf-t-modern .mo-main {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--rf-margin) var(--rf-margin) var(--rf-margin) calc(var(--rf-margin) * 0.85);
+}
+
+.rf-t-modern .mo-header {
+  margin-bottom: calc(var(--rf-section-gap) * 1.15);
+}
+.rf-t-modern .mo-name {
+  font-family: var(--rf-font-heading);
+  font-size: 2.45em;
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+.rf-t-modern .mo-title {
+  margin-top: 0.35em;
+  font-family: var(--rf-font-heading);
+  font-size: 1.14em;
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+.rf-t-modern .mo-rule {
+  width: 3.2em;
+  height: 3px;
+  margin-top: 0.85em;
+  border-radius: 2px;
+  background: var(--rf-accent);
+}
+
+.rf-t-modern .mo-h {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin-bottom: 0.7em;
+  font-family: var(--rf-font-heading);
+  font-size: 0.9em;
+  font-weight: 800;
+  letter-spacing: var(--rf-heading-tracking);
+  text-transform: var(--rf-heading-transform);
+  color: var(--rf-accent-ink);
+}
+.rf-t-modern .mo-h::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rf-rule);
+}
+
+.rf-t-modern .mo-summary {
+  color: #374151;
+}
+
+.rf-t-modern .mo-main .rf-entry__title {
+  font-size: 1.03em;
+  color: #0f172a;
+}
+.rf-t-modern .mo-main .rf-entry__sub {
+  font-size: 0.95em;
+  font-weight: 600;
+}
+.rf-t-modern .mo-main .rf-entry__aside {
+  font-size: 0.84em;
+}
+.rf-t-modern .mo-main .rf-entry__date {
+  font-weight: 600;
+  color: #475569;
+}
+.rf-t-modern .mo-main .rf-entry__desc,
+.rf-t-modern .mo-main .rf-bullets > li {
+  color: #374151;
+}
+.rf-t-modern .mo-main .rf-entry__keywords {
+  color: #64748b;
+}

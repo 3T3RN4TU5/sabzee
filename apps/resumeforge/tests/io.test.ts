@@ -22,7 +22,7 @@ describe('JSON Resume', () => {
     assert.equal(j.basics?.url, 'https://aarav.dev')
     assert.deepEqual(j.basics?.location, { city: 'Bengaluru', region: 'India' })
     assert.deepEqual(
-      (j.basics?.profiles as { network: string }[]).map((p) => p.network),
+      (j.basics!.profiles as { network: string }[]).map((p) => p.network),
       ['LinkedIn', 'GitHub'],
     )
     const work = j.work![0]

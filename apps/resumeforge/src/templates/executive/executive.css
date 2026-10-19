@@ -1,0 +1,324 @@
+/* Executive template — every selector is scoped to .rf-t-executive (the document root class). */
+
+.rf-t-executive .ex-page {
+  height: 100%;
+  color: #273142;
+  font-variant-numeric: lining-nums;
+}
+
+/* ---------- header band (page 1) ---------- */
+
+.rf-t-executive .ex-band {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+  padding: calc(var(--rf-margin) * 1) calc(var(--rf-margin) * 1.1) calc(var(--rf-margin) * 0.85);
+  background: var(--rf-accent);
+  color: var(--rf-on-accent);
+}
+.rf-t-executive .ex-photo {
+  box-shadow: 0 0 0 2.5px rgb(var(--rf-on-accent-rgb) / 0.85);
+}
+.rf-t-executive .ex-id {
+  min-width: 0;
+}
+.rf-t-executive .ex-name {
+  font-family: var(--rf-font-heading);
+  font-size: 2.65em;
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: 0.005em;
+  color: var(--rf-on-accent);
+}
+.rf-t-executive .ex-role {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  margin-top: 0.55em;
+  font-size: 0.9em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(var(--rf-on-accent-rgb) / 0.86);
+}
+.rf-t-executive .ex-role::before {
+  content: '';
+  flex: none;
+  width: 2.2em;
+  height: 1.5px;
+  background: rgb(var(--rf-on-accent-rgb) / 0.6);
+}
+
+.rf-t-executive .ex-strip {
+  padding: 0.62em calc(var(--rf-margin) * 1.1);
+  background: var(--rf-accent-soft);
+  border-bottom: 1px solid rgb(var(--rf-accent-rgb) / 0.22);
+}
+.rf-t-executive .ex-contact {
+  column-gap: 1.25em;
+  row-gap: 0.3em;
+  font-size: 0.86em;
+  color: #1f2937;
+}
+.rf-t-executive .ex-contact .rf-contact__icon {
+  color: var(--rf-accent-ink);
+  opacity: 1;
+}
+.rf-t-executive .ex-contact .rf-contact__sep {
+  margin: 0 -0.45em;
+  opacity: 1;
+  color: rgb(var(--rf-accent-rgb) / 0.55);
+}
+
+/* ---------- continuation band (pages 2+) ---------- */
+
+.rf-t-executive .ex-cont {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.75em calc(var(--rf-margin) * 1.1);
+  background: var(--rf-accent);
+  color: var(--rf-on-accent);
+}
+.rf-t-executive .ex-cont__name {
+  font-family: var(--rf-font-heading);
+  font-size: 1.15em;
+  font-weight: 700;
+}
+.rf-t-executive .ex-cont__role {
+  font-size: 0.74em;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--rf-on-accent-rgb) / 0.8);
+}
+
+/* ---------- body ---------- */
+
+.rf-t-executive .ex-body {
+  padding: calc(var(--rf-margin) * 0.95) calc(var(--rf-margin) * 1.1) 0;
+}
+
+.rf-t-executive .ex-h {
+  margin-bottom: 0.65em;
+  padding-bottom: 0.25em;
+  border-bottom: 2px solid var(--rf-accent);
+  font-family: var(--rf-font-heading);
+  font-size: 1.06em;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: calc(var(--rf-heading-tracking) + 0.03em);
+  text-transform: var(--rf-heading-transform);
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-h--normal {
+  font-size: 1.22em;
+  letter-spacing: 0.005em;
+}
+
+.rf-t-executive .ex-summary {
+  font-size: 1.02em;
+  color: #2f3a4b;
+}
+
+/* ---------- entries (DefaultEntry restyled) ---------- */
+
+.rf-t-executive .ex-entry .rf-entry__title {
+  font-size: 1.06em;
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-entry .rf-entry__sub {
+  margin-top: 0.05em;
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-entry .rf-entry__location {
+  font-weight: 400;
+  color: #6b7280;
+}
+.rf-t-executive .ex-entry .rf-entry__dot {
+  color: #9ca3af;
+}
+.rf-t-executive .ex-entry .rf-entry__aside {
+  font-size: 0.86em;
+  color: #374151;
+}
+.rf-t-executive .ex-entry .rf-entry__date {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.rf-t-executive .ex-entry .rf-entry__link {
+  display: block;
+  font-weight: 400;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-entry .rf-entry__meta {
+  margin-top: 0.05em;
+  color: #4b5563;
+}
+.rf-t-executive .ex-entry.rf-entry--publications .rf-entry__meta {
+  font-style: normal;
+}
+.rf-t-executive .ex-entry.rf-entry--publications .rf-entry__sub {
+  font-weight: 400;
+  font-style: italic;
+}
+.rf-t-executive .ex-entry.rf-entry--publications .rf-entry__title {
+  font-size: 1em;
+  font-weight: 600;
+}
+.rf-t-executive .ex-entry .rf-entry__desc {
+  margin-top: 0.25em;
+  color: #2f3a4b;
+}
+.rf-t-executive .ex-entry .rf-entry__keywords {
+  margin-top: 0.25em;
+  font-size: 0.88em;
+  color: #6b7280;
+}
+.rf-t-executive .ex-entry .rf-bullets {
+  margin-top: 0.32em;
+}
+.rf-t-executive .ex-entry .rf-bullets > li {
+  padding-left: 1.15em;
+  color: #2f3a4b;
+}
+.rf-t-executive .ex-entry .rf-bullets > li + li {
+  margin-top: 0.16em;
+}
+.rf-t-executive .ex-entry .rf-bullets > li::before {
+  left: 0.25em;
+  top: calc(0.5lh - 0.16em);
+  width: 0.32em;
+  height: 0.32em;
+  background: var(--rf-accent);
+}
+.rf-t-executive .ex-body .rf-link {
+  color: var(--rf-accent-ink);
+}
+
+/* ---------- compact rows (certifications, awards) ---------- */
+
+.rf-t-executive .ex-compact__line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.2em;
+}
+.rf-t-executive .ex-compact__what {
+  min-width: 0;
+}
+.rf-t-executive .ex-compact__title {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-compact__sep {
+  color: #9ca3af;
+}
+.rf-t-executive .ex-compact__by {
+  color: #4b5563;
+}
+.rf-t-executive .ex-compact__date {
+  flex: none;
+  font-size: 0.86em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #374151;
+  white-space: nowrap;
+}
+.rf-t-executive .ex-compact__link {
+  display: block;
+  font-size: 0.9em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-compact__desc {
+  margin-top: 0.15em;
+  color: #2f3a4b;
+}
+
+/* ---------- core competencies ---------- */
+
+.rf-t-executive .ex-comp {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.8em;
+  row-gap: 0.6em;
+}
+.rf-t-executive .ex-comp__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8em;
+}
+.rf-t-executive .ex-comp__name {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-comp__level {
+  flex: none;
+  width: 4.6em;
+  --rf-level-on: var(--rf-accent);
+  --rf-level-off: rgb(var(--rf-accent-rgb) / 0.16);
+}
+.rf-t-executive .ex-comp__list {
+  margin-top: 0.12em;
+  font-size: 0.93em;
+  color: #4b5563;
+}
+
+/* ---------- languages, interests, references ---------- */
+
+.rf-t-executive .ex-langs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 1.2em;
+  row-gap: 0.55em;
+}
+.rf-t-executive .ex-lang {
+  padding-left: 0.65em;
+  border-left: 2px solid rgb(var(--rf-accent-rgb) / 0.35);
+}
+.rf-t-executive .ex-lang__name {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-lang__level {
+  font-size: 0.86em;
+  color: #6b7280;
+}
+
+.rf-t-executive .ex-inline {
+  color: #2f3a4b;
+}
+.rf-t-executive .ex-inline__sep {
+  color: var(--rf-accent);
+}
+.rf-t-executive .ex-inline__detail {
+  color: #6b7280;
+}
+
+.rf-t-executive .ex-refs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.8em;
+  row-gap: 0.8em;
+}
+.rf-t-executive .ex-ref__name {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-ref__role {
+  color: #4b5563;
+}
+.rf-t-executive .ex-ref__contact {
+  display: block;
+  font-size: 0.92em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-ref__note {
+  margin-top: 0.15em;
+  font-size: 0.92em;
+  color: #6b7280;
+}
