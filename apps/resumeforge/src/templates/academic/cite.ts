@@ -65,11 +65,13 @@ export function splitAuthors(list: string, ownerName: string): AuthorToken[] {
 
 /** Move the education section(s) right after any summary sections at the top. Order is otherwise kept. */
 export function educationFirst<T extends { kind: SectionKind }>(sections: readonly T[]): T[] {
-  const edu = sections.filter((s) => s.kind === 'education')
-  if (!edu.length) return [...sections]
-  const rest = sections.filter((s) => s.kind !== 'education')
   let lead = 0
-  while (lead < rest.length && rest[lead].kind === 'summary') lead++
+  while (lead < sections.length && sections[lead].kind === 'summary') lead++
+  const firstEdu = sections.findIndex((s) => s.kind === 'education')
+  // no education, or it already comes before any non-summary section → keep the user's order
+  if (firstEdu < 0 || firstEdu <= lead) return [...sections]
+  const edu = sections.filter((s) => s.kind === 'education')
+  const rest = sections.filter((s) => s.kind !== 'education')
   return [...rest.slice(0, lead), ...edu, ...rest.slice(lead)]
 }
 
