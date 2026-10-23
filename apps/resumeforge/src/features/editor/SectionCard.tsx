@@ -16,7 +16,7 @@ import { sectionHasContent } from '../../lib/sections.ts'
 const COLUMNS: { value: ColumnPlacement; label: string }[] = [
   { value: 'auto', label: 'Auto' },
   { value: 'main', label: 'Main' },
-  { value: 'side', label: 'Sidebar' },
+  { value: 'side', label: 'Side' },
 ]
 
 export function SectionCard({ section: s, index, count, handle }: { section: Section; index: number; count: number; handle: DragHandleProps }) {

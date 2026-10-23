@@ -38,7 +38,7 @@ export function PreviewPane() {
   }, [])
 
   const paper = paperSize(design?.paper ?? 'a4')
-  const fit = fitScale(width, paper.widthPx, PAD, ZOOM_LIMITS)
+  const fit = fitScale(width, paper.widthPx, width < 640 ? 24 : PAD, ZOOM_LIMITS)
   const scale = zoom === 'fit' ? fit : zoom
   const scaleRef = useRef(scale)
   useEffect(() => {
