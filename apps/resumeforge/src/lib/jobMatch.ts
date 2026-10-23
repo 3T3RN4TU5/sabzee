@@ -141,6 +141,14 @@ export function withKeyword(keywords: string[], label: string): string[] {
   return keywords.some((k) => k.trim().toLowerCase() === label.trim().toLowerCase()) ? keywords : [...keywords, label.trim()]
 }
 
+/** True when a keyword is just (part of) the employer's name — not something to add to a resume. */
+export function isCompanyKeyword(row: Pick<MatchRow, 'label'>, company: string): boolean {
+  const c = company.trim().toLowerCase()
+  if (!c) return false
+  const l = row.label.trim().toLowerCase()
+  return l === c || c.split(/\s+/).includes(l) || (l.includes(' ') && c.includes(l))
+}
+
 export type YearsStatus = 'meets' | 'close' | 'below' | 'unknown'
 
 export function yearsStatus(required: number | null, onResume: number): YearsStatus {

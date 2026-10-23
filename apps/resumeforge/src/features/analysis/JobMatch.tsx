@@ -7,6 +7,7 @@ import {
   groupKeywords,
   importance,
   IMPORTANCE_LABEL,
+  isCompanyKeyword,
   isSkillKeyword,
   matchLabel,
   missingByPriority,
@@ -31,7 +32,20 @@ export function JobMatch() {
   const jd = doc?.jobDescription ?? ''
   const deferredJd = useDeferredValue(jd)
   const deferredData = useDeferredValue(doc?.data)
-  const result = useMemo(() => (deferredData && deferredJd.trim() ? matchResume(deferredData, deferredJd) : null), [deferredData, deferredJd])
+  const result = useMemo(() => {
+    if (!deferredData || !deferredJd.trim()) return null
+    const r = matchResume(deferredData, deferredJd)
+    const company = extractJobInfo(deferredJd).company
+    const keywords = r.keywords.filter((k) => !isCompanyKeyword(k, company))
+    if (keywords.length === r.keywords.length) return r
+    let got = 0
+    let total = 0
+    for (const k of keywords) {
+      total += k.weight
+      if (k.matched) got += k.weight
+    }
+    return { ...r, keywords, score: total ? Math.round((got / total) * 100) : 0, matched: keywords.filter((k) => k.matched).length, missing: keywords.filter((k) => !k.matched).length }
+  }, [deferredData, deferredJd])
   if (!doc) return null
   const jdWords = jd.trim() ? jd.trim().split(/\s+/).length : 0
 

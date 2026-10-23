@@ -9,6 +9,7 @@ import {
   extractJobInfo,
   groupKeywords,
   importance,
+  isCompanyKeyword,
   isSkillKeyword,
   matchLabel,
   missingByPriority,
@@ -213,6 +214,13 @@ describe('job match helpers', () => {
   it('adds keywords without duplicates', () => {
     assert.deepEqual(withKeyword(['React'], 'GraphQL'), ['React', 'GraphQL'])
     assert.deepEqual(withKeyword(['graphql'], 'GraphQL'), ['graphql'])
+  })
+
+  it('recognises the company name as a non-skill keyword', () => {
+    assert.equal(isCompanyKeyword({ label: 'Lumen' }, 'Lumen Health'), true)
+    assert.equal(isCompanyKeyword({ label: 'lumen health' }, 'Lumen Health'), true)
+    assert.equal(isCompanyKeyword({ label: 'Health' }, ''), false)
+    assert.equal(isCompanyKeyword({ label: 'React' }, 'Lumen Health'), false)
   })
 
   it('compares years and labels scores', () => {

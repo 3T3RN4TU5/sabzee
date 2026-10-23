@@ -147,7 +147,7 @@ export function uniqueName(name: string, taken: readonly string[]): string {
 }
 
 /** Share links live entirely in the URL; long ones get cut by some mail and chat apps. */
-export const SHARE_LIMITS = { long: 2000, veryLong: 8000 } as const
+export const SHARE_LIMITS = { long: 4000, veryLong: 12000 } as const
 export type ShareLevel = 'ok' | 'long' | 'very-long'
 
 export function shareLevel(urlLength: number): ShareLevel {

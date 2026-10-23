@@ -77,7 +77,8 @@ describe('misc', () => {
   })
   it('shareLevel thresholds and formatBytes', () => {
     assert.equal(shareLevel(1500), 'ok')
-    assert.equal(shareLevel(2500), 'long')
+    assert.equal(shareLevel(2500), 'ok')
+    assert.equal(shareLevel(5000), 'long')
     assert.equal(shareLevel(20000), 'very-long')
     assert.equal(formatBytes(512), '512 B')
     assert.equal(formatBytes(2048), '2.0 KB')
