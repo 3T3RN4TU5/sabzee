@@ -166,8 +166,8 @@ function TemplateGallery() {
 }
 
 function AccentPicker({ accent, templateAccent }: { accent: string; templateAccent: string }) {
-  const [hex, setHex] = useState(accent)
-  useEffect(() => setHex(accent), [accent])
+  const [draft, setHex] = useState<string | null>(null)
+  const hex = draft ?? accent
   const presets = ACCENT_PRESETS.includes(templateAccent) ? ACCENT_PRESETS : [templateAccent, ...ACCENT_PRESETS]
   return (
     <div>
@@ -200,7 +200,7 @@ function AccentPicker({ accent, templateAccent }: { accent: string; templateAcce
             const v = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`
             if (isHexColor(v)) set({ accent: normalizeHex(v) })
           }}
-          onBlur={() => setHex(accent)}
+          onBlur={() => setHex(null)}
           spellCheck={false}
           maxLength={7}
           aria-label="Accent hex value"
