@@ -31,7 +31,7 @@
 
 .rf-t-classic .cl-header {
   text-align: center;
-  margin-bottom: calc(var(--rf-section-gap) * 1.05);
+  margin-bottom: calc(var(--rf-section-gap) * 1.1);
 }
 .rf-t-classic .cl-name {
   font-family: var(--rf-font-heading);
@@ -67,12 +67,6 @@
 }
 .rf-t-classic .cl-contact .rf-contact__item {
   gap: 0.32em;
-}
-.rf-t-classic .cl-rule {
-  height: 4px;
-  margin-top: 0.85em;
-  border-top: 1.5px solid var(--rf-accent);
-  border-bottom: 0.5px solid var(--rf-accent);
 }
 
 /* ---------- section headings ---------- */
@@ -196,25 +190,27 @@
 
 /* ---------- skills table ---------- */
 
+/* one grid for all rows (rows use display: contents) so the name column fits the longest name */
 .rf-t-classic .cl-skills {
   display: grid;
+  grid-template-columns: fit-content(12em) minmax(0, 1fr) auto;
+  column-gap: 1.4em;
   row-gap: 0.18em;
-}
-.rf-t-classic .cl-skill {
-  display: grid;
-  grid-template-columns: 9.5em minmax(0, 1fr) auto;
-  column-gap: 1em;
   align-items: baseline;
 }
+.rf-t-classic .cl-skill {
+  display: contents;
+}
+.rf-t-classic .cl-skill__list {
+  grid-column: 2;
+}
 .rf-t-classic .cl-skill__name {
+  grid-column: 1;
   font-weight: 700;
   color: #141414;
 }
 .rf-t-classic .cl-skill--untitled .cl-skill__list {
   grid-column: 1 / 3;
-}
-.rf-t-classic .cl-skill__name + .cl-skill__level {
-  grid-column: 3;
 }
 .rf-t-classic .cl-skill__list {
   color: #2b2b2b;

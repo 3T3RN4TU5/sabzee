@@ -37,11 +37,11 @@ export const meta: TemplateMeta = {
   defaultFont: 'raleway',
   defaultAccent: '#0f766e',
   headingCase: 'upper',
-  gaps: { entry: 11, section: 20 },
+  gaps: { entry: 10, section: 17 },
 }
 
 /** Page padding = design margin × this (minimal breathes a little more than the others). */
-const ROOM = 1.2
+const ROOM = 1.12
 
 function SkillList({ entries }: { entries: EntryView[] }) {
   return (

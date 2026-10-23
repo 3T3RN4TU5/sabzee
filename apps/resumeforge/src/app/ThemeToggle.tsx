@@ -1,12 +1,26 @@
+/** Theme menu: Light / Dark / System. OWNER: shell agent. */
 import { Monitor, Moon, Sun } from 'lucide-react'
 import { resumeActions, useTheme } from '../store'
-import { IconButton } from '../ui'
+import { IconButton, Menu } from '../ui'
+import { useResolvedTheme } from './hooks.ts'
 
-const NEXT = { light: 'dark', dark: 'system', system: 'light' } as const
-const ICON = { light: Sun, dark: Moon, system: Monitor }
-const LABEL = { light: 'Light theme', dark: 'Dark theme', system: 'System theme' }
+const LABEL = { light: 'Light', dark: 'Dark', system: 'System' }
 
 export function ThemeToggle() {
   const theme = useTheme()
-  return <IconButton icon={ICON[theme]} label={`${LABEL[theme]} (click to change)`} onClick={() => resumeActions.setTheme(NEXT[theme])} />
+  const resolved = useResolvedTheme()
+  const Icon = theme === 'system' ? Monitor : resolved === 'dark' ? Moon : Sun
+  return (
+    <Menu
+      width="w-44"
+      label="Theme"
+      trigger={(p) => <IconButton icon={Icon} label={`Theme: ${LABEL[theme]}`} {...p} />}
+      items={[
+        { heading: 'Appearance' },
+        { key: 'light', icon: Sun, label: 'Light', checked: theme === 'light', onSelect: () => resumeActions.setTheme('light') },
+        { key: 'dark', icon: Moon, label: 'Dark', checked: theme === 'dark', onSelect: () => resumeActions.setTheme('dark') },
+        { key: 'system', icon: Monitor, label: 'System', checked: theme === 'system', onSelect: () => resumeActions.setTheme('system') },
+      ]}
+    />
+  )
 }

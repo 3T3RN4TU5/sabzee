@@ -1,13 +1,15 @@
 /**
- * Live preview column: zoom toolbar + the active resume (or cover letter while the Cover letter
- * panel is open) as real pages. Click a block to jump to its fields. OWNER: shell agent.
+ * Live preview column: template quick-switch, page indicator, zoom (fit / presets / ± / Ctrl+wheel)
+ * and the active resume (or the cover letter while the Cover letter panel is open) as real pages.
+ * Click a block to jump to its fields. OWNER: shell agent.
  */
-import { Maximize2, Minus, Plus } from 'lucide-react'
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { AlertTriangle, Check, ChevronDown, LayoutTemplate, Maximize2, Minus, Plus } from 'lucide-react'
+import { Suspense, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react'
+import { fitScale, stepZoom, ZOOM_PRESETS } from '../lib/shell.ts'
 import { paperSize } from '../lib/templateData.ts'
-import { focusField, uiActions, useActiveDoc, useUiStore, ZOOM_LIMITS } from '../store'
-import { PagedDocument, getTemplate, type LayoutInfo } from '../templates'
-import { IconButton } from '../ui'
+import { focusField, resumeActions, uiActions, useActiveDoc, useUiStore, ZOOM_LIMITS } from '../store'
+import { getTemplate, PagedDocument, TEMPLATES, type LayoutInfo } from '../templates'
+import { cn, IconButton, Menu } from '../ui'
 import { CoverLetterDocument } from './lazy.ts'
 
 const PAD = 48
@@ -19,6 +21,12 @@ export function PreviewPane() {
   const pages = useUiStore((s) => s.pageCount)
   const box = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
+  const [overflow, setOverflow] = useState(false)
+  const [current, setCurrent] = useState(1)
+  // Keep typing responsive: the preview renders a deferred copy of the document.
+  const data = useDeferredValue(doc?.data)
+  const design = useDeferredValue(doc?.design)
+  const letterData = useDeferredValue(doc?.coverLetter)
 
   useEffect(() => {
     const el = box.current
@@ -29,41 +37,133 @@ export function PreviewPane() {
     return () => ro.disconnect()
   }, [])
 
-  const onLayout = useCallback((info: LayoutInfo) => uiActions.setPageCount(info.pages), [])
-  if (!doc) return null
-
-  const paper = paperSize(doc.design.paper)
-  const fit = width ? Math.max(ZOOM_LIMITS.min, Math.min(1.4, (width - PAD) / paper.widthPx)) : 0.6
+  const paper = paperSize(design?.paper ?? 'a4')
+  const fit = fitScale(width, paper.widthPx, PAD, ZOOM_LIMITS)
   const scale = zoom === 'fit' ? fit : zoom
+  const scaleRef = useRef(scale)
+  useEffect(() => {
+    scaleRef.current = scale
+  })
+
+  // Ctrl/⌘ + wheel zooms the preview (instead of the whole page).
+  useEffect(() => {
+    const el = box.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return
+      e.preventDefault()
+      uiActions.setZoom(Math.round(scaleRef.current * (1 - Math.max(-0.25, Math.min(0.25, e.deltaY * 0.0025))) * 100) / 100)
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
+
+  // Current page from the scroll position.
+  useEffect(() => {
+    const el = box.current
+    if (!el) return
+    let raf = 0
+    const onScroll = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const top = el.getBoundingClientRect().top + el.clientHeight / 3
+        const list = Array.from(el.querySelectorAll<HTMLElement>('.rf-viewport .rf-page[data-page]'))
+        let page = 1
+        for (const p of list) if (p.getBoundingClientRect().top <= top) page = Number(p.dataset.page) || page
+        setCurrent(page)
+      })
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      cancelAnimationFrame(raf)
+      el.removeEventListener('scroll', onScroll)
+    }
+  }, [])
+
+  const onLayout = useCallback((info: LayoutInfo) => {
+    uiActions.setPageCount(info.pages)
+    setOverflow(info.overflow)
+  }, [])
+
+  if (!doc || !data || !design || !letterData) return null
   const letter = panel === 'cover'
-  const step = (d: number) => uiActions.setZoom(Math.round((scale + d) * 10) / 10)
+  const tpl = getTemplate(design.template)
+  const pct = Math.round(scale * 100)
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-center gap-1 border-b border-slate-200/80 bg-white/70 px-3 py-1.5 text-xs text-slate-500 backdrop-blur dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-400">
-        <span className="font-semibold text-slate-700 dark:text-slate-200">{letter ? 'Cover letter' : getTemplate(doc.design.template).name}</span>
+      <div className="flex shrink-0 items-center gap-1 border-b border-slate-200/80 bg-white/80 px-2 py-1.5 text-xs text-slate-500 backdrop-blur sm:px-3 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-400">
+        {letter ? (
+          <span className="px-1.5 font-semibold text-slate-700 dark:text-slate-200">Cover letter · {tpl.name}</span>
+        ) : (
+          <Menu
+            align="left"
+            width="w-72"
+            label="Templates"
+            trigger={(p) => (
+              <button type="button" {...p} className="flex max-w-[11rem] min-w-0 items-center gap-1.5 rounded-lg px-2 py-1.5 font-semibold text-slate-700 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-indigo-500 sm:max-w-none dark:text-slate-200 dark:hover:bg-slate-800" aria-label={`Template: ${tpl.name}. Change template`}>
+                <LayoutTemplate className="size-3.5 shrink-0 text-indigo-500" aria-hidden />
+                <span className="truncate">{tpl.name}</span>
+                <ChevronDown className="size-3.5 shrink-0 opacity-60" aria-hidden />
+              </button>
+            )}
+            items={[
+              { heading: 'Switch template' },
+              ...TEMPLATES.map((t) => ({
+                key: t.id,
+                label: t.name,
+                description: t.tags.slice(0, 3).join(' · '),
+                checked: t.id === design.template,
+                onSelect: () => resumeActions.updateDesign({ template: t.id }, null),
+              })),
+              'separator',
+              { key: 'browse', icon: LayoutTemplate, label: 'Browse with previews…', onSelect: () => (uiActions.setPanel('design'), uiActions.setMobileTab('edit')) },
+            ]}
+          />
+        )}
         {!letter && (
-          <span>
-            · {pages} page{pages === 1 ? '' : 's'} · {paper.label}
+          <span className="flex min-w-0 items-center gap-1.5 truncate tabular-nums" aria-live="polite">
+            <span className="hidden sm:inline">·</span>
+            <span title={`${pages} page${pages === 1 ? '' : 's'}, ${paper.label}`}>
+              {pages > 1 ? `Page ${Math.min(current, pages)} / ${pages}` : '1 page'}
+              <span className="hidden sm:inline"> · {paper.label}</span>
+            </span>
           </span>
         )}
-        <div className="ml-auto flex items-center gap-0.5">
-          <IconButton size="xs" icon={Minus} label="Zoom out" onClick={() => step(-ZOOM_LIMITS.step)} disabled={scale <= ZOOM_LIMITS.min} />
-          <button type="button" onClick={() => uiActions.setZoom('fit')} className="min-w-12 rounded-md px-1.5 py-1 font-mono tabular-nums hover:bg-slate-100 dark:hover:bg-slate-800" title="Fit to width">
-            {Math.round(scale * 100)}%
-          </button>
-          <IconButton size="xs" icon={Plus} label="Zoom in" onClick={() => step(ZOOM_LIMITS.step)} disabled={scale >= ZOOM_LIMITS.max} />
-          <IconButton size="xs" icon={Maximize2} label="Fit to width" onClick={() => uiActions.setZoom('fit')} />
+        {!letter && overflow && (
+          <span className="flex items-center gap-1 rounded-md bg-amber-50 px-1.5 py-0.5 font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" title="An entry is taller than a page and is cut off. Split it into shorter entries or reduce the font size.">
+            <AlertTriangle className="size-3.5" aria-hidden />
+            <span className="hidden sm:inline">Clipped</span>
+          </span>
+        )}
+        <div className="ml-auto flex shrink-0 items-center gap-0.5">
+          <IconButton size="xs" icon={Minus} label="Zoom out" onClick={() => uiActions.setZoom(stepZoom(scale, -1, ZOOM_LIMITS))} disabled={scale <= ZOOM_LIMITS.min + 1e-6} />
+          <Menu
+            width="w-40"
+            label="Zoom"
+            trigger={(p) => (
+              <button type="button" {...p} className="min-w-12 rounded-md px-1.5 py-1 font-mono font-semibold text-slate-600 tabular-nums hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:text-slate-300 dark:hover:bg-slate-800" aria-label={`Zoom ${pct}%. Change zoom`}>
+                {pct}%
+              </button>
+            )}
+            items={[
+              { key: 'fit', icon: Maximize2, label: 'Fit width', checked: zoom === 'fit', onSelect: () => uiActions.setZoom('fit') },
+              'separator',
+              ...ZOOM_PRESETS.map((z) => ({ key: String(z), label: `${Math.round(z * 100)}%`, checked: zoom === z, onSelect: () => uiActions.setZoom(z) })),
+            ]}
+          />
+          <IconButton size="xs" icon={Plus} label="Zoom in" onClick={() => uiActions.setZoom(stepZoom(scale, 1, ZOOM_LIMITS))} disabled={scale >= ZOOM_LIMITS.max - 1e-6} />
+          <IconButton size="xs" icon={zoom === 'fit' ? Check : Maximize2} label="Fit to width" onClick={() => uiActions.setZoom('fit')} className={cn('hidden sm:inline-flex', zoom === 'fit' && 'text-indigo-600 dark:text-indigo-400')} />
         </div>
       </div>
-      <div ref={box} className="min-h-0 flex-1 overflow-auto">
-        <div className="flex min-w-fit justify-center px-6 py-6">
+      <div ref={box} className="rf-scroll min-h-0 flex-1 overflow-auto" id="preview-pane" tabIndex={-1} aria-label="Resume preview">
+        <div className="flex min-w-fit justify-center px-3 py-5 sm:px-6 sm:py-6">
           {letter ? (
             <Suspense fallback={<div className="text-sm text-slate-500">Loading…</div>}>
-              <CoverLetterDocument data={doc.data} design={doc.design} letter={doc.coverLetter} scale={scale} />
+              <CoverLetterDocument data={data} design={design} letter={letterData} scale={scale} />
             </Suspense>
           ) : (
-            <PagedDocument data={doc.data} design={doc.design} scale={scale} onLayout={onLayout} onBlockClick={focusField} />
+            <PagedDocument data={data} design={design} scale={scale} onLayout={onLayout} onBlockClick={focusField} />
           )}
         </div>
       </div>

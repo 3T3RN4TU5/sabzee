@@ -7,14 +7,142 @@
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --animate-rf-in: rf-in 160ms ease-out;
+  --animate-rf-pop: rf-pop 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes rf-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rf-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 html {
   -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
 }
 
 body {
   @apply bg-slate-100 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgb(99 102 241 / 0.25);
+}
+
+/* Thin, theme-aware scrollbars for the app chrome. */
+.rf-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.55) transparent;
+}
+.dark .rf-scroll {
+  scrollbar-color: rgb(71 85 105 / 0.8) transparent;
+}
+
+/* Skip link: visible only when focused. */
+.rf-skip {
+  position: absolute;
+  left: 0.75rem;
+  top: -3rem;
+  z-index: 70;
+  transition: top 120ms;
+}
+.rf-skip:focus {
+  top: 0.6rem;
+}
+
+/* Range input (ui/Slider): indigo track fill up to --rf-range-pct. */
+.rf-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.25rem;
+  background: transparent;
+  cursor: pointer;
+}
+.rf-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.rf-range::-webkit-slider-runnable-track {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: linear-gradient(to right, #6366f1 var(--rf-range-pct, 50%), #e2e8f0 var(--rf-range-pct, 50%));
+}
+.rf-range::-moz-range-track {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+.rf-range::-moz-range-progress {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: #6366f1;
+}
+.rf-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -0.4375rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #6366f1;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.25);
+}
+.rf-range::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #6366f1;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.25);
+}
+.rf-range:focus-visible {
+  outline: none;
+}
+.rf-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgb(99 102 241 / 0.35);
+}
+.rf-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgb(99 102 241 / 0.35);
+}
+.dark .rf-range::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, #818cf8 var(--rf-range-pct, 50%), #334155 var(--rf-range-pct, 50%));
+}
+.dark .rf-range::-moz-range-track {
+  background: #334155;
+}
+.dark .rf-range::-moz-range-progress {
+  background: #818cf8;
+}
+.dark .rf-range::-webkit-slider-thumb {
+  background: #0f172a;
+  border-color: #818cf8;
+}
+.dark .rf-range::-moz-range-thumb {
+  background: #0f172a;
+  border-color: #818cf8;
+}
+
+/* Photo crop viewport (features/editor/PhotoCropDialog). */
+.rf-crop-mask {
+  box-shadow: 0 0 0 9999px rgb(15 23 42 / 0.55);
 }
 
 /* "Jump to field" highlight (see src/store/focus.ts). */
@@ -38,5 +166,13 @@ body {
   [data-focus-flash] {
     animation-duration: 0.01s;
     box-shadow: 0 0 0 3px rgb(99 102 241 / 0.55);
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

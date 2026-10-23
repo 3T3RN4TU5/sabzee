@@ -1,0 +1,349 @@
+/* Corporate — every selector is scoped to .rf-t-corporate (the document root class). */
+
+.rf-t-corporate .co-page {
+  --co-gutter: 7.6em;
+  --co-gap: 1.25em;
+  position: relative;
+  height: 100%;
+  padding: var(--rf-margin) calc(var(--rf-margin) * 1.05) 0;
+  color: #1f2937;
+}
+
+/* Letterhead stripe across the top edge of every page. */
+.rf-t-corporate .co-page::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1.6mm;
+  background: var(--rf-accent);
+}
+
+/* ---------- header (page 1) ---------- */
+
+.rf-t-corporate .co-header {
+  margin-bottom: calc(var(--rf-section-gap) * 1.05);
+}
+.rf-t-corporate .co-header__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.6em;
+}
+.rf-t-corporate .co-ident {
+  display: flex;
+  align-items: center;
+  gap: 1.1em;
+  min-width: 0;
+}
+.rf-t-corporate .co-photo {
+  box-shadow: 0 0 0 1px rgb(var(--rf-accent-rgb) / 0.25);
+}
+.rf-t-corporate .co-ident__text {
+  min-width: 0;
+}
+.rf-t-corporate .co-name {
+  font-family: var(--rf-font-heading);
+  font-size: 2.3em;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-corporate .co-role {
+  margin-top: 0.35em;
+  font-family: var(--rf-font-heading);
+  font-size: 0.98em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.rf-t-corporate .co-contact {
+  flex: 0 1 auto;
+  max-width: 60%;
+  grid-template-columns: auto auto;
+  column-gap: 1.5em;
+  row-gap: 0.32em;
+  font-size: 0.84em;
+  color: #334155;
+}
+.rf-t-corporate .co-contact .rf-contact__icon {
+  color: var(--rf-accent-ink);
+  opacity: 1;
+}
+.rf-t-corporate .co-contact .rf-contact__item {
+  gap: 0.5em;
+}
+
+.rf-t-corporate .co-rule {
+  height: 5px;
+  margin-top: 1.05em;
+  border-top: 2.5px solid var(--rf-accent);
+  border-bottom: 1px solid rgb(var(--rf-accent-rgb) / 0.45);
+}
+
+/* ---------- continuation pages ---------- */
+
+.rf-t-corporate .co-running {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9em;
+  margin-bottom: calc(var(--rf-section-gap) * 0.9);
+  padding-bottom: 0.45em;
+  border-bottom: 1px solid rgb(var(--rf-accent-rgb) / 0.35);
+  font-size: 0.82em;
+}
+.rf-t-corporate .co-running__name {
+  font-family: var(--rf-font-heading);
+  font-weight: 700;
+  color: var(--rf-accent-ink);
+}
+.rf-t-corporate .co-running__role {
+  color: #64748b;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.92em;
+}
+
+.rf-t-corporate .co-footer {
+  position: absolute;
+  right: calc(var(--rf-margin) * 1.05);
+  bottom: calc(var(--rf-margin) * 0.42);
+  font-size: 0.72em;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+}
+
+/* ---------- section headings ---------- */
+
+.rf-t-corporate .co-h {
+  display: grid;
+  grid-template-columns: var(--co-gutter) minmax(0, 1fr);
+  column-gap: var(--co-gap);
+  align-items: center;
+  margin-bottom: 0.65em;
+  font-family: var(--rf-font-heading);
+  font-size: 1em;
+  line-height: 1.3;
+}
+.rf-t-corporate .co-h__bar {
+  display: block;
+  height: 0.34em;
+  background: var(--rf-accent);
+}
+.rf-t-corporate .co-h__text {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  font-size: 0.95em;
+  font-weight: 700;
+  text-transform: var(--rf-heading-transform);
+  letter-spacing: var(--rf-heading-tracking);
+  color: var(--rf-accent-ink);
+}
+.rf-t-corporate .co-h__text::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #d5dbe3;
+}
+
+/* ---------- gutter rows ---------- */
+
+.rf-t-corporate .co-row {
+  display: grid;
+  grid-template-columns: var(--co-gutter) minmax(0, 1fr);
+  column-gap: var(--co-gap);
+  align-items: baseline;
+}
+.rf-t-corporate .co-gutter {
+  min-width: 0;
+  text-align: right;
+  font-size: 0.84em;
+  line-height: 1.4;
+}
+.rf-t-corporate .co-body {
+  min-width: 0;
+}
+.rf-t-corporate .co-date {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #334155;
+}
+.rf-t-corporate .co-nw {
+  white-space: nowrap;
+}
+.rf-t-corporate .co-loc {
+  margin-top: 0.1em;
+  color: #64748b;
+}
+
+.rf-t-corporate .co-summary {
+  color: #334155;
+}
+
+/* ---------- entries ---------- */
+
+.rf-t-corporate .co-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+}
+.rf-t-corporate .co-title {
+  font-family: var(--rf-font-heading);
+  font-size: 1.02em;
+  font-weight: 700;
+  color: #0f172a;
+}
+.rf-t-corporate .co-link {
+  flex: none;
+  max-width: 45%;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-size: 0.82em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-corporate .co-org {
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+.rf-t-corporate .co-authors {
+  font-style: italic;
+  color: #475569;
+}
+.rf-t-corporate .co-entry--publications .co-org {
+  font-weight: 500;
+}
+.rf-t-corporate .co-meta {
+  font-size: 0.92em;
+  color: #475569;
+}
+.rf-t-corporate .co-desc {
+  margin-top: 0.2em;
+  color: #334155;
+}
+.rf-t-corporate .co-kw {
+  margin-top: 0.25em;
+  font-size: 0.88em;
+  color: #475569;
+}
+.rf-t-corporate .co-kw__label {
+  margin-right: 0.6em;
+  font-size: 0.86em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rf-accent-ink);
+}
+.rf-t-corporate .co-bullets {
+  margin-top: 0.3em;
+}
+.rf-t-corporate .co-bullets > li {
+  color: #334155;
+}
+.rf-t-corporate .co-bullets > li::before {
+  top: calc(0.5lh - 0.15em);
+  width: 0.3em;
+  height: 0.3em;
+  background: var(--rf-accent);
+}
+
+/* Certifications & awards */
+.rf-t-corporate .co-compact {
+  min-width: 0;
+}
+.rf-t-corporate .co-entry--compact .co-title {
+  font-size: 1em;
+  font-weight: 600;
+}
+.rf-t-corporate .co-dash,
+.rf-t-corporate .co-issuer {
+  color: #475569;
+}
+
+/* ---------- skills table, languages, interests, references ---------- */
+
+.rf-t-corporate .co-skill {
+  padding: 0.22em 0;
+  border-bottom: 1px dotted #cbd5e1;
+}
+.rf-t-corporate .co-skill:last-child {
+  border-bottom: 0;
+}
+.rf-t-corporate .co-skill__name {
+  font-weight: 700;
+  color: #0f172a;
+}
+.rf-t-corporate .co-skill__line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+}
+.rf-t-corporate .co-skill__list {
+  min-width: 0;
+  color: #334155;
+}
+.rf-t-corporate .co-skill__level {
+  flex: none;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--rf-accent-ink);
+}
+
+.rf-t-corporate .co-flow {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 2em;
+  row-gap: 0.25em;
+}
+.rf-t-corporate .co-flow__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+.rf-t-corporate .co-flow__name {
+  font-weight: 700;
+  color: #0f172a;
+}
+.rf-t-corporate .co-flow__detail {
+  font-size: 0.88em;
+  color: #64748b;
+}
+
+.rf-t-corporate .co-interests {
+  color: #334155;
+}
+.rf-t-corporate .co-interest {
+  font-weight: 500;
+}
+.rf-t-corporate .co-sep,
+.rf-t-corporate .co-muted {
+  color: #64748b;
+}
+
+.rf-t-corporate .co-refs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1.6em;
+  row-gap: 0.7em;
+}
+.rf-t-corporate .co-ref__role {
+  color: #475569;
+}
+.rf-t-corporate .co-ref__contact {
+  display: block;
+  font-size: 0.92em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-corporate .co-ref__note {
+  margin-top: 0.15em;
+  font-size: 0.92em;
+  font-style: italic;
+  color: #64748b;
+}

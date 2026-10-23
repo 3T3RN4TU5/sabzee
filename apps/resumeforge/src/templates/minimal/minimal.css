@@ -1,18 +1,18 @@
 /* Minimal template — every selector is scoped to .rf-t-minimal (the document root class). */
 
 .rf-t-minimal .mi-page {
-  --mi-gutter: 29mm;
-  --mi-col-gap: 6mm;
+  --mi-gutter: 26mm;
+  --mi-col-gap: 5.5mm;
   position: relative;
   height: 100%;
-  padding: calc(var(--rf-margin) * 1.2) calc(var(--rf-margin) * 1.2) 0;
+  padding: calc(var(--rf-margin) * 1.12) calc(var(--rf-margin) * 1.15) 0;
   color: #374151;
   font-variant-numeric: lining-nums;
 }
 
 .rf-t-minimal .mi-folio {
   position: absolute;
-  right: calc(var(--rf-margin) * 1.2);
+  right: calc(var(--rf-margin) * 1.15);
   bottom: calc(var(--rf-margin) * 0.55);
   font-size: 0.72em;
   letter-spacing: 0.12em;
@@ -28,7 +28,7 @@
 /* ---------- header ---------- */
 
 .rf-t-minimal .mi-header {
-  margin-bottom: calc(var(--rf-section-gap) * 1.6);
+  margin-bottom: calc(var(--rf-section-gap) * 1.45);
 }
 .rf-t-minimal .mi-header--photo {
   display: grid;
@@ -41,7 +41,7 @@
 }
 .rf-t-minimal .mi-name {
   font-family: var(--rf-font-heading);
-  font-size: 2.75em;
+  font-size: 2.55em;
   font-weight: 300;
   line-height: 1.08;
   letter-spacing: -0.005em;
@@ -159,14 +159,14 @@
   color: #d1d5db;
 }
 .rf-t-minimal .mi-entry .rf-bullets {
-  margin-top: 0.4em;
+  margin-top: 0.32em;
 }
 .rf-t-minimal .mi-entry .rf-bullets > li {
   padding-left: 1.1em;
   color: #374151;
 }
 .rf-t-minimal .mi-entry .rf-bullets > li + li {
-  margin-top: 0.2em;
+  margin-top: 0.16em;
 }
 .rf-t-minimal .mi-entry .rf-bullets--dash > li::before {
   left: 0;
@@ -178,20 +178,25 @@
 
 /* ---------- skills ---------- */
 
+/* one grid for all rows (rows use display: contents) so the name column fits the longest name */
 .rf-t-minimal .mi-skills {
   display: grid;
-  row-gap: 0.32em;
+  grid-template-columns: fit-content(11em) minmax(0, 1fr) auto;
+  column-gap: 1.1em;
+  row-gap: 0.3em;
+  align-items: baseline;
 }
 .rf-t-minimal .mi-skill {
-  display: grid;
-  grid-template-columns: 7.8em minmax(0, 1fr) auto;
-  column-gap: 1em;
-  align-items: baseline;
+  display: contents;
+}
+.rf-t-minimal .mi-skill__list {
+  grid-column: 2;
 }
 .rf-t-minimal .mi-skill--untitled .mi-skill__list {
   grid-column: 1 / 3;
 }
 .rf-t-minimal .mi-skill__name {
+  grid-column: 1;
   font-family: var(--rf-font-heading);
   font-weight: 600;
   color: #111827;

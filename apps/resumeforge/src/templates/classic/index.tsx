@@ -1,7 +1,6 @@
 /**
  * Classic — a timeless single-column serif résumé: centred name with a letter-spaced role line,
- * contact details separated by fine bars, a double rule under the header and small-caps section
- * headings over hairlines. Entries use the traditional two-line layout
+ * contact details separated by fine bars and letter-spaced section headings over hairline rules. Entries use the traditional two-line layout
  *   Title ………………………………… Date
  *   Organisation (italic) ……… Location
  * Skills read as a typeset table, languages/interests as one flowing line.
@@ -39,7 +38,7 @@ export const meta: TemplateMeta = {
   defaultFont: 'garamond',
   defaultAccent: '#1e293b',
   headingCase: 'upper',
-  gaps: { entry: 8, section: 15 },
+  gaps: { entry: 8, section: 14 },
 }
 
 /** Garamond has a small x-height; nudge it so 13 px reads like 13 px in the other pairings. */
@@ -196,7 +195,6 @@ export default function Classic({ data, main, font, headingCase }: TemplateProps
       <h1 className="cl-name">{name}</h1>
       {b.title.trim() && <div className="cl-role">{b.title}</div>}
       <ContactList basics={b} className="cl-contact" separator="|" iconSize="0.95em" />
-      <div className="cl-rule" />
     </header>
   )
 

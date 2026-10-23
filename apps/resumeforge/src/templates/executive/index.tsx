@@ -1,15 +1,17 @@
 /**
  * Executive — senior-leadership layout. A full-bleed accent band carries the name (large serif),
- * the title (letter-spaced caps) and an optional photo; a pale strip beneath it holds the contact
- * details. Sections open with strong accent rules, competencies sit in a two-column grid and later
- * pages get a slim continuation band with the name.
+ * the title (letter-spaced caps), an optional photo and — divided by a fine vertical rule — the
+ * contact details. Sections open with strong accent rules; experience entries are set with a firm
+ * title line and the organisation in the accent; competencies sit in a two-column grid; later pages
+ * get a slim continuation band with the name.
  */
 import { Fragment, type ReactNode } from 'react'
 import {
+  Bullets,
   ContactList,
   DefaultEntry,
   EntryLink,
-  LevelSegments,
+  Keywords,
   MaybeLink,
   PageLayout,
   Photo,
@@ -31,7 +33,7 @@ import './executive.css'
 export const meta: TemplateMeta = {
   id: 'executive',
   name: 'Executive',
-  description: 'Commanding full-width colour band, strong section rules and a refined serif pairing built for senior and leadership roles.',
+  description: 'Commanding full-width colour band with name, title and contacts, strong section rules and a refined serif pairing for senior and leadership roles.',
   tags: ['Classic', 'Photo'],
   order: 50,
   supportsPhoto: true,
@@ -39,42 +41,118 @@ export const meta: TemplateMeta = {
   defaultFont: 'playfair',
   defaultAccent: '#1e3a5f',
   headingCase: 'upper',
-  gaps: { entry: 11, section: 18 },
+  gaps: { entry: 10, section: 14 },
 }
 
 /** Certifications / awards: one line "Title · Issuer ……… Date" + optional link/description. */
 function CompactEntry({ e }: { e: EntryView }) {
   return (
     <div className={cx('ex-compact', `ex-compact--${e.kind}`)}>
-      <div className="ex-compact__line">
-        <div className="ex-compact__what">
+      <div className="ex-line">
+        <div className="ex-line__l">
           {e.title && <span className="ex-compact__title">{e.title}</span>}
-          {e.title && e.subtitle && <span className="ex-compact__sep"> · </span>}
+          {e.title && e.subtitle && <span className="ex-sep"> · </span>}
           {e.subtitle && <span className="ex-compact__by">{e.subtitle}</span>}
         </div>
-        {e.date && <div className="ex-compact__date">{e.date}</div>}
+        {e.date && <div className="ex-line__r ex-date">{e.date}</div>}
       </div>
       {e.url && <EntryLink entry={e} className="ex-compact__link" />}
-      {e.description && <Rich as="div" className="ex-compact__desc" text={e.description} />}
+      {e.description && <Rich as="div" className="ex-desc" text={e.description} />}
+    </div>
+  )
+}
+
+/** Publications: "Title ……… Date" / "Authors · Venue" (venue italic) / link. */
+function Publication({ e }: { e: EntryView }) {
+  return (
+    <div className="ex-pub">
+      <div className="ex-line">
+        <div className="ex-line__l">{e.title && <span className="ex-pub__title">{e.title}</span>}</div>
+        {e.date && <div className="ex-line__r ex-date">{e.date}</div>}
+      </div>
+      {(e.meta || e.subtitle || e.url) && (
+        <div className="ex-pub__by">
+          {e.meta && <span className="ex-pub__authors">{e.meta}</span>}
+          {e.meta && e.subtitle && <span className="ex-sep"> · </span>}
+          {e.subtitle && <span className="ex-pub__venue">{e.subtitle}</span>}
+          {(e.meta || e.subtitle) && e.url && <span className="ex-sep"> · </span>}
+          {e.url && <EntryLink entry={e} />}
+        </div>
+      )}
+      {e.description && <Rich as="div" className="ex-desc" text={e.description} />}
+    </div>
+  )
+}
+
+/**
+ * Experience, education, projects, volunteering, custom:
+ *   Title ……………………………………… Date (or link)
+ *   Organisation · Location · Grade …… link (when there is a date)
+ */
+function MainEntry({ e }: { e: EntryView }) {
+  const link = e.url ? <EntryLink entry={e} className="ex-link" /> : null
+  const right = e.date ? <span className="ex-date">{e.date}</span> : link
+  const lowLink = e.date ? link : null
+  const org = [
+    e.subtitle && <span key="sub" className="ex-org">{e.subtitle}</span>,
+    e.location && <span key="loc" className="ex-loc">{e.location}</span>,
+    e.meta && <span key="meta" className="ex-meta">{e.meta}</span>,
+  ].filter(Boolean)
+  return (
+    <div className={cx('ex-entry', `ex-entry--${e.kind}`)}>
+      {(e.title || right) && (
+        <div className="ex-line">
+          <div className="ex-line__l">{e.title && <span className="ex-title">{e.title}</span>}</div>
+          {right && <div className="ex-line__r">{right}</div>}
+        </div>
+      )}
+      {(org.length > 0 || lowLink) && (
+        <div className="ex-line ex-line--2">
+          <div className="ex-line__l">
+            {org.map((node, i) => (
+              <Fragment key={i}>
+                {i > 0 && <span className="ex-sep"> · </span>}
+                {node}
+              </Fragment>
+            ))}
+          </div>
+          {lowLink && <div className="ex-line__r ex-line__r--link">{lowLink}</div>}
+        </div>
+      )}
+      {e.description && <Rich as="div" className="ex-desc" text={e.description} />}
+      {e.keywords.length > 0 && <Keywords className="ex-keywords" items={e.keywords} />}
+      <Bullets items={e.bullets} marker="square" className="ex-bullets" />
     </div>
   )
 }
 
 function ExecEntry({ e }: { e: EntryView }) {
-  if (e.kind === 'certifications' || e.kind === 'awards') return <CompactEntry e={e} />
-  return <DefaultEntry entry={e} variant="main" marker="square" keywords="inline" className="ex-entry" />
+  switch (e.kind) {
+    case 'certifications':
+    case 'awards':
+      return <CompactEntry e={e} />
+    case 'publications':
+      return <Publication e={e} />
+    case 'skills':
+    case 'languages':
+    case 'interests':
+      // only reached when a section is chunked or forced here; the generic renderer handles them
+      return <DefaultEntry entry={e} variant="main" className="ex-generic" />
+    default:
+      return <MainEntry e={e} />
+  }
 }
 
-/** Core competencies: two-column grid of skill groups. */
+/** Core competencies: two-column grid of skill groups with a quiet level label. */
 function Competencies({ entries }: { entries: EntryView[] }) {
   return (
     <div className="ex-comp">
       {entries.map((e) => (
         <div key={e.id} className="ex-comp__cell">
-          {(e.title || e.level > 0) && (
+          {(e.title || e.levelLabel) && (
             <div className="ex-comp__head">
-              <span className="ex-comp__name">{e.title}</span>
-              {e.level > 0 && <LevelSegments level={e.level} label={e.levelLabel} height="0.28em" gap="0.16em" className="ex-comp__level" />}
+              {e.title && <span className="ex-comp__name">{e.title}</span>}
+              {e.levelLabel && <span className="ex-comp__level">{e.levelLabel}</span>}
             </div>
           )}
           {e.keywords.length > 0 && <div className="ex-comp__list">{e.keywords.join(' · ')}</div>}
@@ -103,7 +181,7 @@ function Interests({ entries }: { entries: EntryView[] }) {
     <div className="ex-inline">
       {items.map((e, i) => (
         <Fragment key={e.id}>
-          {i > 0 && <span className="ex-inline__sep">{' · '}</span>}
+          {i > 0 && <span className="ex-inline__sep">{' · '}</span>}
           <span>
             {e.title || e.keywords.join(', ')}
             {e.title && e.keywords.length > 0 && <span className="ex-inline__detail">{` (${e.keywords.join(', ')})`}</span>}
@@ -129,7 +207,7 @@ function References({ entries }: { entries: EntryView[] }) {
   )
 }
 
-/** Up to this many skill groups render as one grid block; longer lists paginate in row pairs. */
+/** Up to this many skill groups render as one grid block; longer lists paginate in rows of two. */
 const COMP_CHUNK = 8
 
 function whole(s: SectionView): ReactNode | undefined {
@@ -152,19 +230,18 @@ export default function Executive({ data, design, main, headingCase }: TemplateP
   const name = displayName(b)
   const title = b.title.trim()
   const photo = hasPhoto(b, design)
+  const hasContact = contactEntries(b).length > 0
 
   const header = (
-    <header className="ex-head">
-      <div className={cx('ex-band', photo && 'ex-band--photo')}>
-        {photo && <Photo basics={b} size="27mm" className="ex-photo" />}
-        <div className="ex-id">
-          <h1 className="ex-name">{name}</h1>
-          {title && <div className="ex-role">{title}</div>}
-        </div>
+    <header className={cx('ex-band', photo && 'ex-band--photo', hasContact && 'ex-band--contact')}>
+      {photo && <Photo basics={b} size="25mm" className="ex-photo" />}
+      <div className="ex-id">
+        <h1 className="ex-name">{name}</h1>
+        {title && <div className="ex-role">{title}</div>}
       </div>
-      {contactEntries(b).length > 0 && (
-        <div className="ex-strip">
-          <ContactList basics={b} className="ex-contact" separator="|" iconSize="0.95em" />
+      {hasContact && (
+        <div className="ex-reach">
+          <ContactList basics={b} layout={photo ? 'stack' : 'grid'} className="ex-contact" iconSize="0.95em" />
         </div>
       )}
     </header>
@@ -185,10 +262,11 @@ export default function Executive({ data, design, main, headingCase }: TemplateP
 
   const blocks: Block[] = main.flatMap((s) => {
     if (s.kind !== 'skills' || s.entries.length <= COMP_CHUNK) return sectionsToBlocks([s], renderers)
+    // long competency lists paginate in rows of two cells
     const out: Block[] = []
-    for (let i = 0; i < s.entries.length; i += 4) {
-      const cells = s.entries.slice(i, i + 4)
-      out.push({ key: `${s.id}:${cells[0].id}`, sectionId: s.id, entryId: cells[0].id, gap: i + 4 >= s.entries.length ? 'section' : 6, node: <>{i === 0 && heading(s)}<Competencies entries={cells} /></> })
+    for (let i = 0; i < s.entries.length; i += 2) {
+      const cells = s.entries.slice(i, i + 2)
+      out.push({ key: `${s.id}:${cells[0].id}`, sectionId: s.id, entryId: cells[0].id, gap: i + 2 >= s.entries.length ? 'section' : 5, node: <>{i === 0 && heading(s)}<Competencies entries={cells} /></> })
     }
     return out
   })
