@@ -4,31 +4,24 @@
  *   #/edit[/id]   Editor (activates the resume id when given)
  *   #/view/<enc>  Read-only shared resume
  *   #/lab?…       Template QA lab (unlinked, see app/TemplateLab.tsx)
- * OWNER: shell agent.
+ * Routes are code-split (app/lazy.ts). OWNER: shell agent.
  */
 import { Suspense, useEffect } from 'react'
-import { Dashboard } from './features/dashboard/Dashboard.tsx'
-import { EditorScreen } from './app/EditorScreen.tsx'
-import { useApplyTheme, useDocumentTitle } from './app/hooks.ts'
-import { SharedView, TemplateLab } from './app/lazy.ts'
-import { Logo } from './app/Logo.tsx'
+import { useApplyTheme } from './app/hooks.ts'
+import { DashboardScreen, EditorScreen, SharedView, TemplateLab } from './app/lazy.ts'
+import { LogoMark } from './app/Logo.tsx'
 import { ModalHost } from './app/ModalHost.tsx'
 import { PrintRoot } from './app/PrintRoot.tsx'
-import { ThemeToggle } from './app/ThemeToggle.tsx'
 import { navigate, resumeActions, useResumeStore, useRoute } from './store'
 import { ConfirmDialog, Toaster } from './ui'
 
-function DashboardScreen() {
-  useDocumentTitle('Your resumes — ResumeForge')
+function RouteFallback({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="min-h-dvh bg-slate-100 dark:bg-slate-950">
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
-        <Logo />
-        <div className="ml-auto">
-          <ThemeToggle />
-        </div>
-      </header>
-      <Dashboard />
+    <div className="grid min-h-dvh place-items-center bg-slate-100 dark:bg-slate-950" aria-busy="true">
+      <div className="flex flex-col items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+        <LogoMark className="size-10 animate-pulse" />
+        {label}
+      </div>
     </div>
   )
 }
@@ -41,7 +34,11 @@ function EditRoute({ id }: { id?: string }) {
     if (!exists) navigate({ name: 'dashboard' }, { replace: true })
   }, [id, exists, activeId])
   if (!exists || (id && id !== activeId)) return null
-  return <EditorScreen />
+  return (
+    <Suspense fallback={<RouteFallback label="Opening the editor…" />}>
+      <EditorScreen />
+    </Suspense>
+  )
 }
 
 export default function App() {
@@ -54,13 +51,15 @@ export default function App() {
           <TemplateLab params={route.params} />
         </Suspense>
       ) : route.name === 'view' ? (
-        <Suspense fallback={<div className="grid min-h-dvh place-items-center text-sm text-slate-500">Loading resume…</div>}>
+        <Suspense fallback={<RouteFallback label="Loading resume…" />}>
           <SharedView payload={route.payload} />
         </Suspense>
       ) : route.name === 'edit' ? (
         <EditRoute id={route.id} />
       ) : (
-        <DashboardScreen />
+        <Suspense fallback={<RouteFallback />}>
+          <DashboardScreen />
+        </Suspense>
       )}
       <Toaster />
       <ConfirmDialog />
