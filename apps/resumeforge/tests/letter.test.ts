@@ -63,7 +63,7 @@ describe('letter report', () => {
   })
 
   it('passes a complete, personalised letter', () => {
-    const para = 'I led a team that cut checkout time by 35% for 2M users at Finlytics, and I want to bring that focus to Lumen Health as a Senior Frontend Engineer working on accessible patient tools every single day.'
+    const para = 'I led a team that cut checkout time by 35% for 2M users at Finlytics, and I want to bring that focus to Lumen Health as a Senior Frontend Engineer working on accessible patient tools every single day, with the same care for quality and speed.'
     const body = [para, para, para, para, para].join('\n\n')
     const r = letterReport(letter({ company: 'Lumen Health', role: 'Senior Frontend Engineer', greeting: 'Dear Priya Sharma,', body }))
     assert.equal(r.paragraphs, 5)

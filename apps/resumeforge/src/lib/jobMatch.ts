@@ -161,8 +161,8 @@ export function matchLabel(score: number): string {
 
 const ROLE_WORD =
   /\b(engineer|developer|programmer|architect|manager|designer|analyst|scientist|lead|intern|specialist|consultant|director|coordinator|associate|officer|administrator|executive|writer|marketer|accountant|researcher|strategist|technician|head|owner|representative|recruiter|editor|teacher|nurse|sre|devops)s?\b/i
-const NOT_COMPANY = /^(us|you|the|this|our|your|role|team|job|position|company|it|we|them|scale|least|all|work|home|least|night|times|once)$/i
-const CAPS_NAME = String.raw`[A-Z0-9][\w&.'’-]*(?:\s+(?:&\s+)?[A-Z0-9][\w&.'’-]*){0,3}`
+const NOT_COMPANY = /^(about|us|you|the|this|our|your|role|team|job|position|company|it|we|them|scale|least|all|work|home|night|times|once|what|who|why|how)$/i
+const CAPS_NAME = String.raw`[A-Z0-9][\w&.'’-]*(?:[ \t]+(?:&[ \t]+)?[A-Z0-9][\w&.'’-]*){0,3}`
 
 const tidy = (s: string) =>
   s
@@ -219,15 +219,15 @@ export function extractJobInfo(jd: string): { company: string; role: string } {
   }
   const text = lines.join('\n')
   if (!company) {
-    const about = new RegExp(`^About\\s+(${CAPS_NAME})\\s*$`, 'm').exec(text)
+    const about = new RegExp(`^About[ \\t]+(${CAPS_NAME})[ \\t]*$`, 'm').exec(text)
     company = validCompany(about?.[1])
   }
   if (!company) {
-    const hiring = new RegExp(`(?:^|[.!]\\s+)(${CAPS_NAME})\\s+(?:is|are)\\s+(?:hiring|looking|seeking|growing|building|on a mission)`, 'm').exec(text)
+    const hiring = new RegExp(`(?:^|[.!]\\s+)(${CAPS_NAME})[ \\t]+(?:is|are)[ \\t]+(?:hiring|looking|seeking|growing|building|on a mission)`, 'm').exec(text)
     company = validCompany(hiring?.[1])
   }
   if (!company) {
-    const join = new RegExp(`\\b(?:join|at)\\s+(${CAPS_NAME})(?=[,.!]|\\s+(?:as|and|where|we|to|is)\\b)`).exec(text)
+    const join = new RegExp(`\\b(?:join|at)[ \\t]+(${CAPS_NAME})(?=[,.!]|\\s+(?:as|and|where|we|to|is)\\b)`).exec(text)
     company = validCompany(join?.[1])
   }
   if (!role) {

@@ -202,7 +202,7 @@ describe('job match helpers', () => {
     assert.equal(pickSkillsEntry(data, 'cloud')?.entryId, skills.items.find((e) => e.title === 'Tools')!.id)
     assert.equal(placementFor({ category: 'soft', source: 'dictionary' }, data).label, 'Experience')
     assert.equal(placementFor({ category: 'phrase', source: 'phrase' }, data).label, 'Summary')
-    const blank = blankData()
+    const blank = { ...blankData(), sections: blankData().sections.filter((x) => x.kind !== 'skills') }
     const pb = placementFor(graphql, blank)
     assert.equal(pb.target, undefined)
     assert.equal(pb.addKind, 'skills')

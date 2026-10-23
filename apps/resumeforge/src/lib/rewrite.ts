@@ -106,10 +106,12 @@ const escapeRe = (s: string) => s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 
 /** Replace every occurrence of the misspelling that maps to `right` (whole tokens only). */
 export function fixSpelling(text: string, right: string): string | null {
-  const pair = detectSpelling(text).find((p) => p.right === right)
-  if (!pair) return null
-  const re = new RegExp(`(^|[^A-Za-z0-9.+#/-])${escapeRe(pair.wrong)}(?![A-Za-z0-9+#])`, 'g')
-  const out = text.replace(re, (_m, pre: string) => `${pre}${right}`)
+  let out = text
+  for (const pair of detectSpelling(text)) {
+    if (pair.right !== right) continue
+    const re = new RegExp(`(^|[^A-Za-z0-9.+#/-])${escapeRe(pair.wrong)}(?![A-Za-z0-9+#])`, 'g')
+    out = out.replace(re, (_m, pre: string) => `${pre}${right}`)
+  }
   return out === text ? null : out
 }
 
