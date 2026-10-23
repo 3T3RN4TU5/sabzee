@@ -142,14 +142,14 @@
 .rf-t-creative .cr-main {
   flex: 1 1 0;
   min-width: 0;
-  padding: calc(var(--rf-margin) * 0.85) var(--rf-margin) 0 calc(var(--rf-margin) * 0.9);
+  padding: calc(var(--rf-margin) * 0.75) var(--rf-margin) 0 calc(var(--rf-margin) * 0.9);
 }
 
 .rf-t-creative .cr-side {
   order: -1;
   flex: 0 0 34%;
   min-width: 0;
-  padding: calc(var(--rf-margin) * 0.85) calc(var(--rf-margin) * 0.72) 0 calc(var(--rf-margin) * 0.8);
+  padding: calc(var(--rf-margin) * 0.75) calc(var(--rf-margin) * 0.72) 0 calc(var(--rf-margin) * 0.8);
   background: var(--rf-accent-soft);
   font-size: 0.9em;
   --rf-level-off: rgb(var(--rf-accent-rgb) / 0.18);

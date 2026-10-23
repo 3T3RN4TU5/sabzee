@@ -43,7 +43,7 @@ export const meta: TemplateMeta = {
   defaultAccent: '#0f766e',
   sideKinds: ['skills', 'languages', 'certifications', 'awards', 'interests', 'references'],
   headingCase: 'normal',
-  gaps: { entry: 11, section: 20 },
+  gaps: { entry: 10, section: 18 },
 }
 
 /** "Dr. Meera Iyer" → ["Dr. Meera", "Iyer"] (the surname is set in heavy type). */

@@ -38,7 +38,7 @@ export const meta: TemplateMeta = {
   columns: 2,
   defaultFont: 'plex',
   defaultAccent: '#2563eb',
-  sideKinds: ['skills', 'languages', 'certifications', 'awards', 'interests', 'references'],
+  sideKinds: ['education', 'skills', 'languages', 'certifications', 'awards', 'interests', 'references'],
   headingCase: 'normal',
   gaps: { entry: 10, section: 17 },
 }

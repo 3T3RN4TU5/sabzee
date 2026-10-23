@@ -1,16 +1,19 @@
 /**
- * Export menu (header "Download" button). OWNER: io agent — this baseline implements PDF, Markdown,
- * TXT, JSON, JSON Resume and share links; DOCX is left for the io agent (import 'docx' dynamically).
+ * Export menu (the editor header's "Download" button): PDF (print → Save as PDF), Word, plain text,
+ * Markdown, cover letter PDF/Word/text, share link, ResumeForge backup and JSON Resume.
+ * OWNER: io agent.
  */
-import { ChevronDown, Download, FileCode2, FileJson, FileText, FileType, Link2, Printer } from 'lucide-react'
-import { toMarkdown, toPlainText } from '../../lib/exportText.ts'
-import { printFilename } from '../../lib/filename.ts'
-import { exportDoc, exportJsonResume } from '../../lib/importer.ts'
-import { shareUrl } from '../../lib/share.ts'
-import { getActiveDoc, toast, useUiStore } from '../../store'
-import { Button, Menu } from '../../ui'
-import { copyText, downloadFile } from './download.ts'
-import { printDocument } from './print.ts'
+import { ChevronDown, Download, FileCode2, FileJson, FileText, FileType, Link2, Loader2, Mail, Printer, Save } from 'lucide-react'
+import { useState } from 'react'
+import { shortcut, MOD } from '../../app/platform.ts'
+import { hasLetterContent } from '../../lib/docxModel.ts'
+import { paperSize } from '../../lib/templateData.ts'
+import type { ResumeDoc } from '../../lib/types.ts'
+import { getActiveDoc, toast, useActiveDoc, useUiStore } from '../../store'
+import { Button, Menu, type MenuItem } from '../../ui'
+import { exportBackup, exportDocx, exportJsonResumeFile, exportLetterText, exportMarkdown, exportPlainText } from './exporters.ts'
+import { pdfTitle, printDocument } from './print.ts'
+import { ShareDialog } from './ShareDialog.tsx'
 
 export interface ExportMenuProps {
   /** Icon-only trigger for narrow headers. */
@@ -18,43 +21,86 @@ export interface ExportMenuProps {
 }
 
 export function ExportMenu({ compact = false }: ExportMenuProps) {
+  const doc = useActiveDoc()
   const panel = useUiStore((s) => s.panel)
-  const withDoc = (fn: (doc: NonNullable<ReturnType<typeof getActiveDoc>>) => void) => () => {
-    const doc = getActiveDoc()
-    if (doc) fn(doc)
+  const [busy, setBusy] = useState<string | null>(null)
+  const [sharing, setSharing] = useState(false)
+
+  /** Run an export for the active resume with a busy state and success/failure toasts. */
+  const run = (key: string, what: string, fn: (d: ResumeDoc) => string | Promise<string>) => () => {
+    const d = getActiveDoc()
+    if (!d || busy) return
+    setBusy(key)
+    void (async () => {
+      try {
+        const file = await fn(d)
+        toast(`Downloaded ${file}`, 'success')
+      } catch (e) {
+        console.error(e)
+        toast(`Couldn’t export ${what}${e instanceof Error && e.message ? `: ${e.message}` : ''}`, 'error')
+      } finally {
+        setBusy(null)
+      }
+    })()
   }
-  const base = (doc: NonNullable<ReturnType<typeof getActiveDoc>>) => printFilename(doc.data.basics.name)
+
+  const pdf = (target: 'resume' | 'letter') => () => {
+    const job = { target }
+    toast(`In the print dialog choose “Save as PDF” — it will be named ${pdfTitle(job)}.pdf`, 'info', { duration: 6000 })
+    printDocument(job).catch((e: unknown) => {
+      console.error(e)
+      toast('Couldn’t open the print dialog', 'error')
+    })
+  }
+
+  const paper = doc ? paperSize(doc.design.paper).label : 'A4'
+  const letterReady = !!doc && hasLetterContent(doc.coverLetter)
+  const showLetter = letterReady || panel === 'cover'
+  const needLetter = letterReady ? undefined : 'Write your letter in the Cover letter tab first'
+
+  const items: (MenuItem | 'separator' | { heading: string })[] = [
+    { heading: 'Resume' },
+    { key: 'pdf', icon: Printer, label: 'PDF', description: `Text-based, ATS-readable · ${paper}`, hint: shortcut(MOD, 'P'), onSelect: pdf('resume') },
+    { key: 'docx', icon: FileType, label: 'Word (.docx)', description: 'Editable in Word and Google Docs', onSelect: run('docx', 'the Word file', (d) => exportDocx(d, 'resume')) },
+    { key: 'txt', icon: FileText, label: 'Plain text (.txt)', description: 'For pasting into job portals', onSelect: run('txt', 'plain text', exportPlainText) },
+    { key: 'md', icon: FileCode2, label: 'Markdown (.md)', description: 'For GitHub, Notion or your site', onSelect: run('md', 'Markdown', exportMarkdown) },
+    ...(showLetter
+      ? ([
+          'separator',
+          { heading: 'Cover letter' },
+          { key: 'letter-pdf', icon: Printer, label: 'Cover letter PDF', description: needLetter ?? 'Matches your resume design', disabled: !letterReady, onSelect: pdf('letter') },
+          { key: 'letter-docx', icon: FileType, label: 'Cover letter Word (.docx)', description: needLetter, disabled: !letterReady, onSelect: run('letter-docx', 'the cover letter', (d) => exportDocx(d, 'letter')) },
+          { key: 'letter-txt', icon: Mail, label: 'Cover letter text (.txt)', description: needLetter ?? 'For email bodies and forms', disabled: !letterReady, onSelect: run('letter-txt', 'the cover letter', exportLetterText) },
+        ] as const)
+      : []),
+    'separator',
+    { heading: 'Share & back up' },
+    { key: 'share', icon: Link2, label: 'Share link…', description: 'Read-only link — the resume lives in the URL', onSelect: () => setSharing(true) },
+    { key: 'json', icon: Save, label: 'ResumeForge backup (.json)', description: 'Content, design and cover letter', onSelect: run('json', 'the backup', exportBackup) },
+    { key: 'jsonresume', icon: FileJson, label: 'JSON Resume (.json)', description: 'Open standard — jsonresume.org', onSelect: run('jsonresume', 'JSON Resume', exportJsonResumeFile) },
+  ]
 
   return (
-    <Menu
-      width="w-72"
-      trigger={(p) => (
-        <Button variant="primary" icon={Download} iconRight={compact ? undefined : ChevronDown} {...p} aria-label="Download / export">
-          {compact ? null : 'Download'}
-        </Button>
-      )}
-      items={[
-        { heading: 'Resume' },
-        { key: 'pdf', icon: Printer, label: 'PDF', description: 'Print → “Save as PDF” (text-based, ATS-safe)', onSelect: () => void printDocument({ target: 'resume' }) },
-        ...(panel === 'cover' ? [{ key: 'pdf-letter', icon: Printer, label: 'Cover letter PDF', onSelect: () => void printDocument({ target: 'letter' }) }] : []),
-        { key: 'docx', icon: FileType, label: 'Word (.docx)', description: 'Coming soon', disabled: true, onSelect: () => undefined },
-        { key: 'md', icon: FileCode2, label: 'Markdown', onSelect: withDoc((d) => downloadFile(`${base(d)}.md`, toMarkdown(d.data, { dateFormat: d.design.dateFormat }), 'text/markdown;charset=utf-8')) },
-        { key: 'txt', icon: FileText, label: 'Plain text (ATS)', onSelect: withDoc((d) => downloadFile(`${base(d)}.txt`, toPlainText(d.data, { dateFormat: d.design.dateFormat }))) },
-        'separator',
-        { heading: 'Data' },
-        { key: 'json', icon: FileJson, label: 'ResumeForge JSON', description: 'Full backup incl. design & cover letter', onSelect: withDoc((d) => downloadFile(`${base(d)}.resumeforge.json`, JSON.stringify(exportDoc(d), null, 2), 'application/json')) },
-        { key: 'jsonresume', icon: FileJson, label: 'JSON Resume', description: 'jsonresume.org schema', onSelect: withDoc((d) => downloadFile(`${base(d)}.json`, JSON.stringify(exportJsonResume(d), null, 2), 'application/json')) },
-        {
-          key: 'share',
-          icon: Link2,
-          label: 'Copy share link',
-          description: 'Read-only link — the resume lives in the URL',
-          onSelect: withDoc(async (d) => {
-            const ok = await copyText(shareUrl(window.location.href, { data: d.data, design: d.design }))
-            toast(ok ? 'Share link copied' : 'Could not copy the link', ok ? 'success' : 'error')
-          }),
-        },
-      ]}
-    />
+    <>
+      <Menu
+        width="w-80"
+        label="Download and export"
+        trigger={(p) => (
+          <Button
+            variant="primary"
+            icon={busy ? Loader2 : Download}
+            iconRight={compact ? undefined : ChevronDown}
+            {...p}
+            aria-label={busy ? 'Preparing download…' : 'Download / export'}
+            aria-busy={busy ? true : undefined}
+            className={busy ? '[&>svg:first-child]:animate-spin' : undefined}
+          >
+            {compact ? null : busy ? 'Preparing…' : 'Download'}
+          </Button>
+        )}
+        items={items}
+      />
+      {doc && sharing && <ShareDialog open onClose={() => setSharing(false)} doc={doc} />}
+    </>
   )
 }
