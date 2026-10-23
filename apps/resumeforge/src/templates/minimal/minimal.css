@@ -25,16 +25,14 @@
   padding-left: calc(var(--mi-gutter) + var(--mi-col-gap));
 }
 
-/* ---------- header ---------- */
+/* ---------- header (same two tracks as the rows: photo in the gutter, text in the body) ---------- */
 
 .rf-t-minimal .mi-header {
-  margin-bottom: calc(var(--rf-section-gap) * 1.45);
-}
-.rf-t-minimal .mi-header--photo {
   display: grid;
   grid-template-columns: var(--mi-gutter) minmax(0, 1fr);
   column-gap: var(--mi-col-gap);
   align-items: center;
+  margin-bottom: calc(var(--rf-section-gap) * 1.45);
 }
 .rf-t-minimal .mi-photo {
   filter: grayscale(0.15);
@@ -57,22 +55,23 @@
 }
 .rf-t-minimal .mi-contact {
   margin-top: 0.95em;
-  column-gap: 1.1em;
-  row-gap: 0.3em;
   font-size: 0.86em;
   color: #4b5563;
 }
-.rf-t-minimal .mi-contact .rf-contact__sep {
-  margin: 0 -0.4em;
-  opacity: 1;
-  color: #d1d5db;
+.rf-t-minimal .mi-contact.rf-contact--grid {
+  grid-template-columns: repeat(3, minmax(0, max-content));
+  column-gap: 1.7em;
+  row-gap: 0.32em;
 }
 .rf-t-minimal .mi-contact .rf-contact__icon {
   color: #9ca3af;
   opacity: 1;
 }
 .rf-t-minimal .mi-contact .rf-contact__item {
-  gap: 0.38em;
+  gap: 0.45em;
+}
+.rf-t-minimal .mi-contact .rf-link {
+  color: inherit;
 }
 
 /* ---------- gutter rows ---------- */
@@ -239,6 +238,60 @@
 }
 .rf-t-minimal .mi-inline__detail {
   color: #6b7280;
+}
+
+/* ---------- compact rows (certifications, awards) & publications ---------- */
+
+.rf-t-minimal .mi-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.2em;
+}
+.rf-t-minimal .mi-line__l {
+  min-width: 0;
+}
+.rf-t-minimal .mi-line__r {
+  flex: none;
+  white-space: nowrap;
+}
+.rf-t-minimal .mi-title {
+  font-family: var(--rf-font-heading);
+  font-size: 1.04em;
+  font-weight: 600;
+  color: #111827;
+}
+.rf-t-minimal .mi-dash,
+.rf-t-minimal .mi-dot {
+  color: #c4c9d0;
+}
+.rf-t-minimal .mi-by {
+  color: #4b5563;
+}
+.rf-t-minimal .mi-date {
+  font-size: 0.84em;
+  letter-spacing: 0.02em;
+  color: #6b7280;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.rf-t-minimal .mi-link {
+  display: block;
+  font-size: 0.9em;
+  color: var(--rf-accent-ink);
+  overflow-wrap: anywhere;
+}
+.rf-t-minimal .mi-note {
+  margin-top: 0.2em;
+  color: #374151;
+}
+.rf-t-minimal .mi-pub__by {
+  margin-top: 0.08em;
+  font-size: 0.92em;
+  color: #6b7280;
+}
+.rf-t-minimal .mi-pub__venue {
+  font-style: italic;
+  color: #4b5563;
 }
 
 /* ---------- references ---------- */

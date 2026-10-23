@@ -1,12 +1,14 @@
 /**
  * Minimal — an airy, single-column layout on a two-track grid: tiny letter-spaced section labels
- * hang in a narrow left gutter, content sits in the wide right track. Light display type for the
- * name, quiet greys, the accent only on labels and links, and plenty of whitespace.
+ * hang in a narrow left gutter and everything else — name, contact grid and content — starts on
+ * one vertical line in the wide right track (the optional photo sits in the gutter). Light display
+ * type for the name, quiet greys, the accent only on labels and links, and plenty of whitespace.
  */
 import { Fragment, type ReactNode } from 'react'
 import {
   ContactList,
   DefaultEntry,
+  EntryLink,
   LevelDots,
   MaybeLink,
   PageLayout,
@@ -43,6 +45,57 @@ export const meta: TemplateMeta = {
 /** Page padding = design margin × this (minimal breathes a little more than the others). */
 const ROOM = 1.12
 
+/** Certifications / awards: "Title — Issuer ……… Date", optional link and note below. */
+function CompactEntry({ e }: { e: EntryView }) {
+  return (
+    <div className={cx('mi-compact', `mi-compact--${e.kind}`)}>
+      <div className="mi-line">
+        <div className="mi-line__l">
+          {e.title && <span className="mi-title">{e.title}</span>}
+          {e.title && e.subtitle && <span className="mi-dash">{' — '}</span>}
+          {e.subtitle && <span className="mi-by">{e.subtitle}</span>}
+        </div>
+        {e.date && <div className="mi-line__r mi-date">{e.date}</div>}
+      </div>
+      {e.url && <EntryLink entry={e} className="mi-link" />}
+      {e.description && <Rich as="div" className="mi-note" text={e.description} />}
+    </div>
+  )
+}
+
+/** Publications: "Title ……… Date" / "Authors · Venue" / link. */
+function Publication({ e }: { e: EntryView }) {
+  return (
+    <div className="mi-pub">
+      <div className="mi-line">
+        <div className="mi-line__l">{e.title && <span className="mi-title">{e.title}</span>}</div>
+        {e.date && <div className="mi-line__r mi-date">{e.date}</div>}
+      </div>
+      {(e.meta || e.subtitle) && (
+        <div className="mi-pub__by">
+          {e.meta && <span>{e.meta}</span>}
+          {e.meta && e.subtitle && <span className="mi-dot">{' · '}</span>}
+          {e.subtitle && <span className="mi-pub__venue">{e.subtitle}</span>}
+        </div>
+      )}
+      {e.url && <EntryLink entry={e} className="mi-link" />}
+      {e.description && <Rich as="div" className="mi-note" text={e.description} />}
+    </div>
+  )
+}
+
+function entry(e: EntryView): ReactNode {
+  switch (e.kind) {
+    case 'certifications':
+    case 'awards':
+      return <CompactEntry e={e} />
+    case 'publications':
+      return <Publication e={e} />
+    default:
+      return <DefaultEntry entry={e} variant="main" marker="dash" keywords="inline" className="mi-entry" />
+  }
+}
+
 function SkillList({ entries }: { entries: EntryView[] }) {
   return (
     <div className="mi-skills">
@@ -76,7 +129,7 @@ function Interests({ entries }: { entries: EntryView[] }) {
     <div className="mi-inline">
       {items.map((e, i) => (
         <Fragment key={e.id}>
-          {i > 0 && <span className="mi-inline__sep">{' · '}</span>}
+          {i > 0 && <span className="mi-inline__sep">{' · '}</span>}
           <span className="mi-inline__item">
             {e.title || e.keywords.join(', ')}
             {e.title && e.keywords.length > 0 && <span className="mi-inline__detail">{` (${e.keywords.join(', ')})`}</span>}
@@ -124,16 +177,12 @@ export default function Minimal({ data, design, main, headingCase, isLetter }: T
   const photo = hasPhoto(b, design)
 
   const header = (
-    <header className={cx('mi-header', photo && 'mi-header--photo')}>
-      {photo && (
-        <div className="mi-header__photo">
-          <Photo basics={b} size="23mm" className="mi-photo" />
-        </div>
-      )}
-      <div className="mi-header__text">
+    <header className="mi-header">
+      <div className="mi-gutter mi-header__gutter">{photo && <Photo basics={b} size="22mm" className="mi-photo" />}</div>
+      <div className="mi-body">
         <h1 className="mi-name">{displayName(b)}</h1>
         {b.title.trim() && <div className="mi-role">{b.title}</div>}
-        <ContactList basics={b} className="mi-contact" separator="/" iconSize="0.92em" />
+        <ContactList basics={b} layout="grid" className="mi-contact" iconSize="0.92em" />
       </div>
     </header>
   )
@@ -149,7 +198,7 @@ export default function Minimal({ data, design, main, headingCase, isLetter }: T
   const renderers = {
     heading: () => null,
     summary: (s: SectionView) => <RichParagraphs className="mi-summary" text={s.content} />,
-    entry: (e: EntryView) => <DefaultEntry entry={e} variant="main" marker="dash" keywords="inline" className="mi-entry" />,
+    entry,
     whole,
     wrap: (node: ReactNode, { section, first }: { section: SectionView; first: boolean }) => row(section, first, node),
   }

@@ -21,15 +21,15 @@
   overflow: hidden;
   display: flex;
   align-items: center;
-  min-height: 46mm;
-  padding: calc(var(--rf-margin) * 0.8) 0;
+  min-height: 40mm;
+  padding: calc(var(--rf-margin) * 0.68) 0;
   background: linear-gradient(115deg, var(--rf-accent) 0%, var(--rf-accent) 42%, var(--rf-accent-deep) 100%);
   color: var(--rf-on-accent);
 }
 
 .rf-t-creative .cr-band__media {
   position: relative;
-  flex: 0 0 35%;
+  flex: 0 0 34%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -51,8 +51,8 @@
 .rf-t-creative .cr-monogram {
   display: grid;
   place-items: center;
-  width: 29mm;
-  height: 29mm;
+  width: 26mm;
+  height: 26mm;
   border-radius: 50%;
   background: rgb(var(--rf-on-accent-rgb) / 0.1);
   box-shadow:
@@ -147,7 +147,7 @@
 
 .rf-t-creative .cr-side {
   order: -1;
-  flex: 0 0 35%;
+  flex: 0 0 34%;
   min-width: 0;
   padding: calc(var(--rf-margin) * 0.85) calc(var(--rf-margin) * 0.72) 0 calc(var(--rf-margin) * 0.8);
   background: var(--rf-accent-soft);
@@ -227,7 +227,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.55em;
+  gap: 0.5em;
 }
 .rf-t-creative .cr-contact__item {
   display: flex;

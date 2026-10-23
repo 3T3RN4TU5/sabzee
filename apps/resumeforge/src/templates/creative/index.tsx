@@ -41,7 +41,7 @@ export const meta: TemplateMeta = {
   columns: 2,
   defaultFont: 'poppins',
   defaultAccent: '#0f766e',
-  sideKinds: ['skills', 'languages', 'certifications', 'interests', 'references'],
+  sideKinds: ['skills', 'languages', 'certifications', 'awards', 'interests', 'references'],
   headingCase: 'normal',
   gaps: { entry: 11, section: 20 },
 }
@@ -60,7 +60,7 @@ function SideSkill({ e }: { e: EntryView }) {
     <div className="rf-entry rf-entry--skills rf-entry--side rf-skill cr-skill">
       {e.title && <div className="rf-skill__name">{e.title}</div>}
       {e.level > 0 && <LevelSegments level={e.level} label={e.levelLabel} className="cr-skill__bar" height="0.34em" gap="0.24em" />}
-      {e.keywords.length > 0 && <div className="rf-skill__keywords cr-skill__kw">{e.keywords.join(' · ')}</div>}
+      {e.keywords.length > 0 && <div className="rf-skill__keywords cr-skill__kw">{e.keywords.join(', ')}</div>}
     </div>
   )
 }
@@ -130,7 +130,7 @@ export default function Creative({ data, design, main, side }: TemplateProps) {
       <span className="cr-shape cr-shape--dots" aria-hidden="true" />
       <div className="cr-band__media">
         {photo ? (
-          <Photo basics={b} size="32mm" className="cr-photo" />
+          <Photo basics={b} size="28mm" className="cr-photo" />
         ) : (
           <div className="cr-monogram" aria-hidden="true">
             <span>{initials(name)}</span>

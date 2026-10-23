@@ -44,7 +44,7 @@
   display: flex;
   align-items: center;
   gap: 1.5em;
-  padding: calc(var(--rf-margin) * 0.85) var(--rf-margin) calc(var(--rf-margin) * 0.62);
+  padding: calc(var(--rf-margin) * 0.8) var(--rf-margin) calc(var(--rf-margin) * 0.58);
   border-bottom: 1px solid var(--te-hair);
 }
 .rf-t-tech .te-header__text {
@@ -104,9 +104,9 @@
   padding: calc(var(--rf-margin) * 0.72) 1.5em 0 var(--rf-margin);
 }
 .rf-t-tech .te-rail {
-  flex: 0 0 31%;
+  flex: 0 0 29%;
   min-width: 0;
-  padding: calc(var(--rf-margin) * 0.72) var(--rf-margin) 0 1.35em;
+  padding: calc(var(--rf-margin) * 0.72) var(--rf-margin) 0 1.3em;
   background: var(--te-canvas);
   border-left: 1px solid var(--te-hair);
   font-size: 0.9em;

@@ -1,0 +1,379 @@
+/* Timeline template — every selector is scoped to .rf-t-timeline (the document root class). */
+
+.rf-t-timeline {
+  --tl-gutter: 25mm;
+  --tl-rail: 8mm;
+  --tl-line: 2px;
+  --tl-line-color: rgb(var(--rf-accent-rgb) / 0.32);
+  --tl-ink: #1f2937;
+  --tl-soft: #374151;
+  --tl-dim: #4b5563;
+}
+
+.rf-t-timeline .tl-page {
+  height: 100%;
+  padding: var(--rf-margin) var(--rf-margin) 0;
+  color: var(--tl-ink);
+}
+
+/* ---------- header ---------- */
+
+.rf-t-timeline .tl-header {
+  display: flex;
+  align-items: center;
+  gap: 1.4em;
+  padding-bottom: 1.1em;
+  margin-bottom: calc(var(--rf-section-gap) * 0.9);
+  border-bottom: 1px solid var(--rf-rule);
+}
+.rf-t-timeline .tl-photo {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgb(var(--rf-accent-rgb) / 0.45);
+}
+.rf-t-timeline .tl-id {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.rf-t-timeline .tl-name {
+  font-family: var(--rf-font-heading);
+  font-size: 2.45em;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--rf-heading);
+}
+.rf-t-timeline .tl-title {
+  margin-top: 0.3em;
+  font-family: var(--rf-font-heading);
+  font-size: 0.98em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rf-accent-ink);
+}
+.rf-t-timeline .tl-contact {
+  margin-top: 0.8em;
+  column-gap: 1.15em;
+  row-gap: 0.3em;
+  font-size: 0.88em;
+  color: var(--tl-soft);
+}
+.rf-t-timeline .tl-contact .rf-contact__icon {
+  color: var(--rf-accent-ink);
+  opacity: 1;
+}
+
+/* running head on pages 2+ */
+.rf-t-timeline .tl-run {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8em;
+  padding-bottom: 0.45em;
+  margin-bottom: 1.1em;
+  border-bottom: 1px solid var(--rf-rule);
+  font-size: 0.82em;
+}
+.rf-t-timeline .tl-run__name {
+  font-family: var(--rf-font-heading);
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-t-timeline .tl-run__title {
+  color: var(--rf-muted);
+}
+
+/* ---------- the timeline grid ---------- */
+
+.rf-t-timeline .tl-row {
+  display: grid;
+  grid-template-columns: var(--tl-gutter) var(--tl-rail) minmax(0, 1fr);
+  align-items: start;
+}
+.rf-t-timeline .tl-row--entry {
+  align-items: baseline;
+}
+.rf-t-timeline .tl-when {
+  min-width: 0;
+  padding-right: 0.95em;
+  text-align: right;
+  font-size: 0.84em;
+  line-height: 1.35;
+}
+.rf-t-timeline .tl-rail {
+  position: relative;
+  align-self: stretch;
+}
+.rf-t-timeline .tl-rail::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: var(--tl-line);
+  margin-left: calc(var(--tl-line) / -2);
+  background: var(--tl-line-color);
+}
+.rf-t-timeline .tl-body {
+  min-width: 0;
+  padding-left: 0.15em;
+}
+
+/* the line continues through the gap PageLayout leaves after each block */
+.rf-t-timeline .tl-blk--ext-entry > .tl-row:last-child > .tl-rail::before {
+  bottom: calc(-1 * var(--rf-entry-gap));
+}
+.rf-t-timeline .tl-blk--ext-section > .tl-row:last-child > .tl-rail::before {
+  bottom: calc(-1 * var(--rf-section-gap));
+}
+/* …and starts at the first heading's node */
+.rf-t-timeline .tl-blk--start > .tl-row:first-child > .tl-rail::before {
+  top: 0.5lh;
+}
+
+/* nodes: the rail cell copies the font size / line height of the text it sits next to,
+   so 0.5lh is the centre of that text's first line */
+.rf-t-timeline .tl-node {
+  position: absolute;
+  left: 50%;
+  top: calc(0.5lh - 0.36em);
+  width: 0.72em;
+  height: 0.72em;
+  margin-left: -0.36em;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--rf-accent);
+}
+.rf-t-timeline .tl-row--current .tl-node {
+  background: var(--rf-accent);
+  box-shadow: 0 0 0 2.5px rgb(var(--rf-accent-rgb) / 0.22);
+}
+.rf-t-timeline .tl-row--entry > .tl-rail {
+  font-size: 1.04em;
+}
+.rf-t-timeline .tl-row--head > .tl-rail,
+.rf-t-timeline .tl-h {
+  font-size: 0.92em;
+  line-height: 1.3;
+}
+.rf-t-timeline .tl-node--head {
+  top: calc(0.5lh - 0.5em);
+  width: 1em;
+  height: 1em;
+  margin-left: -0.5em;
+  border: 0;
+  background: var(--rf-accent);
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 4.5px rgb(var(--rf-accent-rgb) / 0.4);
+}
+
+/* ---------- headings ---------- */
+
+.rf-t-timeline .tl-h {
+  padding-bottom: 0.7em;
+  font-family: var(--rf-font-heading);
+  font-weight: 800;
+  letter-spacing: calc(var(--rf-heading-tracking) + 0.03em);
+  text-transform: var(--rf-heading-transform);
+  color: var(--rf-accent-ink);
+}
+.rf-t-timeline .tl-h--normal {
+  font-size: 1.04em;
+  letter-spacing: 0;
+}
+
+/* ---------- dates in the gutter ---------- */
+
+.rf-t-timeline .tl-date {
+  font-variant-numeric: tabular-nums;
+}
+.rf-t-timeline .tl-date__start {
+  font-weight: 600;
+  color: var(--tl-dim);
+}
+.rf-t-timeline .tl-date__end {
+  color: var(--rf-muted);
+}
+.rf-t-timeline .tl-date__end--now {
+  font-weight: 700;
+  color: var(--rf-accent-ink);
+}
+
+/* ---------- entries ---------- */
+
+.rf-t-timeline .tl-sep {
+  color: #9ca3af;
+}
+.rf-t-timeline .rf-link {
+  color: inherit;
+}
+.rf-t-timeline .tl-e__title {
+  font-family: var(--rf-font-heading);
+  font-size: 1.04em;
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-t-timeline .tl-e__line {
+  margin-top: 0.08em;
+  font-size: 0.95em;
+}
+.rf-t-timeline .tl-e__sub {
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+.rf-t-timeline .tl-e__loc {
+  color: var(--rf-muted);
+}
+.rf-t-timeline .tl-e__url {
+  color: var(--rf-accent-ink);
+  overflow-wrap: anywhere;
+}
+.rf-t-timeline .tl-e__authors {
+  font-style: italic;
+  color: var(--tl-dim);
+}
+.rf-t-timeline .tl-e--publications .tl-e__sub {
+  font-weight: 500;
+}
+.rf-t-timeline .tl-e__meta {
+  margin-top: 0.1em;
+  font-size: 0.92em;
+  font-style: italic;
+  color: var(--tl-dim);
+}
+.rf-t-timeline .tl-e__desc {
+  margin-top: 0.25em;
+  color: var(--tl-soft);
+}
+.rf-t-timeline .tl-e__tags {
+  margin-top: 0.4em;
+  gap: 0.3em;
+}
+.rf-t-timeline .tl-chip {
+  padding: 0.05em 0.6em;
+  border: 1px solid rgb(var(--rf-accent-rgb) / 0.35);
+  background: transparent;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+.rf-t-timeline .tl-bullets {
+  margin-top: 0.35em;
+}
+.rf-t-timeline .tl-bullets > li {
+  color: var(--tl-soft);
+}
+.rf-t-timeline .tl-bullets > li + li {
+  margin-top: 0.16em;
+}
+.rf-t-timeline .tl-bullets > li::before {
+  background: rgb(var(--rf-accent-rgb) / 0.75);
+  width: 0.3em;
+  height: 0.3em;
+  top: calc(0.5lh - 0.15em);
+}
+
+.rf-t-timeline .tl-summary {
+  color: var(--tl-soft);
+}
+
+/* skills: two-column grid of groups */
+.rf-t-timeline .tl-skills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.8em;
+  row-gap: 0.75em;
+}
+.rf-t-timeline .tl-skill__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6em;
+}
+.rf-t-timeline .tl-skill__name {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-t-timeline .tl-skill__label {
+  font-size: 0.8em;
+  color: var(--rf-muted);
+}
+.rf-t-timeline .tl-skill__bar {
+  margin: 0.3em 0 0.3em;
+}
+.rf-t-timeline .tl-skill__kw {
+  font-size: 0.93em;
+  color: var(--tl-soft);
+}
+
+/* languages */
+.rf-t-timeline .tl-langs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.8em;
+  row-gap: 0.3em;
+}
+.rf-t-timeline .tl-lang {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px dotted rgb(var(--rf-accent-rgb) / 0.3);
+}
+.rf-t-timeline .tl-lang__name {
+  font-weight: 600;
+  color: var(--rf-heading);
+}
+.rf-t-timeline .tl-lang__level {
+  font-size: 0.86em;
+  color: var(--tl-dim);
+}
+
+/* interests */
+.rf-t-timeline .tl-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+}
+.rf-t-timeline .tl-interest {
+  padding: 0.12em 0.75em;
+  border-radius: 999px;
+  background: var(--rf-accent-soft);
+  font-size: 0.9em;
+  font-weight: 500;
+  color: var(--rf-accent-ink);
+}
+.rf-t-timeline .tl-interest__details {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+/* references */
+.rf-t-timeline .tl-refs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.8em;
+  row-gap: 0.8em;
+}
+.rf-t-timeline .tl-ref__name {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-t-timeline .tl-ref__role {
+  font-size: 0.93em;
+  color: var(--tl-dim);
+}
+.rf-t-timeline .tl-ref__contact {
+  font-size: 0.93em;
+  color: var(--rf-accent-ink);
+  overflow-wrap: anywhere;
+}
+.rf-t-timeline .tl-ref__note {
+  margin-top: 0.15em;
+  font-size: 0.93em;
+  font-style: italic;
+  color: var(--tl-dim);
+}
+.rf-t-timeline .tl-row--head:has(.tl-h--normal) > .tl-rail {
+  font-size: 1.04em;
+}
