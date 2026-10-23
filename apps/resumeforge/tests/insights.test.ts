@@ -162,6 +162,7 @@ describe('bullet helper tools', () => {
     const t = BULLET_TEMPLATES[0].pattern
     assert.deepEqual(templatePlaceholders(t), ['X', 'Y', 'Z'])
     assert.equal(fillTemplate(t, { X: 'a 20% faster checkout', Y: 'p95 latency', Z: 'caching' }), 'Accomplished a 20% faster checkout as measured by p95 latency by doing caching')
+    assert.equal(fillTemplate(t, { X: 'Cut costs 10%', Y: 'AWS bills' }), 'Accomplished cut costs 10% as measured by AWS bills by doing [Z]')
     assert.equal(fillTemplate(t, { X: 'more sales' }), 'Accomplished more sales as measured by [Y] by doing [Z]')
     assert.deepEqual(
       templateParts('Led [N] people').map((p) => p.placeholder),

@@ -201,7 +201,7 @@ function ExportBar({ doc }: { doc: ResumeDoc }) {
   const empty = !doc.coverLetter.body.trim()
   return (
     <div className="flex flex-wrap items-end gap-2">
-      <div className="min-w-0 basis-full sm:basis-auto sm:flex-1">
+      <div className="min-w-0 basis-full">
         <h2 className="text-base font-bold text-slate-900 dark:text-white">Cover letter</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">Styled with your resume template, accent and fonts.</p>
       </div>

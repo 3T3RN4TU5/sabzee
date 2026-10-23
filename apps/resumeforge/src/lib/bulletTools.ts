@@ -36,7 +36,12 @@ export function templatePlaceholders(pattern: string): string[] {
 /** Replace placeholders with the given values; unfilled ones stay bracketed (the ATS check flags them). */
 export function fillTemplate(pattern: string, values: Record<string, string>): string {
   return pattern
-    .replace(PLACEHOLDER_RE, (whole, name: string) => (values[name]?.trim() ? values[name].trim() : whole))
+    .replace(PLACEHOLDER_RE, (whole, name: string, offset: number) => {
+      const v = values[name]?.trim()
+      if (!v) return whole
+      // mid-sentence: "Accomplished Cut costs" → "Accomplished cut costs" (acronyms / CamelCase untouched)
+      return offset > 0 && /^[A-Z][a-z]+(?:\s|$)/.test(v) ? v.charAt(0).toLowerCase() + v.slice(1) : v
+    })
     .replace(/\s{2,}/g, ' ')
     .trim()
 }
