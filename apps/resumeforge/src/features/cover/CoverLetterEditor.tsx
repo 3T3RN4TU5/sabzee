@@ -69,19 +69,19 @@ function Editor({ doc }: { doc: ResumeDoc }) {
       <LayoutPicker docId={doc.id} />
 
       <Section title="Start from a template" sub="Drafts a letter from your resume — your strongest bullet, top skills and current role.">
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-2">
           {LETTER_STARTERS.map((s) => (
             <button
               key={s.id}
               type="button"
               onClick={() => void applyStarter(s)}
-              className="group rounded-xl bg-white p-3 text-left ring-1 ring-slate-200 transition hover:ring-indigo-300 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-indigo-500/60"
+              className="group rounded-xl bg-white px-3 py-2.5 text-left ring-1 ring-slate-200 transition hover:ring-indigo-300 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:bg-slate-900 dark:ring-slate-700 dark:hover:ring-indigo-500/60"
             >
               <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-800 dark:text-slate-100">
                 <Wand2 className="size-3.5 text-indigo-500 dark:text-indigo-400" aria-hidden />
                 {s.name}
               </span>
-              <span className="mt-1 block text-xs leading-snug text-slate-500 dark:text-slate-400">{s.description}</span>
+              <span className="mt-0.5 block pl-5 text-xs leading-snug text-slate-500 dark:text-slate-400">{s.description}</span>
             </button>
           ))}
         </div>
@@ -200,8 +200,8 @@ function ExportBar({ doc }: { doc: ResumeDoc }) {
   const text = () => letterToText(doc.coverLetter, doc.data)
   const empty = !doc.coverLetter.body.trim()
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="mr-auto min-w-0">
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="min-w-0 basis-full sm:basis-auto sm:flex-1">
         <h2 className="text-base font-bold text-slate-900 dark:text-white">Cover letter</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">Styled with your resume template, accent and fonts.</p>
       </div>

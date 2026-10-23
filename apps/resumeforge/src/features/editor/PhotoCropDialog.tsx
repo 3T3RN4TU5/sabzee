@@ -74,7 +74,7 @@ export function PhotoCropDialog({ img, src, shape: initialShape, onCancel, onSav
           onPointerMove={onMove}
           onPointerUp={() => (drag.current = null)}
           onKeyDown={onKey}
-          className="relative mx-auto cursor-grab touch-none overflow-hidden rounded-xl bg-slate-900 outline-none select-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:cursor-grabbing"
+          className="relative mx-auto cursor-grab touch-none overflow-hidden bg-slate-900 outline-none select-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:cursor-grabbing"
           style={{ width: VIEW, height: VIEW }}
         >
           <img
@@ -84,7 +84,7 @@ export function PhotoCropDialog({ img, src, shape: initialShape, onCancel, onSav
             className="pointer-events-none absolute max-w-none"
             style={{ width: W * s, height: H * s, left: VIEW / 2 + crop.x - (W * s) / 2, top: VIEW / 2 + crop.y - (H * s) / 2 }}
           />
-          <div className="rf-crop-mask pointer-events-none absolute inset-3 ring-2 ring-white/80" style={{ borderRadius: RADIUS[shape] }} />
+          <div className="rf-crop-mask pointer-events-none absolute inset-0 ring-2 ring-white/80" style={{ borderRadius: RADIUS[shape] }} />
         </div>
         <div className="flex items-center gap-2">
           <ZoomOut className="size-4 shrink-0 text-slate-400" aria-hidden />
