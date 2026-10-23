@@ -165,6 +165,28 @@
 
 /* ---------- main entries ---------- */
 
+.rf-t-compact .cp-flowbox {
+  overflow: hidden;
+}
+.rf-t-compact .cp-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin-left: -0.95em;
+}
+.rf-t-compact .cp-flow__item {
+  position: relative;
+  min-width: 0;
+  padding-left: 0.95em;
+}
+.rf-t-compact .cp-flow__sep {
+  position: absolute;
+  left: 0.32em;
+  font-weight: 400;
+  font-style: normal;
+  color: #9ca3af;
+}
+
 .rf-t-compact .cp-e__head {
   display: flex;
   justify-content: space-between;

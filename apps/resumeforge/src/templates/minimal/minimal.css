@@ -70,7 +70,7 @@
 .rf-t-minimal .mi-contact .rf-contact__item {
   gap: 0.45em;
 }
-.rf-t-minimal .mi-contact .rf-link {
+.rf-t-minimal .mi-header .mi-contact .rf-link {
   color: inherit;
 }
 
@@ -206,7 +206,7 @@
 .rf-t-minimal .mi-skill__dots {
   grid-column: 3;
   align-self: center;
-  --rf-level-on: var(--rf-accent);
+  --rf-level-on: var(--mi-mark);
   --rf-level-off: #e5e7eb;
 }
 

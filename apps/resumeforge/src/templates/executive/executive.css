@@ -118,7 +118,7 @@
 .rf-t-executive .ex-h {
   margin-bottom: 0.5em;
   padding-bottom: 0.22em;
-  border-bottom: 2px solid var(--rf-accent);
+  border-bottom: 2px solid var(--ex-mark);
   font-family: var(--rf-font-heading);
   font-size: 1.04em;
   font-weight: 700;
@@ -218,7 +218,7 @@
   top: calc(0.5lh - 0.16em);
   width: 0.32em;
   height: 0.32em;
-  background: var(--rf-accent);
+  background: var(--ex-mark);
 }
 
 /* ---------- compact rows (certifications, awards) ---------- */
@@ -266,7 +266,7 @@
 .rf-t-executive .ex-comp__cell {
   min-width: 0;
   padding-left: 0.7em;
-  border-left: 2px solid var(--rf-accent);
+  border-left: 2px solid var(--ex-mark);
 }
 .rf-t-executive .ex-comp__head {
   display: flex;
@@ -305,7 +305,7 @@
   min-width: 0;
   line-height: 1.35;
   padding-left: 0.7em;
-  border-left: 2px solid var(--rf-accent);
+  border-left: 2px solid var(--ex-mark);
 }
 .rf-t-executive .ex-lang__name {
   font-weight: 700;
@@ -320,7 +320,7 @@
   color: #2f3a4b;
 }
 .rf-t-executive .ex-inline__sep {
-  color: var(--rf-accent);
+  color: var(--ex-mark);
 }
 .rf-t-executive .ex-inline__detail {
   color: #6b7280;

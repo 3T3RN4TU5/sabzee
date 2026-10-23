@@ -5,7 +5,8 @@
  *   Organisation (italic) ……… Location
  * Skills read as a typeset table, languages/interests as one flowing line.
  */
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, type CSSProperties, type ReactNode } from 'react'
+import { ensureContrast } from '../../lib/color.ts'
 import type { FontId } from '../../lib/types.ts'
 import {
   Bullets,
@@ -185,10 +186,12 @@ function whole(s: SectionView): ReactNode | undefined {
   }
 }
 
-export default function Classic({ data, main, font, headingCase }: TemplateProps) {
+export default function Classic({ data, design, main, font, headingCase }: TemplateProps) {
   const b = data.basics
   const name = displayName(b)
   const optical = OPTICAL[font.id] ?? 1
+  // hairlines and separators: the accent, deepened just enough to stay visible (3:1) on white
+  const frame = { '--cl-mark': ensureContrast(design.accent, '#ffffff', 3), ...(optical !== 1 ? { fontSize: `${optical}em` } : null) } as CSSProperties
 
   const header = (
     <header className="cl-header">
@@ -220,7 +223,7 @@ export default function Classic({ data, main, font, headingCase }: TemplateProps
       header={header}
       main={blocks}
       page={({ index, count, header, main }) => (
-        <div className="cl-page" style={optical !== 1 ? { fontSize: `${optical}em` } : undefined}>
+        <div className="cl-page" style={frame}>
           {index > 0 && (
             <div className="cl-running" aria-hidden="true">
               <span className="cl-running__name">{name}</span>

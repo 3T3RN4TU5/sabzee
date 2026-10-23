@@ -356,8 +356,8 @@
 .rf-t-startup .su-skill__dots,
 .rf-t-startup .su-lang__dots {
   flex: none;
-  --rf-level-on: var(--rf-accent);
-  --rf-level-off: rgb(var(--rf-accent-rgb) / 0.2);
+  --rf-level-on: var(--rf-accent-ink);
+  --rf-level-off: rgb(var(--rf-accent-rgb) / 0.22);
 }
 
 .rf-t-startup .su-langs {

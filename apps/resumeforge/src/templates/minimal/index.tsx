@@ -4,7 +4,8 @@
  * one vertical line in the wide right track (the optional photo sits in the gutter). Light display
  * type for the name, quiet greys, the accent only on labels and links, and plenty of whitespace.
  */
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, type CSSProperties, type ReactNode } from 'react'
+import { ensureContrast } from '../../lib/color.ts'
 import {
   ContactList,
   DefaultEntry,
@@ -175,6 +176,8 @@ function whole(s: SectionView): ReactNode | undefined {
 export default function Minimal({ data, design, main, headingCase, isLetter }: TemplateProps) {
   const b = data.basics
   const photo = hasPhoto(b, design)
+  // level dots: the accent, deepened just enough to stay visible (3:1) on white
+  const frame = { '--mi-mark': ensureContrast(design.accent, '#ffffff', 3) } as CSSProperties
 
   const header = (
     <header className="mi-header">
@@ -220,7 +223,7 @@ export default function Minimal({ data, design, main, headingCase, isLetter }: T
       main={blocks}
       bottom={mmToPx(design.margin * ROOM)}
       page={({ index, count, header, main }) => (
-        <div className="mi-page">
+        <div className="mi-page" style={frame}>
           {header}
           {isLetter ? <div className="mi-letter">{main}</div> : main}
           {count > 1 && (

@@ -34,7 +34,7 @@ export const meta: TemplateMeta = {
   defaultFont: 'system',
   defaultAccent: '#111827',
   headingCase: 'upper',
-  gaps: { entry: 9, section: 15 },
+  gaps: { entry: 8, section: 14 },
 }
 
 const heading = (s: SectionView) => <h2 className="at-h">{atsHeading(s.kind, s.title)}</h2>
@@ -64,8 +64,13 @@ function CompactEntry({ e }: { e: EntryView }) {
 function ReferenceEntry({ e }: { e: EntryView }) {
   return (
     <div className="at-entry">
-      {e.title && <div className="at-title">{e.title}</div>}
-      {e.subtitle && <div>{e.subtitle}</div>}
+      {(e.title || e.subtitle) && (
+        <div>
+          {e.title && <span className="at-title">{e.title}</span>}
+          {e.title && e.subtitle && <span>, </span>}
+          {e.subtitle && <span>{e.subtitle}</span>}
+        </div>
+      )}
       {e.meta && (
         <div>
           <MaybeLink text={e.meta} />
@@ -89,8 +94,16 @@ function Entry({ e }: { e: EntryView }) {
           {e.date && <span className="at-date">{e.date}</span>}
         </div>
       )}
-      {pub && e.meta && <div className="at-authors">{e.meta}</div>}
-      {(org || e.url || e.location) && (
+      {pub && (e.meta || org || e.url) && (
+        <div className="at-publine">
+          {e.meta && <span className="at-authors">{e.meta}</span>}
+          {e.meta && (org || e.url) && <span>. </span>}
+          {org && <span className="at-org">{org}</span>}
+          {org && e.url && <span className="at-sep"> | </span>}
+          {e.url && <EntryLink entry={e} />}
+        </div>
+      )}
+      {!pub && (org || e.url || e.location) && (
         <div className="at-line at-line--sub">
           <span className="at-lead">
             {org && <span className="at-org">{org}</span>}
@@ -178,12 +191,14 @@ export default function AtsPlain({ data, main }: TemplateProps) {
     </header>
   )
 
+  // one-line certifications/awards sit closer together than full entries
+  const compact = new Set(main.filter((s) => s.kind === 'certifications' || s.kind === 'awards').map((s) => s.id))
   const blocks = sectionsToBlocks(main, {
     heading,
     summary: (s) => <RichParagraphs className="at-summary" text={s.content} />,
     entry,
     whole,
-  })
+  }).map((bl) => (bl.gap === 'entry' && bl.sectionId && compact.has(bl.sectionId) ? { ...bl, gap: 3 } : bl))
 
   return (
     <PageLayout

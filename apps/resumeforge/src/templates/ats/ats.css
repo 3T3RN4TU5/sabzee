@@ -2,14 +2,14 @@
 
 .rf-t-ats .at-page {
   height: 100%;
-  padding: var(--rf-margin) calc(var(--rf-margin) * 1.05) 0;
+  padding: var(--rf-margin) var(--rf-margin) 0;
   color: #1f2937;
 }
 
 /* ---------- header ---------- */
 
 .rf-t-ats .at-header {
-  margin-bottom: calc(var(--rf-section-gap) * 0.95);
+  margin-bottom: calc(var(--rf-section-gap) * 0.85);
 }
 .rf-t-ats .at-name {
   font-family: var(--rf-font-heading);
@@ -26,8 +26,8 @@
   color: #1f2937;
 }
 .rf-t-ats .at-contact {
-  margin-top: 0.4em;
-  font-size: 0.92em;
+  margin-top: 0.35em;
+  font-size: 0.9em;
   color: #1f2937;
 }
 .rf-t-ats .at-sep {
@@ -37,8 +37,8 @@
 /* ---------- section headings ---------- */
 
 .rf-t-ats .at-h {
-  margin-bottom: 0.5em;
-  padding-bottom: 0.15em;
+  margin-bottom: 0.42em;
+  padding-bottom: 0.12em;
   border-bottom: 1px solid var(--rf-accent-ink);
   font-family: var(--rf-font-heading);
   font-size: 1.04em;
@@ -88,12 +88,12 @@
 .rf-t-ats .at-loc {
   color: #374151;
 }
-.rf-t-ats .at-authors,
+.rf-t-ats .at-publine,
 .rf-t-ats .at-meta,
 .rf-t-ats .at-small {
   color: #374151;
 }
-.rf-t-ats .at-authors {
+.rf-t-ats .at-publine .at-org {
   font-style: italic;
 }
 .rf-t-ats .rf-entry__link,

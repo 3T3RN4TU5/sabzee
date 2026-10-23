@@ -1,5 +1,5 @@
 /** Small DOM hooks shared by the UI kit (popovers, menus). */
-import { useEffect, useLayoutEffect, type RefObject } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 
 /** Close on outside pointer-down and Escape while `open`. */
 export function useDismiss(open: boolean, close: () => void, root: RefObject<HTMLElement | null>, restoreFocus?: RefObject<HTMLElement | null>): void {
@@ -23,19 +23,28 @@ export function useDismiss(open: boolean, close: () => void, root: RefObject<HTM
   }, [open, close, root, restoreFocus])
 }
 
-/** Shift an absolutely positioned panel horizontally so it stays inside the viewport (8 px gutter). */
-export function useKeepInViewport(open: boolean, panel: RefObject<HTMLElement | null>): void {
+/**
+ * Horizontal shift (px) that keeps an absolutely positioned panel inside the viewport (8 px gutter).
+ * Apply it as `style={{ translate: `${dx}px 0` }}`.
+ */
+export function useKeepInViewport(open: boolean, panel: RefObject<HTMLElement | null>): number {
+  const [dx, setDx] = useState(0)
+  const applied = useRef(0)
   useLayoutEffect(() => {
     const el = panel.current
     if (!open || !el) return
-    el.style.translate = ''
     const r = el.getBoundingClientRect()
+    // Measure without the shift currently applied (it is kept from the previous opening).
+    const left = r.left - applied.current
+    const right = r.right - applied.current
     const vw = document.documentElement.clientWidth
-    let dx = 0
-    if (r.right > vw - 8) dx = vw - 8 - r.right
-    if (r.left + dx < 8) dx = 8 - r.left
-    if (dx) el.style.translate = `${Math.round(dx)}px 0`
+    let shift = 0
+    if (right > vw - 8) shift = vw - 8 - right
+    if (left + shift < 8) shift = 8 - left
+    applied.current = Math.round(shift)
+    setDx(applied.current)
   }, [open, panel])
+  return dx
 }
 
 /** Is the event target a text-entry element (shortcuts like "?" must not fire while typing)? */

@@ -39,7 +39,7 @@ export const meta: TemplateMeta = {
   columns: 2,
   defaultFont: 'montserrat',
   defaultAccent: '#7c3aed',
-  sideKinds: ['skills', 'languages', 'certifications', 'awards', 'interests', 'references'],
+  sideKinds: ['skills', 'education', 'languages', 'certifications', 'awards', 'interests', 'references'],
   headingCase: 'normal',
   gaps: { entry: 12, section: 19 },
 }

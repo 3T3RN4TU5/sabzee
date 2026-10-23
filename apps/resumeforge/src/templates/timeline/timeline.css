@@ -1,8 +1,8 @@
 /* Timeline template — every selector is scoped to .rf-t-timeline (the document root class). */
 
 .rf-t-timeline {
-  --tl-gutter: 25mm;
-  --tl-rail: 8mm;
+  --tl-gutter: 23mm;
+  --tl-rail: 7.5mm;
   --tl-line: 2px;
   --tl-line-color: rgb(var(--rf-accent-rgb) / 0.32);
   --tl-ink: #1f2937;
@@ -13,6 +13,7 @@
 .rf-t-timeline .tl-page {
   height: 100%;
   padding: var(--rf-margin) var(--rf-margin) 0;
+  font-size: 0.95em;
   color: var(--tl-ink);
 }
 
@@ -22,8 +23,8 @@
   display: flex;
   align-items: center;
   gap: 1.4em;
-  padding-bottom: 1.1em;
-  margin-bottom: calc(var(--rf-section-gap) * 0.9);
+  padding-bottom: 0.95em;
+  margin-bottom: calc(var(--rf-section-gap) * 0.85);
   border-bottom: 1px solid var(--rf-rule);
 }
 .rf-t-timeline .tl-photo {
@@ -35,7 +36,7 @@
 }
 .rf-t-timeline .tl-name {
   font-family: var(--rf-font-heading);
-  font-size: 2.45em;
+  font-size: 2.4em;
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.015em;
@@ -51,8 +52,8 @@
   color: var(--rf-accent-ink);
 }
 .rf-t-timeline .tl-contact {
-  margin-top: 0.8em;
-  column-gap: 1.15em;
+  margin-top: 0.7em;
+  column-gap: 1.1em;
   row-gap: 0.3em;
   font-size: 0.88em;
   color: var(--tl-soft);
@@ -169,7 +170,7 @@
 /* ---------- headings ---------- */
 
 .rf-t-timeline .tl-h {
-  padding-bottom: 0.7em;
+  padding-bottom: 0.55em;
   font-family: var(--rf-font-heading);
   font-weight: 800;
   letter-spacing: calc(var(--rf-heading-tracking) + 0.03em);
@@ -206,7 +207,25 @@
 .rf-t-timeline .rf-link {
   color: inherit;
 }
+.rf-t-timeline .tl-e__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+}
+.rf-t-timeline .tl-e__top > .tl-e__url {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 55%;
+  font-size: 0.86em;
+  text-align: right;
+}
+.rf-t-timeline .tl-e__title .tl-e__sub {
+  font-family: var(--rf-font-body);
+  font-size: 0.92em;
+}
 .rf-t-timeline .tl-e__title {
+  min-width: 0;
   font-family: var(--rf-font-heading);
   font-size: 1.04em;
   font-weight: 700;
@@ -245,7 +264,7 @@
   color: var(--tl-soft);
 }
 .rf-t-timeline .tl-e__tags {
-  margin-top: 0.4em;
+  margin-top: 0.32em;
   gap: 0.3em;
 }
 .rf-t-timeline .tl-chip {
@@ -257,13 +276,13 @@
   color: var(--rf-accent-ink);
 }
 .rf-t-timeline .tl-bullets {
-  margin-top: 0.35em;
+  margin-top: 0.28em;
 }
 .rf-t-timeline .tl-bullets > li {
   color: var(--tl-soft);
 }
 .rf-t-timeline .tl-bullets > li + li {
-  margin-top: 0.16em;
+  margin-top: 0.1em;
 }
 .rf-t-timeline .tl-bullets > li::before {
   background: rgb(var(--rf-accent-rgb) / 0.75);
@@ -281,7 +300,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 1.8em;
-  row-gap: 0.75em;
+  row-gap: 0.55em;
 }
 .rf-t-timeline .tl-skill__head {
   display: flex;
@@ -298,7 +317,7 @@
   color: var(--rf-muted);
 }
 .rf-t-timeline .tl-skill__bar {
-  margin: 0.3em 0 0.3em;
+  margin: 0.22em 0 0.22em;
 }
 .rf-t-timeline .tl-skill__kw {
   font-size: 0.93em;
@@ -308,7 +327,7 @@
 /* languages */
 .rf-t-timeline .tl-langs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 1.8em;
   row-gap: 0.3em;
 }

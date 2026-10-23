@@ -182,6 +182,7 @@ export function Dashboard() {
 
 function TemplateShowcase() {
   const sample = useMemo(() => developerSample(), [])
+  const designs = useMemo(() => Object.fromEntries(TEMPLATES.map((t) => [t.id, { ...defaultDesign, template: t.id, accent: t.defaultAccent }])), [])
   return (
     <section aria-labelledby="tpl-h" className="mt-12">
       <div className="mb-4 flex items-end justify-between gap-3">
@@ -197,7 +198,7 @@ function TemplateShowcase() {
           <li key={t.id} className="w-40 shrink-0 snap-start sm:w-48">
             <button type="button" onClick={() => newResume({ template: t.id, starter: 'developer' })} className="group block w-full rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" aria-label={`Use the ${t.name} template`}>
               <LazyMount className="aspect-[210/297] w-full overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-200 transition group-hover:-translate-y-0.5 group-hover:shadow-lg group-hover:ring-indigo-300 dark:ring-slate-800">
-                {(w) => <TemplateThumbnail data={sample} design={{ ...defaultDesign, template: t.id, accent: t.defaultAccent }} templateId={t.id} width={w} />}
+                {(w) => <TemplateThumbnail data={sample} design={designs[t.id]} templateId={t.id} width={w} />}
               </LazyMount>
               <span className="mt-2 block text-sm font-bold text-slate-900 dark:text-white">{t.name}</span>
               <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{t.tags.slice(0, 2).join(' · ')}</span>

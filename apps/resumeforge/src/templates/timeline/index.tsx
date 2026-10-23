@@ -43,7 +43,7 @@ export const meta: TemplateMeta = {
   defaultFont: 'montserrat',
   defaultAccent: '#0e7490',
   headingCase: 'upper',
-  gaps: { entry: 12, section: 18 },
+  gaps: { entry: 9, section: 14 },
 }
 
 const NBSP = ' '
@@ -123,10 +123,20 @@ function EntryBody({ e }: { e: EntryView }) {
       {e.meta}
     </span>
   )
-  const line = isPub ? [authors, sub, link] : [sub, loc, link]
+  // short single-line kinds keep the issuer on the title line; links sit at the right of the title
+  const inlineSub = e.kind === 'certifications' || e.kind === 'awards'
+  const line = isPub ? [authors, sub, link] : inlineSub ? [loc] : [sub, loc]
+  const topLink = !isPub && link
   return (
     <div className={cx('tl-e', `tl-e--${e.kind}`)}>
-      {e.title && <div className="tl-e__title">{e.title}</div>}
+      {(e.title || topLink || (inlineSub && sub)) && (
+        <div className="tl-e__top">
+          <div className="tl-e__title">
+            <Joined parts={[e.title, inlineSub && sub]} />
+          </div>
+          {topLink}
+        </div>
+      )}
       {line.some(Boolean) && (
         <div className="tl-e__line">
           <Joined parts={line} />

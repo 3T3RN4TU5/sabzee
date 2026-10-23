@@ -1,10 +1,22 @@
-/* Cover-letter body inside any template (.rf-doc). OWNER: cover agent. */
-.rf-doc .rf-letter__date,
-.rf-doc .rf-letter__recipient {
-  color: var(--rf-text);
-}
+/*
+ * Cover-letter body inside any template (.rf-doc). Three layouts, chosen by the class on the doc
+ * root: .rf-letter--classic | --accent | --minimal. Colours and fonts come from the template's CSS
+ * variables so a letter always matches its resume. OWNER: cover agent.
+ */
+
+/* ---------- shared ---------- */
 .rf-doc .rf-letter__date {
   color: var(--rf-muted);
+}
+.rf-doc .rf-letter__recipient {
+  display: flex;
+  flex-direction: column;
+  font-style: normal;
+  color: var(--rf-text);
+}
+.rf-doc .rf-letter__recipient-name {
+  font-weight: 600;
+  color: var(--rf-heading);
 }
 .rf-doc .rf-letter__subject {
   font-weight: 700;
@@ -15,16 +27,147 @@
   color: var(--rf-heading);
 }
 .rf-doc .rf-letter__p {
+  margin: 0;
   text-align: left;
   hyphens: manual;
+  text-wrap: pretty;
+  color: var(--rf-text);
+}
+.rf-doc .rf-letter__p--hint {
+  color: var(--rf-muted);
+  font-style: italic;
+}
+.rf-doc .rf-letter__p strong {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-doc .rf-letter__p a {
+  color: var(--rf-accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 .rf-doc .rf-letter__closing {
-  margin-top: 0.6em;
+  margin-top: 0.7em;
+  break-inside: avoid;
 }
 .rf-doc .rf-letter__signature {
-  margin-top: 2.2em;
+  margin-top: 2.4em;
   font-family: var(--rf-font-heading);
   font-size: 1.15em;
   font-weight: 700;
   color: var(--rf-heading);
+}
+.rf-doc .rf-letter__flourish,
+.rf-doc .rf-letter__sign-title {
+  display: none;
+}
+
+/* ---------- modern accent ---------- */
+.rf-doc.rf-letter--accent .rf-letter__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5em;
+}
+.rf-doc.rf-letter--accent .rf-letter__recipient {
+  padding: 0.15em 0 0.15em 0.85em;
+  border-left: 3px solid var(--rf-accent);
+}
+.rf-doc.rf-letter--accent .rf-letter__date {
+  flex-shrink: 0;
+  font-size: 0.86em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rf-accent-ink);
+}
+.rf-doc.rf-letter--accent .rf-letter__subject {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+}
+.rf-doc.rf-letter--accent .rf-letter__subject::after {
+  content: '';
+  display: block;
+  width: 2.6em;
+  height: 3px;
+  margin-top: 0.45em;
+  border-radius: 2px;
+  background: var(--rf-accent);
+}
+.rf-doc.rf-letter--accent .rf-letter__subject-label {
+  font-size: 0.74em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rf-accent-ink);
+}
+.rf-doc.rf-letter--accent .rf-letter__subject-role {
+  font-family: var(--rf-font-heading);
+  font-size: 1.4em;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-doc.rf-letter--accent .rf-letter__greeting {
+  color: var(--rf-accent-ink);
+}
+.rf-doc.rf-letter--accent .rf-letter__signature {
+  display: inline-block;
+  margin-top: 2em;
+  padding-top: 0.35em;
+  border-top: 2px solid var(--rf-accent);
+  font-size: 1.25em;
+  color: var(--rf-accent-ink);
+}
+.rf-doc.rf-letter--accent .rf-letter__sign-title {
+  display: block;
+  font-size: 0.9em;
+  color: var(--rf-muted);
+}
+
+/* ---------- minimal ---------- */
+.rf-doc.rf-letter--minimal .rf-letter__date {
+  text-align: right;
+  font-size: 0.88em;
+}
+.rf-doc.rf-letter--minimal .rf-letter__recipient {
+  font-size: 0.92em;
+  color: var(--rf-muted);
+}
+.rf-doc.rf-letter--minimal .rf-letter__recipient-name {
+  font-weight: 500;
+  color: var(--rf-text);
+}
+.rf-doc.rf-letter--minimal .rf-letter__subject {
+  font-weight: 500;
+  font-style: italic;
+  color: var(--rf-muted);
+}
+.rf-doc.rf-letter--minimal .rf-letter__greeting {
+  font-weight: 400;
+  color: var(--rf-text);
+}
+.rf-doc.rf-letter--minimal .rf-letter__p {
+  line-height: calc(var(--rf-line-height) * 1.08);
+}
+.rf-doc.rf-letter--minimal .rf-letter__flourish {
+  display: block;
+  margin-top: 0.9em;
+  font-family: var(--rf-font-heading);
+  font-size: 1.75em;
+  line-height: 1.1;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--rf-accent-ink);
+}
+.rf-doc.rf-letter--minimal .rf-letter__signature {
+  margin-top: 0.35em;
+  font-family: var(--rf-font-body);
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rf-muted);
 }

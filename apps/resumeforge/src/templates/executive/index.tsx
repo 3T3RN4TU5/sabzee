@@ -5,7 +5,8 @@
  * title line and the organisation in the accent; competencies sit in a two-column grid; later pages
  * get a slim continuation band with the name.
  */
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, type CSSProperties, type ReactNode } from 'react'
+import { ensureContrast } from '../../lib/color.ts'
 import {
   Bullets,
   ContactList,
@@ -231,6 +232,8 @@ export default function Executive({ data, design, main, headingCase }: TemplateP
   const title = b.title.trim()
   const photo = hasPhoto(b, design)
   const hasContact = contactEntries(b).length > 0
+  // rules, bullets and bars: the accent, deepened just enough to stay visible (3:1) on white
+  const frame = { '--ex-mark': ensureContrast(design.accent, '#ffffff', 3) } as CSSProperties
 
   const header = (
     <header className={cx('ex-band', photo && 'ex-band--photo', hasContact && 'ex-band--contact')}>
@@ -276,7 +279,7 @@ export default function Executive({ data, design, main, headingCase }: TemplateP
       header={header}
       main={blocks}
       page={({ index, header, main }) => (
-        <div className="ex-page">
+        <div className="ex-page" style={frame}>
           {index === 0 ? (
             header
           ) : (

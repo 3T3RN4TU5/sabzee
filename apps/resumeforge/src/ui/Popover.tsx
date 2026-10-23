@@ -36,8 +36,12 @@ export function Popover({ trigger, children, align = 'right', width = 'w-80', la
     })
   }, [])
   const close = useCallback(() => setOpen(false), [setOpen])
+  const closeAndRestore = useCallback(() => {
+    setOpen(false)
+    document.querySelector<HTMLElement>(`[aria-controls="${CSS.escape(id)}"]`)?.focus()
+  }, [setOpen, id])
   useDismiss(open, close, root, triggerEl)
-  useKeepInViewport(open, panel)
+  const dx = useKeepInViewport(open, panel)
 
   useEffect(() => {
     if (!open) return
@@ -56,6 +60,7 @@ export function Popover({ trigger, children, align = 'right', width = 'w-80', la
           role="dialog"
           aria-label={label}
           tabIndex={-1}
+          style={dx ? { translate: `${dx}px 0` } : undefined}
           className={cn(
             'absolute z-40 mt-2 max-w-[calc(100vw-1rem)] rounded-2xl bg-white shadow-xl ring-1 ring-slate-900/10 outline-none dark:bg-slate-900 dark:ring-white/10',
             width,
@@ -63,10 +68,7 @@ export function Popover({ trigger, children, align = 'right', width = 'w-80', la
             panelClassName,
           )}
         >
-          {children(() => {
-            close()
-            triggerEl.current?.focus()
-          })}
+          {children(closeAndRestore)}
         </div>
       )}
     </div>

@@ -74,6 +74,27 @@ function Joined({ parts, sep = '·' }: { parts: ReactNode[]; sep?: string }) {
   )
 }
 
+/**
+ * A wrapping run of parts separated by "·" where a part that wraps to the start of a new line hides
+ * its separator (it sits in the item's left padding, clipped by the overflow-hidden box).
+ */
+function Flow({ parts, className }: { parts: ReactNode[]; className?: string }) {
+  const items = parts.filter((p) => p !== null && p !== undefined && p !== false && p !== '')
+  if (!items.length) return null
+  return (
+    <div className={cx('cp-flowbox', className)}>
+      <div className="cp-flow">
+        {items.map((p, i) => (
+          <span key={i} className="cp-flow__item">
+            <span className="cp-flow__sep">· </span>
+            {p}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /* ---------------- entries ---------------- */
 
 function SkillEntry({ e, side }: { e: EntryView; side: boolean }) {
@@ -136,15 +157,11 @@ function MainEntry({ e }: { e: EntryView }) {
   return (
     <div className={cx('cp-e', `cp-e--${e.kind}`)}>
       <div className="cp-e__head">
-        <div className="cp-e__lead">
-          <Joined parts={isPub ? [title] : [title, sub, loc, link]} />
-        </div>
+        <Flow className="cp-e__lead" parts={isPub ? [title] : [title, sub, loc, link]} />
         {e.date && <span className="cp-e__date">{e.date}</span>}
       </div>
       {isPub && (authors || sub || link) && (
-        <div className="cp-e__cite">
-          <Joined parts={[authors, sub, link]} />
-        </div>
+        <Flow className="cp-e__cite" parts={[authors, sub, link]} />
       )}
       {!isPub && e.meta && <div className="cp-e__meta">{e.kind === 'references' ? <MaybeLink text={e.meta} /> : e.meta}</div>}
       {e.description && <Rich as="div" className="cp-e__desc" text={e.description} />}

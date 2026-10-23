@@ -4,6 +4,12 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  /* small marks (levels, bullets, rules) use the contrast-safe ink so pale accents stay legible */
+  --rf-level-on: var(--rf-accent-ink);
+  --rf-level-off: color-mix(in srgb, var(--rf-accent-ink) 18%, transparent);
+}
+.rf-t-creative .rf-bullets > li::before {
+  background: var(--rf-accent-ink);
 }
 
 /* continuation pages: a slim colour strip echoes the page-1 band */
@@ -29,7 +35,7 @@
 
 .rf-t-creative .cr-band__media {
   position: relative;
-  flex: 0 0 34%;
+  flex: 0 0 32.5%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -147,12 +153,11 @@
 
 .rf-t-creative .cr-side {
   order: -1;
-  flex: 0 0 34%;
+  flex: 0 0 32.5%;
   min-width: 0;
-  padding: calc(var(--rf-margin) * 0.75) calc(var(--rf-margin) * 0.72) 0 calc(var(--rf-margin) * 0.8);
+  padding: calc(var(--rf-margin) * 0.75) calc(var(--rf-margin) * 0.62) 0 calc(var(--rf-margin) * 0.68);
   background: var(--rf-accent-soft);
   font-size: 0.9em;
-  --rf-level-off: rgb(var(--rf-accent-rgb) / 0.18);
 }
 
 /* ---------- headings ---------- */
@@ -161,7 +166,7 @@
   display: flex;
   align-items: center;
   gap: 0.6em;
-  margin-bottom: 0.8em;
+  margin-bottom: 0.7em;
   font-family: var(--rf-font-heading);
   font-size: 1.14em;
   font-weight: 700;
@@ -175,7 +180,7 @@
   flex: 1;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg, rgb(var(--rf-accent-rgb) / 0.4), rgb(var(--rf-accent-rgb) / 0));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--rf-accent-ink) 40%, transparent), transparent);
 }
 .rf-t-creative .cr-h__badge {
   flex: none;
@@ -195,7 +200,7 @@
   height: 0.5em;
   margin: 0 0.1em 0 0.15em;
   border-radius: 1.5px;
-  background: var(--rf-accent);
+  background: var(--rf-accent-ink);
   transform: rotate(45deg);
 }
 
@@ -216,7 +221,7 @@
   height: 3px;
   margin-top: 0.4em;
   border-radius: 3px;
-  background: var(--rf-accent);
+  background: var(--rf-accent-ink);
 }
 
 /* ---------- sidebar content ---------- */

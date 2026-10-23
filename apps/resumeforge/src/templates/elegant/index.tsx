@@ -7,7 +7,7 @@
  * With the 'auto' font it pairs Playfair Display (display) with EB Garamond (text).
  * DOM order is header → main → side, so ATS parsers read the experience first.
  */
-import { Fragment, type CSSProperties, type ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { FONT_BY_ID } from '../../lib/fonts.ts'
 import {
   ContactList,
@@ -106,18 +106,17 @@ function Language({ e }: { e: EntryView }) {
   )
 }
 
-/** Interests as one flowing line with diamond separators. */
+/** Interests as a wrapping row of items, each led by a small diamond. */
 function Interests({ s }: { s: SectionView }) {
   const items = s.entries.map((e) => (e.keywords.length ? `${e.title} (${e.keywords.join(', ')})` : e.title)).filter(Boolean)
   return (
-    <p className="el-interests">
+    <ul className="el-interests">
       {items.map((t, i) => (
-        <Fragment key={`${i}:${t}`}>
-          {i > 0 && <span className="el-sep" aria-hidden="true" />}
-          <span className="rf-interest__name">{t}</span>
-        </Fragment>
+        <li key={`${i}:${t}`} className="rf-interest__name el-interest">
+          {t}
+        </li>
       ))}
-    </p>
+    </ul>
   )
 }
 
@@ -134,7 +133,7 @@ export default function Elegant({ data, design, font, main, side, headingCase, i
   const header = (
     <header className="el-header">
       {photo ? (
-        <Photo basics={b} size="25mm" className="el-photo" />
+        <Photo basics={b} size="22mm" className="el-photo" />
       ) : (
         <div className="el-mono" aria-hidden="true">
           <span>{initials(name)}</span>

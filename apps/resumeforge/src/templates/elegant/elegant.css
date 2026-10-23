@@ -1,7 +1,7 @@
 /* Elegant template — every selector is scoped to .rf-t-elegant (the document root class). */
 
 .rf-t-elegant {
-  --el-hair: rgb(var(--rf-accent-rgb) / 0.32);
+  --el-hair: color-mix(in srgb, var(--rf-accent-ink) 32%, transparent);
   --el-rule: #ddd6cf;
   --el-ink: #2b2622;
   --el-soft: #5f5750;
@@ -13,7 +13,7 @@
   flex-direction: column;
   height: 100%;
   color: var(--el-ink);
-  line-height: calc(var(--rf-line-height) * 1.04);
+  line-height: calc(var(--rf-line-height) * 1.03);
 }
 /* EB Garamond has a small x-height: nudge it up so 13 px reads like other faces. */
 .rf-t-elegant .el-page--auto {
@@ -86,7 +86,7 @@
   height: 14mm;
   margin-bottom: 0.8em;
   border-radius: 50%;
-  border: 1px solid rgb(var(--rf-accent-rgb) / 0.55);
+  border: 1px solid color-mix(in srgb, var(--rf-accent-ink) 55%, transparent);
   box-shadow:
     0 0 0 1.1mm #fff,
     0 0 0 calc(1.1mm + 1px) var(--el-hair);
@@ -111,9 +111,9 @@
 .rf-t-elegant .el-name {
   max-width: 100%;
   font-family: var(--rf-font-heading);
-  font-size: 2.55em;
+  font-size: 2.45em;
   font-weight: 400;
-  line-height: 1.12;
+  line-height: 1.1;
   letter-spacing: 0.01em;
   color: #1c1917;
 }
@@ -151,7 +151,7 @@
   width: 0.4em;
   height: 0.4em;
   transform: rotate(45deg);
-  background: var(--rf-accent);
+  background: var(--rf-accent-ink);
 }
 
 .rf-t-elegant .el-contact {
@@ -175,7 +175,7 @@
   height: 0.32em;
   margin: 0 0.75em 0.12em;
   transform: rotate(45deg);
-  background: rgb(var(--rf-accent-rgb) / 0.6);
+  background: color-mix(in srgb, var(--rf-accent-ink) 60%, transparent);
   vertical-align: middle;
 }
 
@@ -256,7 +256,17 @@
   letter-spacing: 0.01em;
 }
 .rf-t-elegant .el-h--side {
+  gap: 0.6em;
   font-size: 1.04em;
+}
+.rf-t-elegant .el-h--side::before,
+.rf-t-elegant .el-h--side::after {
+  min-width: 0.5em;
+}
+/* the narrow column gets tighter tracking so long titles ("Certifications") stay on one line */
+.rf-t-elegant .el-h--side.el-h--caps .el-h__text {
+  letter-spacing: 0.15em;
+  padding-left: 0.15em;
 }
 
 /* ---------- shared entry styling ---------- */
@@ -319,7 +329,7 @@
   height: 0.3em;
   border-radius: 0;
   transform: rotate(45deg);
-  background: rgb(var(--rf-accent-rgb) / 0.75);
+  background: color-mix(in srgb, var(--rf-accent-ink) 75%, transparent);
 }
 
 /* ---------- main column ---------- */
@@ -408,7 +418,7 @@
 .rf-t-elegant .el-leader__dots {
   flex: 1 1 0;
   min-width: 0.8em;
-  border-bottom: 1px dotted rgb(var(--rf-accent-rgb) / 0.45);
+  border-bottom: 1px dotted color-mix(in srgb, var(--rf-accent-ink) 45%, transparent);
   transform: translateY(-0.28em);
 }
 .rf-t-elegant .el-leader__value {
@@ -451,25 +461,38 @@
   width: 0.4em;
   height: 0.4em;
   transform: rotate(45deg);
-  border: 1px solid rgb(var(--rf-accent-rgb) / 0.55);
+  border: 1px solid color-mix(in srgb, var(--rf-accent-ink) 55%, transparent);
 }
 .rf-t-elegant .el-dia.is-on {
-  border-color: var(--rf-accent);
-  background: var(--rf-accent);
+  border-color: var(--rf-accent-ink);
+  background: var(--rf-accent-ink);
 }
 
 .rf-t-elegant .el-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 1.25em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   font-style: italic;
-  line-height: 1.7;
   color: var(--el-ink);
 }
 .rf-t-elegant .el-side .el-interests {
-  text-align: center;
+  justify-content: center;
 }
-.rf-t-elegant .el-interests .rf-interest__name {
+.rf-t-elegant .el-interests .el-interest {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
   font-weight: 400;
   color: inherit;
 }
-.rf-t-elegant .el-interests .el-sep {
-  margin: 0 0.6em 0.12em;
+.rf-t-elegant .el-interest::before {
+  content: '';
+  flex: none;
+  width: 0.3em;
+  height: 0.3em;
+  transform: rotate(45deg);
+  background: color-mix(in srgb, var(--rf-accent-ink) 60%, transparent);
 }

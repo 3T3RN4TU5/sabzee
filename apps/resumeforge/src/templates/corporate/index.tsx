@@ -38,7 +38,7 @@ export const meta: TemplateMeta = {
   defaultFont: 'plex',
   defaultAccent: '#1e3a5f',
   headingCase: 'upper',
-  gaps: { entry: 11, section: 17 },
+  gaps: { entry: 10, section: 15 },
 }
 
 /** Gutter + body grid row (the backbone of the layout). */
@@ -240,6 +240,8 @@ export default function Corporate({ data, design, main }: TemplateProps) {
     </header>
   )
 
+  // one-line certifications/awards sit closer together than full entries
+  const compact = new Set(main.filter((s) => s.kind === 'certifications' || s.kind === 'awards').map((s) => s.id))
   const blocks = sectionsToBlocks(main, {
     heading,
     summary: (s) => (
@@ -249,7 +251,7 @@ export default function Corporate({ data, design, main }: TemplateProps) {
     ),
     entry,
     whole,
-  })
+  }).map((bl) => (bl.gap === 'entry' && bl.sectionId && compact.has(bl.sectionId) ? { ...bl, gap: 4 } : bl))
 
   return (
     <PageLayout

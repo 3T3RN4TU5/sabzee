@@ -38,7 +38,7 @@ export function Menu({ trigger, items, align = 'right', className, width = 'w-64
   const triggerEl = useRef<HTMLElement | null>(null)
   const close = useCallback(() => setOpen(false), [])
   useDismiss(open, close, root, triggerEl)
-  useKeepInViewport(open, panel)
+  const dx = useKeepInViewport(open, panel)
 
   useEffect(() => {
     if (!open) return
@@ -71,6 +71,7 @@ export function Menu({ trigger, items, align = 'right', className, width = 'w-64
           ref={panel}
           role="menu"
           aria-label={label}
+          style={dx ? { translate: `${dx}px 0` } : undefined}
           className={cn(
             'absolute z-40 max-h-[min(70vh,34rem)] max-w-[calc(100vw-1rem)] overflow-y-auto overscroll-contain rounded-xl bg-white p-1.5 shadow-xl ring-1 ring-slate-900/10 dark:bg-slate-900 dark:ring-white/10',
             width,
