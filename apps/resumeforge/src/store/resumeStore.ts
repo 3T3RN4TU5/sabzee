@@ -19,6 +19,7 @@ import * as ops from '../lib/ops.ts'
 import type { EntryPatch, SectionPatch } from '../lib/ops.ts'
 import { makeDoc, type StarterKind } from '../lib/samples.ts'
 import type { Basics, CoverLetter, Design, PersistedState, ResumeData, ResumeDoc, SectionKind, Snapshot, ThemePref } from '../lib/types.ts'
+import { packPhotos, unpackPhotos } from './photoPool.ts'
 import { persistStorage } from './storage.ts'
 
 /** The part of a resume that undo/redo restores. */
@@ -36,10 +37,11 @@ export const useResumeStore = create<ResumeStoreState>()(
     name: STORAGE_KEY,
     version: STORE_VERSION,
     storage: createJSONStorage(() => persistStorage),
-    partialize: (s): PersistedState => ({ resumes: s.resumes, activeId: s.activeId, theme: s.theme }),
-    migrate: (persisted, version) => migratePersisted(persisted, version),
+    // Repeated snapshot photos are stored once (photoPool.ts); in memory every snapshot keeps its own copy.
+    partialize: (s): PersistedState => packPhotos({ resumes: s.resumes, activeId: s.activeId, theme: s.theme }),
+    migrate: (persisted, version) => migratePersisted(unpackPhotos(persisted), version),
     // Always normalise what comes out of storage (hand-edited / partially written JSON must not crash the app).
-    merge: (persisted, current) => ({ ...current, ...migratePersisted(persisted, STORE_VERSION) }),
+    merge: (persisted, current) => ({ ...current, ...migratePersisted(unpackPhotos(persisted), STORE_VERSION) }),
   }),
 )
 
@@ -108,6 +110,12 @@ function insertDoc(doc: ResumeDoc, activate: boolean): string {
 
 /* ---------------- actions ---------------- */
 
+export interface DeletedResume {
+  doc: ResumeDoc
+  index: number
+  wasActive: boolean
+}
+
 export interface CreateOptions {
   name?: string
   design?: Partial<Design>
@@ -136,13 +144,13 @@ export const resumeActions = {
     return insertDoc(
       {
         id: uid(),
-        name: imported.name || 'Imported resume',
+        name: (imported.name || '').trim().slice(0, 120) || 'Imported resume',
         createdAt: now,
         updatedAt: now,
         data: imported.data,
         design: imported.design ?? { ...defaultDesign },
         coverLetter: imported.coverLetter ?? { ...emptyCoverLetter },
-        jobDescription: imported.jobDescription ?? '',
+        jobDescription: (imported.jobDescription ?? '').slice(0, 50000),
         snapshots: [],
       },
       opts.activate ?? true,
@@ -172,15 +180,29 @@ export const resumeActions = {
     commit(id, () => ({ name: name.slice(0, 120) }), { undoable: false })
   },
 
-  /** Delete a resume; the most recently edited remaining one becomes active (or null). */
-  deleteResume(id: string): void {
+  /** Delete a resume; the most recently edited remaining one becomes active (or null). Returns what `restoreResume` needs to undo it. */
+  deleteResume(id: string): DeletedResume | null {
+    let removed: DeletedResume | null = null
     set((s) => {
+      const index = s.resumes.findIndex((r) => r.id === id)
+      if (index < 0) return s
       const resumes = s.resumes.filter((r) => r.id !== id)
-      if (resumes.length === s.resumes.length) return s
+      removed = { doc: s.resumes[index], index, wasActive: s.activeId === id }
       const history = { ...s.history }
       delete history[id]
       const activeId = s.activeId === id ? ([...resumes].sort((a, b) => b.updatedAt - a.updatedAt)[0]?.id ?? null) : s.activeId
       return { resumes, history, activeId }
+    })
+    return removed
+  },
+
+  /** Put a deleted resume back where it was (the "Undo" of a delete). */
+  restoreResume(deleted: DeletedResume): void {
+    set((s) => {
+      if (s.resumes.some((r) => r.id === deleted.doc.id)) return s
+      const resumes = s.resumes.slice()
+      resumes.splice(Math.min(deleted.index, resumes.length), 0, deleted.doc)
+      return { resumes, activeId: deleted.wasActive || !s.activeId ? deleted.doc.id : s.activeId }
     })
   },
 
@@ -199,6 +221,22 @@ export const resumeActions = {
 
   updateBasics(patch: Partial<Basics>, key?: string | null): void {
     editData((d) => ops.updateBasics(d, patch), key === undefined ? keyOf('basics', patch) : key)
+  },
+
+  /** Set the photo and (optionally) design photo options as ONE undo step. */
+  updatePhoto(photo: string, design?: Partial<Design>): void {
+    commit(
+      get().activeId,
+      (doc) => {
+        const data = ops.updateBasics(doc.data, { photo })
+        const nextDesign = design ? normalizeDesign({ ...doc.design, ...design }) : doc.design
+        const patch: Partial<ResumeDoc> = {}
+        if (data !== doc.data) patch.data = data
+        if (design && !ops.isNoopPatch(doc.design, nextDesign)) patch.design = nextDesign
+        return Object.keys(patch).length ? patch : null
+      },
+      { key: null },
+    )
   },
 
   /* ----- sections ----- */

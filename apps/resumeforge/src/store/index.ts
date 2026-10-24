@@ -16,6 +16,7 @@ export {
   type ResumeActions,
   type UndoValue,
   type CreateOptions,
+  type DeletedResume,
 } from './resumeStore.ts'
 export {
   useUiStore,

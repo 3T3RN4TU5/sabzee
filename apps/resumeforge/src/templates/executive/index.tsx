@@ -237,14 +237,14 @@ export default function Executive({ data, design, main, headingCase }: TemplateP
 
   const header = (
     <header className={cx('ex-band', photo && 'ex-band--photo', hasContact && 'ex-band--contact')}>
-      {photo && <Photo basics={b} size="25mm" className="ex-photo" />}
+      {photo && <Photo basics={b} size="22mm" className="ex-photo" />}
       <div className="ex-id">
         <h1 className="ex-name">{name}</h1>
         {title && <div className="ex-role">{title}</div>}
       </div>
       {hasContact && (
         <div className="ex-reach">
-          <ContactList basics={b} layout={photo ? 'stack' : 'grid'} className="ex-contact" iconSize="0.95em" />
+          <ContactList basics={b} layout="grid" className="ex-contact" iconSize="0.95em" />
         </div>
       )}
     </header>
