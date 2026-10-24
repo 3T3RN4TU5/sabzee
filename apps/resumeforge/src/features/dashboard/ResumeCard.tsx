@@ -23,8 +23,18 @@ export function ResumeCard({ doc, now }: { doc: ResumeDoc; now: number }) {
       danger: true,
     })
     if (!ok) return
-    resumeActions.deleteResume(doc.id)
-    toast(`Deleted “${doc.name}”`)
+    // Keep keyboard focus in the grid: the next card (or the previous one, or the section heading).
+    const card = nameBtn.current?.closest('article')
+    const neighbour = (card?.nextElementSibling ?? card?.previousElementSibling) as HTMLElement | null
+    const deleted = resumeActions.deleteResume(doc.id)
+    requestAnimationFrame(() => {
+      const target = neighbour?.isConnected ? neighbour.querySelector<HTMLElement>('[data-card-name]') : document.getElementById('mine-h')
+      target?.focus()
+    })
+    toast(`Deleted “${doc.name}”`, 'info', {
+      duration: 8000,
+      action: deleted ? { label: 'Undo', onClick: () => (resumeActions.restoreResume(deleted), toast(`Restored “${doc.name}”`, 'success')) } : undefined,
+    })
   }
   const tpl = getTemplate(doc.design.template)
   const hasLetter = doc.coverLetter.body.trim().length > 0
@@ -51,7 +61,7 @@ export function ResumeCard({ doc, now }: { doc: ResumeDoc; now: number }) {
               }}
             />
           ) : (
-            <button ref={nameBtn} type="button" onClick={open} onDoubleClick={() => setRenaming(true)} className="block w-full truncate rounded text-left text-sm font-bold text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-white" title={`${doc.name} — double-click to rename`}>
+            <button ref={nameBtn} data-card-name="" type="button" onClick={open} onDoubleClick={() => setRenaming(true)} className="block w-full truncate rounded text-left text-sm font-bold text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-white" title={`${doc.name} — double-click to rename`}>
               {doc.name}
             </button>
           )}

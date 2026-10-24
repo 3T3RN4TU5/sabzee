@@ -90,7 +90,7 @@ function StatsCard({ result }: { result: Analysis }) {
   const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : '—')
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-      <Stat label="Words" value={s.words} sub={s.words > 750 ? 'On the long side' : s.words < 250 ? 'On the short side' : 'Good length'} />
+      <Stat label="Words" value={s.words} sub={s.words > 750 ? 'On the long side' : s.words < 150 ? 'On the short side' : s.words < 250 ? 'Concise' : 'Good length'} />
       <Stat label="Bullets" value={s.bullets} />
       <Stat label="Quantified" value={pct(s.quantified, s.bullets)} sub={`${s.quantified} with numbers`} />
       <Stat label="Action verbs" value={pct(s.actionVerbs, s.bullets)} sub={`${s.actionVerbs} strong openers`} />
@@ -112,7 +112,7 @@ function ReadabilityCard({ result }: { result: Analysis }) {
   const perSentence = r.sentences ? Math.round((r.words / r.sentences) * 10) / 10 : 0
   return (
     <Card>
-      <CardTitle sub="Flesch reading ease of your summary and bullets. Resumes read best between 30 and 60." aside={<Pill tone={r.score >= 30 ? 'emerald' : r.words ? 'amber' : 'slate'}>{r.label}</Pill>}>
+      <CardTitle sub="Flesch reading ease of your summary and bullets. Aim for 30 or higher — below 30 reads as dense." aside={<Pill tone={r.score >= 30 ? 'emerald' : r.words ? 'amber' : 'slate'}>{r.label}</Pill>}>
         Readability
       </CardTitle>
       <div className="flex items-end gap-3">
@@ -203,11 +203,13 @@ function IssueGroup({ label, issues, data, showCategory, defaultOpen }: { label:
 
 function IssueCard({ issue, data, showCategory }: { issue: Issue; data: ResumeData; showCategory: boolean }) {
   const [why, setWhy] = useState(false)
+  const [previewLabel, setPreviewLabel] = useState<string | null>(null)
   const { icon: Icon, cls } = SEV_ICON[issue.severity]
   const current = textAt(data, issue.target)
   const fixes = issueFixes(issue, current)
   const action = issueAction(issue)
   const help = RULE_HELP[issue.rule]
+  const preview = (fixes.find((f) => f.label === previewLabel && f.value) ?? fixes.find((f) => f.value))?.value ?? null
   const apply = (value: string, label: string) => {
     if (issue.target && writeAt(issue.target, value)) toastWithUndo(`Applied “${label}”`)
   }
@@ -236,6 +238,8 @@ function IssueCard({ issue, data, showCategory }: { issue: Issue; data: ResumeDa
                     key={f.label}
                     type="button"
                     onClick={() => apply(f.value!, f.label)}
+                    onMouseEnter={() => setPreviewLabel(f.label)}
+                    onFocus={() => setPreviewLabel(f.label)}
                     title={`→ ${f.value}`}
                     aria-label={`Rewrite as: ${f.value}`}
                     className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200 ring-inset hover:bg-indigo-100 focus-visible:outline-2 focus-visible:outline-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-400/30 dark:hover:bg-indigo-500/20"
@@ -256,6 +260,12 @@ function IssueCard({ issue, data, showCategory }: { issue: Issue; data: ResumeDa
                 ),
               )}
             </div>
+          )}
+          {preview && (
+            <p className="mt-1.5 rounded-lg bg-indigo-50/60 px-2.5 py-1.5 text-xs leading-snug text-slate-700 dark:bg-indigo-500/10 dark:text-slate-200" aria-live="polite">
+              <span className="font-semibold text-indigo-700 dark:text-indigo-300">Preview: </span>
+              {preview}
+            </p>
           )}
         </div>
         {action && (

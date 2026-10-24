@@ -228,7 +228,7 @@ export default function Corporate({ data, design, main }: TemplateProps) {
     <header className="co-header">
       <div className="co-header__row">
         <div className="co-ident">
-          {photo && <Photo basics={b} size="23mm" className="co-photo" />}
+          {photo && <Photo basics={b} size="16mm" className="co-photo" />}
           <div className="co-ident__text">
             <h1 className="co-name">{name}</h1>
             {b.title.trim() && <div className="co-role">{b.title}</div>}

@@ -478,9 +478,6 @@
   font-style: italic;
   color: var(--el-ink);
 }
-.rf-t-elegant .el-side .el-interests {
-  justify-content: center;
-}
 .rf-t-elegant .el-interests .el-interest {
   display: inline-flex;
   align-items: center;

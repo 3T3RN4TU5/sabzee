@@ -9,7 +9,7 @@ import { DesignPanel } from '../features/design/DesignPanel.tsx'
 import { uiActions, useActiveDoc, useUiStore, type EditorPanel } from '../store'
 import { cn } from '../ui'
 import { AppHeader } from './AppHeader.tsx'
-import { useDocumentTitle, useEditorShortcuts, usePrintSource } from './hooks.ts'
+import { useDocumentTitle, useEditorShortcuts, useMediaQuery, usePrintSource } from './hooks.ts'
 import { AnalysisPanel, CoverLetterEditor, prefetchFeatures } from './lazy.ts'
 import { ALT } from './platform.ts'
 import { PreviewPane } from './PreviewPane.tsx'
@@ -48,6 +48,7 @@ export function EditorScreen() {
   const doc = useActiveDoc()
   const panel = useUiStore((s) => s.panel)
   const mobileTab = useUiStore((s) => s.mobileTab)
+  const wide = useMediaQuery('(min-width: 1024px)')
   const tabs = useRef<HTMLDivElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
   useEditorShortcuts(true)
@@ -116,7 +117,7 @@ export function EditorScreen() {
           </div>
         </aside>
         <section className={cn('min-h-0 min-w-0 flex-1 bg-slate-200/70 lg:block dark:bg-slate-950', mobileTab === 'preview' ? 'block' : 'hidden')} aria-label="Preview">
-          <PreviewPane />
+          <PreviewPane hidden={mobileTab !== 'preview' && !wide} />
         </section>
       </div>
       <nav className="grid shrink-0 grid-cols-2 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden dark:border-slate-800 dark:bg-slate-900" aria-label="Edit or preview">

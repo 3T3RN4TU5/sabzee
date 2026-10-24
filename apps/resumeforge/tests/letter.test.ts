@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { letterToText, starterLetter } from '../src/lib/coverLetter.ts'
+import { joinList, letterSkills, letterToText, starterLetter } from '../src/lib/coverLetter.ts'
 import {
   CLOSINGS,
   greetingOptions,
@@ -50,6 +50,20 @@ describe('letter tokens & placeholders', () => {
     const body = s.body
     assert.ok(body.includes('Lumen Health'))
     assert.ok(!letterPlaceholders(body).includes('[Company]'))
+  })
+})
+
+describe('starter letter skills', () => {
+  it('joins skills with "and" and prefers ones the job description asks for', () => {
+    assert.equal(joinList(['a']), 'a')
+    assert.equal(joinList(['a', 'b', 'c']), 'a, b and c')
+    const data = developerSample()
+    const jd = 'Requirements\n- PostgreSQL and Docker in production\n- Strong PostgreSQL skills'
+    const skills = letterSkills(data, jd)
+    assert.ok(skills.length <= 4)
+    assert.equal(skills[0], 'PostgreSQL')
+    const body = starterLetter('formal', data, letter({ company: 'Acme', role: 'Engineer' }), jd).body
+    assert.match(body, /experience in PostgreSQL(, [^,.]+)* and [^,.]+, I am/)
   })
 })
 

@@ -35,7 +35,9 @@ export function Modal({ open, onClose, title, description, children, footer, siz
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const t = setTimeout(() => {
-      const el = panel.current?.querySelector<HTMLElement>('[data-autofocus], input, textarea, select, button:not([data-close])') ?? panel.current
+      const root = panel.current
+      // An explicit [data-autofocus] wins over earlier inputs (querySelector with a selector list returns the first in DOM order).
+      const el = root?.querySelector<HTMLElement>('[data-autofocus]') ?? root?.querySelector<HTMLElement>('input, textarea, select, button:not([data-close])') ?? root
       el?.focus()
     }, 0)
     const onKey = (e: KeyboardEvent) => {

@@ -188,8 +188,10 @@
 .rf-t-academic .ac-summary {
   color: var(--ac-soft);
 }
+/* ragged-right: justified short summaries opened visible rivers (hyphenation is not reliable in every
+   browser/PDF engine, so we do not rely on it to even out the word spacing) */
 .rf-t-academic .ac-summary .rf-p {
-  text-align: justify;
+  text-align: left;
   hyphens: auto;
 }
 

@@ -43,7 +43,10 @@ const PANEL_KEYS: Record<string, EditorPanel> = { Digit1: 'content', Digit2: 'de
  * Editor shortcuts: Ctrl/⌘+Z undo, Ctrl/⌘+Shift+Z or Ctrl+Y redo (store-level, works inside inputs
  * because every keystroke is in the store history), Ctrl/⌘+S → "saved" toast, Alt+1…4 switch
  * panels, "?" opens the shortcut list (when not typing).
- * Inputs that want the browser's native undo (e.g. the job description box) set `data-native-undo`.
+ * Inputs whose value is NOT in the store (resume name, version names, tag drafts, helper inputs,
+ * the job description box…) set `data-native-undo` (on themselves or an ancestor) so Ctrl+Z undoes
+ * their own text instead of silently undoing another field; any text field inside a dialog is
+ * treated the same way.
  */
 export function useEditorShortcuts(enabled: boolean): void {
   useEffect(() => {
@@ -67,6 +70,7 @@ export function useEditorShortcuts(enabled: boolean): void {
       if (!mod || e.altKey) return
       const target = e.target as HTMLElement | null
       if (target?.closest?.('[data-native-undo]')) return
+      if (isTypingTarget(target) && target?.closest?.('[role="dialog"]')) return
       const k = e.key.toLowerCase()
       if (k === 'z' && !e.shiftKey) {
         e.preventDefault()

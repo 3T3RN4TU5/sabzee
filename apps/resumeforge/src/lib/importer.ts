@@ -2,7 +2,7 @@
 import { normalizeDesign } from './design.ts'
 import { fromJsonResume, isJsonResume, toJsonResume } from './jsonresume.ts'
 import { isLegacyResume, legacyResumeToData } from './migrate.ts'
-import { normalizeCoverLetter, normalizeData } from './normalize.ts'
+import { MAX_JOB_DESCRIPTION, MAX_NAME, normalizeCoverLetter, normalizeData, stripControlChars } from './normalize.ts'
 import type { CoverLetter, Design, ResumeData, ResumeDoc } from './types.ts'
 
 export const EXPORT_TYPE = 'resumeforge'
@@ -32,7 +32,14 @@ export function exportJsonResume(doc: ResumeDoc) {
   return toJsonResume(doc.data)
 }
 
+const capName = (s: string) => stripControlChars(s).trim().slice(0, MAX_NAME)
+
 export function importJson(value: unknown): ImportedResume {
+  const r = importJsonRaw(value)
+  return { ...r, name: capName(r.name) || 'Imported resume', ...(r.jobDescription !== undefined ? { jobDescription: stripControlChars(r.jobDescription).slice(0, MAX_JOB_DESCRIPTION) } : {}) }
+}
+
+function importJsonRaw(value: unknown): ImportedResume {
   if (!value || typeof value !== 'object') throw new Error('The file does not contain a JSON object')
   const o = value as Record<string, unknown>
   if (o.$type === EXPORT_TYPE || (o.data && typeof o.data === 'object' && 'sections' in (o.data as object))) {

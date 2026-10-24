@@ -24,6 +24,7 @@ import {
   type ParagraphChild,
 } from 'docx'
 import { inlineRuns, letterDocxModel, resumeDocxModel, type DocxModel, type DocxPara, type DocxRun, type DocxTheme } from './docxModel.ts'
+import { stripControlChars } from './normalize.ts'
 
 export { Packer, inlineRuns, letterDocxModel, resumeDocxModel }
 
@@ -41,7 +42,7 @@ const hp = (pt: number) => Math.round(pt * 2)
 function children(runs: DocxRun[], theme: DocxTheme, sizePt?: number): ParagraphChild[] {
   return runs.map((r) => {
     const run = new TextRun({
-      text: r.text,
+      text: stripControlChars(r.text),
       bold: r.bold || undefined,
       italics: r.italic || undefined,
       color: r.href ? undefined : r.color,
@@ -103,7 +104,7 @@ export function renderDocx(model: DocxModel): Document {
   const t = model.theme
   const upper = t.headingCase === 'upper'
   return new Document({
-    ...model.meta,
+    ...(Object.fromEntries(Object.entries(model.meta).map(([k, v]) => [k, typeof v === 'string' ? stripControlChars(v) : v])) as typeof model.meta),
     lastModifiedBy: 'ResumeForge',
     styles: {
       default: {

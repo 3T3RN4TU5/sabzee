@@ -1,5 +1,6 @@
 /** Cover-letter starters and text export. */
 import { formatLongDate } from './dates.ts'
+import { matchResume } from './keywords.ts'
 import { inlineToPlain } from './markdown.ts'
 import type { CoverLetter, ResumeData } from './types.ts'
 
@@ -15,24 +16,45 @@ export const LETTER_STARTERS: LetterStarter[] = [
   { id: 'switch', name: 'Career change / fresher', description: 'Leads with transferable skills and motivation.' },
 ]
 
-function facts(data: ResumeData) {
+/** "a", "a and b", "a, b and c". */
+export function joinList(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? ''
+  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
+}
+
+/** Up to four skills to mention: the job description's matched skills first, then the resume's own. */
+export function letterSkills(data: ResumeData, jobDescription = ''): string[] {
+  const own = data.sections.filter((s) => s.kind === 'skills' && !s.hidden).flatMap((s) => s.items.flatMap((e) => e.keywords.map((k) => k.trim()).filter(Boolean)))
+  const picked: string[] = []
+  const add = (k: string) => {
+    if (picked.length < 4 && !picked.some((p) => p.toLowerCase() === k.toLowerCase())) picked.push(k)
+  }
+  if (jobDescription.trim()) {
+    const rows = matchResume(data, jobDescription).keywords.filter((k) => k.matched && k.source === 'dictionary' && k.category !== 'soft' && k.category !== 'business')
+    for (const r of [...rows].sort((a, b) => b.weight - a.weight)) {
+      // prefer the resume's spelling of the skill when it lists it verbatim
+      add(own.find((o) => o.toLowerCase() === r.label.toLowerCase()) ?? r.label)
+    }
+  }
+  for (const k of own) add(k)
+  return picked
+}
+
+function facts(data: ResumeData, jobDescription = '') {
   const exp = data.sections.find((s) => s.kind === 'experience' && !s.hidden)?.items[0]
-  const skills = data.sections
-    .filter((s) => s.kind === 'skills' && !s.hidden)
-    .flatMap((s) => s.items.flatMap((e) => e.keywords))
-    .slice(0, 4)
+  const skills = letterSkills(data, jobDescription)
   const bullet = exp?.bullets.find((b) => /\d/.test(b)) ?? exp?.bullets[0] ?? ''
   return {
     title: data.basics.title || 'professional',
     company: exp?.subtitle || 'my current team',
     role: exp?.title || data.basics.title || 'my current role',
-    skills: skills.length ? skills.join(', ') : '[your top skills]',
+    skills: skills.length ? joinList(skills) : '[your top skills]',
     win: inlineToPlain(bullet).replace(/\.$/, '') || '[a measurable achievement]',
   }
 }
 
-export function starterLetter(id: LetterStarter['id'], data: ResumeData, letter: CoverLetter): Pick<CoverLetter, 'greeting' | 'body' | 'closing'> {
-  const f = facts(data)
+export function starterLetter(id: LetterStarter['id'], data: ResumeData, letter: CoverLetter, jobDescription = ''): Pick<CoverLetter, 'greeting' | 'body' | 'closing'> {
+  const f = facts(data, jobDescription)
   const company = letter.company || '[Company]'
   const role = letter.role || '[Role]'
   const greeting = letter.recipient ? `Dear ${letter.recipient},` : 'Dear Hiring Manager,'

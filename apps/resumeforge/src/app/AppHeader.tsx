@@ -2,9 +2,9 @@
  * Editor header: logo (→ dashboard), editable resume name + save status, undo/redo, versions,
  * shortcuts, theme and the export menu. Collapses to icons on narrow screens. OWNER: shell agent.
  */
-import { Check, ChevronLeft, Keyboard, Loader2, MoreHorizontal, Redo2, Undo2 } from 'lucide-react'
+import { Check, ChevronLeft, CloudOff, Keyboard, Loader2, MoreHorizontal, Redo2, Undo2 } from 'lucide-react'
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { navigate, resumeActions, uiActions, useActiveDoc, useHistoryState, useTheme } from '../store'
+import { navigate, resumeActions, uiActions, useActiveDoc, useHistoryState, useTheme, useUiStore } from '../store'
 import { Button, cn, IconButton, Menu } from '../ui'
 import { useMediaQuery } from './hooks.ts'
 import { ExportMenu } from './lazy.ts'
@@ -78,6 +78,7 @@ function NameInput({ id, name }: { id: string; name: string }) {
   return (
     <input
       aria-label="Resume name"
+      data-native-undo=""
       value={name}
       maxLength={120}
       spellCheck={false}
@@ -101,6 +102,7 @@ function NameInput({ id, name }: { id: string; name: string }) {
 
 /** "Saving…" briefly after each change, then "Saved". */
 function SaveStatus({ updatedAt }: { updatedAt: number }) {
+  const saveError = useUiStore((s) => s.saveError)
   const [saving, setSaving] = useState(false)
   const first = useRef(true)
   useEffect(() => {
@@ -112,6 +114,14 @@ function SaveStatus({ updatedAt }: { updatedAt: number }) {
     const t = setTimeout(() => setSaving(false), 700)
     return () => clearTimeout(t)
   }, [updatedAt])
+  if (saveError)
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-rose-50 px-1.5 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300" title="Browser storage is full — recent changes are not saved. Delete old versions/resumes or export a JSON backup." role="status">
+        <CloudOff className="size-3.5" aria-hidden />
+        <span className="hidden sm:inline">Not saved</span>
+        <span className="sr-only sm:hidden">Not saved</span>
+      </span>
+    )
   return (
     <span className={cn('hidden shrink-0 items-center gap-1 text-xs md:inline-flex', saving ? 'text-slate-400' : 'text-emerald-600 dark:text-emerald-400')} title="Everything is saved in this browser (localStorage)" aria-live="polite">
       {saving ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : <Check className="size-3.5" aria-hidden />}

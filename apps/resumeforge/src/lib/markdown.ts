@@ -215,24 +215,38 @@ export function inlineToHtml(src: string): string {
   return nodesToHtml(parseInline(src))
 }
 
-function nodesToPlain(nodes: Inline[], withUrls: boolean): string {
-  return nodes
-    .map((n) => {
-      switch (n.type) {
-        case 'text':
-        case 'code':
-          return n.text
-        case 'strong':
-        case 'em':
-          return nodesToPlain(n.children, withUrls)
-        case 'link': {
-          const label = nodesToPlain(n.children, withUrls)
-          const bare = n.href.replace(/^(https?:\/\/|mailto:|tel:)/i, '')
-          return withUrls && label !== bare && label !== n.href ? `${label} (${bare})` : label
-        }
+function nodesToPlain(nodes: Inline[], withUrls: boolean, prefix = ''): string {
+  let out = ''
+  for (const n of nodes) {
+    switch (n.type) {
+      case 'text':
+      case 'code':
+        out += n.text
+        break
+      case 'strong':
+      case 'em':
+        out += nodesToPlain(n.children, withUrls, prefix + out)
+        break
+      case 'link': {
+        const label = nodesToPlain(n.children, withUrls, prefix + out)
+        const bare = n.href.replace(/^(https?:\/\/|mailto:|tel:)/i, '')
+        if (!withUrls || label === bare || label === n.href) out += label
+        // already inside "( … )": "(see demo: x.com)" instead of "(see demo (x.com))"
+        else out += insideParens(prefix + out) ? `${label}: ${bare}` : `${label} (${bare})`
+        break
       }
-    })
-    .join('')
+    }
+  }
+  return out
+}
+
+function insideParens(text: string): boolean {
+  let depth = 0
+  for (const ch of text) {
+    if (ch === '(') depth++
+    else if (ch === ')' && depth > 0) depth--
+  }
+  return depth > 0
 }
 
 /** Strip formatting. With `withUrls`, links become "label (url)". */

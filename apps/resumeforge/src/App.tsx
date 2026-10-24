@@ -3,7 +3,8 @@
  *   #/            Dashboard
  *   #/edit[/id]   Editor (activates the resume id when given)
  *   #/view/<enc>  Read-only shared resume
- *   #/lab?…       Template QA lab (unlinked, see app/TemplateLab.tsx)
+ *   #/lab?…       Template QA lab (unlinked, see app/TemplateLab.tsx) — dev builds only, or opt in with
+ *                 `?lab=1` (before or inside the hash, remembered in localStorage['resumeforge-lab'])
  * Routes are code-split (app/lazy.ts). OWNER: shell agent.
  */
 import { Suspense, useEffect } from 'react'
@@ -41,15 +42,49 @@ function EditRoute({ id }: { id?: string }) {
   )
 }
 
+const LAB_FLAG = 'resumeforge-lab'
+
+/** The QA lab ships in the bundle but is only reachable in dev or after an explicit opt-in. */
+function labEnabled(params: Record<string, string>): boolean {
+  if (import.meta.env.DEV) return true
+  try {
+    const optIn = new URLSearchParams(window.location.search).get('lab') ?? params.lab
+    if (optIn === '1') localStorage.setItem(LAB_FLAG, '1')
+    if (optIn === '0') localStorage.removeItem(LAB_FLAG)
+    return localStorage.getItem(LAB_FLAG) === '1'
+  } catch {
+    return false
+  }
+}
+
+function LabRoute({ params }: { params: Record<string, string> }) {
+  const enabled = labEnabled(params)
+  useEffect(() => {
+    if (!enabled) {
+      navigate({ name: 'dashboard' }, { replace: true })
+      return
+    }
+    const meta = document.createElement('meta')
+    meta.name = 'robots'
+    meta.content = 'noindex, nofollow'
+    document.head.appendChild(meta)
+    return () => meta.remove()
+  }, [enabled])
+  if (!enabled) return null
+  return (
+    <Suspense fallback={null}>
+      <TemplateLab params={params} />
+    </Suspense>
+  )
+}
+
 export default function App() {
   useApplyTheme()
   const route = useRoute()
   return (
     <>
       {route.name === 'lab' ? (
-        <Suspense fallback={null}>
-          <TemplateLab params={route.params} />
-        </Suspense>
+        <LabRoute params={route.params} />
       ) : route.name === 'view' ? (
         <Suspense fallback={<RouteFallback label="Loading resume…" />}>
           <SharedView payload={route.payload} />

@@ -344,7 +344,7 @@ export const WEAK_PHRASES: WeakPhrase[] = [
   { pattern: /^(was |am |is )?responsible for\b/i, phrase: 'Responsible for', suggestions: ['Led', 'Owned', 'Managed'] },
   { pattern: /^(was |am )?in charge of\b/i, phrase: 'In charge of', suggestions: ['Led', 'Directed', 'Headed'] },
   { pattern: /^worked (on|with|in)\b/i, phrase: 'Worked on', suggestions: ['Built', 'Developed', 'Delivered'] },
-  { pattern: /^helped( to| with)?\b/i, phrase: 'Helped', suggestions: ['Enabled', 'Accelerated', 'Partnered with'] },
+  { pattern: /^helped( to| with)?\b/i, phrase: 'Helped', suggestions: ['Supported', 'Contributed to', 'Partnered on'] },
   { pattern: /^assisted( with| in)?\b/i, phrase: 'Assisted', suggestions: ['Supported', 'Coordinated', 'Partnered on'] },
   { pattern: /^(participated|took part) in\b/i, phrase: 'Participated in', suggestions: ['Contributed to', 'Collaborated on', 'Drove'] },
   { pattern: /^(was )?involved in\b/i, phrase: 'Involved in', suggestions: ['Contributed to', 'Drove', 'Shaped'] },

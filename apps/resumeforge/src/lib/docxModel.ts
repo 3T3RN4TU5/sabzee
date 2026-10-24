@@ -224,7 +224,8 @@ function entryParas(s: SectionView, e: EntryView, first: boolean, theme: DocxThe
 
   // 3. meta: grade / contact (publications handled above)
   if (e.meta && s.kind !== 'publications') {
-    const label = s.kind === 'references' ? '' : e.metaLabel
+    // education grades read fine on their own ("CGPA 8.7 / 10"), matching the PDF and plain-text exports
+    const label = s.kind === 'references' || s.kind === 'education' ? '' : e.metaLabel
     paras.push({ kind: 'entry-meta', runs: [...(label ? [{ text: `${label}: `, color: theme.muted }] : []), ...maybeLink(e.meta)] })
   }
   // keywords (tech stack …)

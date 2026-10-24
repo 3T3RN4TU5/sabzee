@@ -13,6 +13,9 @@ import { loadImage, MAX_INPUT_BYTES, readFile } from './photo.ts'
 import { PhotoCropDialog } from './PhotoCropDialog.tsx'
 
 type BasicKey = Exclude<keyof Basics, 'photo'>
+
+/** Session memory: cropped photo data URL → the full-resolution original it was cut from, so re-cropping does not start from the compressed 480 px JPEG. */
+const originals = new Map<string, string>()
 const FIELDS: { key: BasicKey; label: string; placeholder: string; type?: string; check?: 'email' | 'phone' | 'url' | 'linkedin' | 'github'; auto?: string }[] = [
   { key: 'name', label: 'Full name', placeholder: 'Aarav Mehta', auto: 'name' },
   { key: 'title', label: 'Job title', placeholder: 'Full-Stack Developer', auto: 'organization-title' },
@@ -91,13 +94,21 @@ function PhotoField({ basics }: { basics: Basics }) {
     }
   }
   const edit = async () => {
-    if (basics.photo) setCrop({ img: await loadImage(basics.photo), src: basics.photo })
+    if (!basics.photo) return
+    const src = originals.get(basics.photo) ?? basics.photo
+    try {
+      setCrop({ img: await loadImage(src), src })
+    } catch {
+      setCrop({ img: await loadImage(basics.photo), src: basics.photo })
+    }
   }
   const save = (url: string, shape: PhotoShape) => {
+    const src = crop?.src
     setCrop(null)
     if (!url) return toast('Could not process the image', 'error')
-    resumeActions.updateBasics({ photo: url }, null)
-    if (shape !== design.photoShape || !design.showPhoto) resumeActions.updateDesign({ photoShape: shape, showPhoto: true }, null)
+    if (src && src !== url) originals.set(url, src)
+    // Photo + shape/visibility in one undo step.
+    resumeActions.updatePhoto(url, shape !== design.photoShape || !design.showPhoto ? { photoShape: shape, showPhoto: true } : undefined)
     toast('Photo updated', 'success')
   }
 

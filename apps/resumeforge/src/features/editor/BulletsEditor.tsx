@@ -12,6 +12,7 @@ import { Button, cn, IconButton, inputClass } from '../../ui'
 import { handleMarkShortcut } from './markEdit.ts'
 import { MarkToolbar } from './RichTextArea.tsx'
 import { DragHandle, SortableItem, SortableList, type DragHandleProps } from './Sortable.tsx'
+import { useStableKeys } from './stableKeys.ts'
 
 const MARKER = /^\s*(?:[-*•·▪◦‣–]|\d{1,2}[.)])\s+/
 
@@ -21,7 +22,7 @@ export function BulletsEditor({ sectionId, entry, label, hint, className }: { se
   const list = useRef<HTMLUListElement>(null)
   const last = useRef<HTMLTextAreaElement | null>(null)
   const bullets = entry.bullets
-  const ids = bullets.map((_, i) => `${entry.id}:b${i}`)
+  const ids = useStableKeys(bullets).map((k) => `${entry.id}:${k}`)
 
   const focusBullet = (i: number, caret: 'start' | 'end' = 'end') =>
     requestAnimationFrame(() => {
@@ -82,7 +83,8 @@ export function BulletsEditor({ sectionId, entry, label, hint, className }: { se
         Add bullet
       </Button>
       {ideas && (
-        <div className="mt-2 rounded-xl bg-amber-50/60 p-2 ring-1 ring-amber-200/70 dark:bg-amber-500/5 dark:ring-amber-500/20">
+        // The helper's inputs (template placeholders) are not store fields: keep the browser's own undo there.
+        <div data-native-undo="" className="mt-2 rounded-xl bg-amber-50/60 p-2 ring-1 ring-amber-200/70 dark:bg-amber-500/5 dark:ring-amber-500/20">
           <Suspense fallback={<p className="p-2 text-xs text-slate-500">Loading ideas…</p>}>
             <BulletHelper sectionId={sectionId} entryId={entry.id} role={entry.title} bulletIndex={lastEmpty ? bullets.length - 1 : undefined} onDone={() => setIdeas(false)} />
           </Suspense>
@@ -147,8 +149,24 @@ function BulletRow({ sectionId, entry, index, text, handle, onFocusEl, onAdd, on
     if (lines.length < 2) return
     e.preventDefault()
     const el = e.currentTarget
-    const first = el.value.slice(0, el.selectionStart) + lines[0] + el.value.slice(el.selectionEnd)
+    const value = el.value
     const bullets = [...entry.bullets]
+    const whole = el.selectionStart === 0 && el.selectionEnd === value.length
+    if (value.trim() && !whole && el.selectionStart === el.selectionEnd && el.selectionStart >= value.trimEnd().length) {
+      // Caret at the end of a non-empty bullet: every pasted line becomes a new bullet after it.
+      bullets.splice(index + 1, 0, ...lines)
+      resumeActions.updateEntry(sectionId, entry.id, { bullets }, null)
+      onFocusBullet(index + lines.length)
+      return
+    }
+    if (value.trim() && !whole && el.selectionStart === 0 && el.selectionEnd === 0) {
+      // Caret at the start: the pasted lines go before this bullet.
+      bullets.splice(index, 0, ...lines)
+      resumeActions.updateEntry(sectionId, entry.id, { bullets }, null)
+      onFocusBullet(index + lines.length - 1)
+      return
+    }
+    const first = value.slice(0, el.selectionStart) + lines[0] + value.slice(el.selectionEnd)
     bullets.splice(index, 1, first, ...lines.slice(1))
     resumeActions.updateEntry(sectionId, entry.id, { bullets }, null)
     onFocusBullet(index + lines.length - 1)

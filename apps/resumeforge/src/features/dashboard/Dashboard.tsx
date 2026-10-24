@@ -8,7 +8,7 @@ import type { StarterKind } from '../../lib/samples.ts'
 import { developerSample } from '../../lib/samples.ts'
 import { defaultDesign } from '../../lib/design.ts'
 import { sortResumes, type ResumeSort } from '../../lib/shell.ts'
-import { uiActions, useResumes } from '../../store'
+import { navigate, uiActions, useResumes } from '../../store'
 import { TEMPLATES, TemplateThumbnail } from '../../templates'
 import { Button, cn, inputClass, LazyMount, Segmented } from '../../ui'
 import { ResumeCard } from './ResumeCard.tsx'
@@ -45,26 +45,33 @@ export function Dashboard() {
   }, [])
   const list = useMemo(() => sortResumes(resumes, sort, query), [resumes, sort, query])
   const empty = resumes.length === 0
+  // A first-time visitor only has the untouched auto-created sample: greet them with the hero, not "Your resumes".
+  const fresh = empty || (resumes.length === 1 && resumes[0].updatedAt === resumes[0].createdAt && resumes[0].snapshots.length === 0)
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
       {/* Hero */}
-      <section className={cn('relative overflow-hidden rounded-b-3xl px-1 pt-8 sm:pt-12', empty ? 'pb-10' : 'pb-6')}>
+      <section className={cn('relative overflow-hidden rounded-b-3xl px-1 pt-8 sm:pt-12', fresh ? 'pb-10' : 'pb-6')}>
         <div className="pointer-events-none absolute -top-24 left-1/2 -z-0 h-64 w-[48rem] max-w-[140vw] -translate-x-1/2 rounded-full bg-indigo-400/15 blur-3xl dark:bg-indigo-500/10" aria-hidden />
         <div className="relative">
           <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100 dark:bg-slate-900 dark:text-indigo-300 dark:ring-indigo-500/30">
             <Sparkles className="size-3.5" aria-hidden />
             {TEMPLATES.length} templates · ATS checker · PDF & Word export
           </p>
-          <h1 className="mt-4 max-w-3xl text-3xl font-extrabold tracking-tight text-balance text-slate-900 sm:text-5xl dark:text-white">{empty ? 'Build a resume that gets you the interview' : 'Your resumes'}</h1>
+          <h1 className="mt-4 max-w-3xl text-3xl font-extrabold tracking-tight text-balance text-slate-900 sm:text-5xl dark:text-white">{fresh ? 'Build a resume that gets you the interview' : 'Your resumes'}</h1>
           <p className="mt-3 max-w-2xl text-base text-pretty text-slate-600 sm:text-lg dark:text-slate-400">
-            {empty ? 'Pick a starter, choose a template and watch your resume update live. Free, no sign-up, and nothing ever leaves your browser.' : 'Tailor a copy for every application — duplicate a resume, adjust it for the job ad and keep each version.'}
+            {fresh ? 'Pick a starter, choose a template and watch your resume update live. Free, no sign-up, and nothing ever leaves your browser.' : 'Tailor a copy for every application — duplicate a resume, adjust it for the job ad and keep each version.'}
           </p>
-          {empty && (
+          {fresh && (
             <div className="mt-6 flex flex-wrap gap-3">
               <Button size="md" variant="primary" iconRight={ArrowRight} onClick={() => newResume({ starter: 'developer' })}>
                 Create my resume
               </Button>
+              {!empty && (
+                <Button size="md" onClick={() => navigate({ name: 'edit', id: resumes[0].id })}>
+                  Explore the sample
+                </Button>
+              )}
               <Button size="md" icon={FileUp} onClick={() => uiActions.openModal('import')}>
                 Import JSON
               </Button>
@@ -91,7 +98,7 @@ export function Dashboard() {
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-bold text-slate-900 dark:text-white">{s.title}</span>
-                <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{s.description}</span>
+                <span className="block text-xs text-pretty text-slate-500 dark:text-slate-400">{s.description}</span>
               </span>
               <ArrowRight className="size-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-indigo-500 dark:text-slate-600" aria-hidden />
             </button>
@@ -116,7 +123,7 @@ export function Dashboard() {
       <section aria-labelledby="mine-h" className="mt-10">
         <div className="mb-4 flex flex-wrap items-end gap-3">
           <div className="mr-auto">
-            <h2 id="mine-h" className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h2 id="mine-h" tabIndex={-1} className="text-lg outline-none font-extrabold tracking-tight text-slate-900 dark:text-white">
               My resumes <span className="ml-1 text-sm font-semibold text-slate-400">{resumes.length}</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">Saved automatically in this browser · double-click a name to rename</p>

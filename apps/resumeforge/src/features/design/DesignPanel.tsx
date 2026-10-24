@@ -12,6 +12,7 @@ import type { Design, FontId } from '../../lib/types.ts'
 import { resumeActions, toast, useActiveDoc } from '../../store'
 import { ensureFont, getTemplate, TEMPLATES, TemplateThumbnail } from '../../templates'
 import { Button, cn, inputClass, LazyMount, Segmented, Slider, Toggle } from '../../ui'
+import { FitControls } from './FitControls.tsx'
 
 const set = (patch: Partial<Design>, key?: string | null) => resumeActions.updateDesign(patch, key)
 
@@ -57,11 +58,12 @@ export function DesignPanel() {
         />
       </Group>
       <Group title="Layout">
+        <FitControls data={doc.data} design={d} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Slider label="Spacing" value={d.spacing} {...DESIGN_LIMITS.spacing} unit="×" defaultValue={defaultDesign.spacing} onChange={(v) => set({ spacing: v })} />
           <Slider label="Page margins" value={d.margin} {...DESIGN_LIMITS.margin} unit=" mm" defaultValue={defaultDesign.margin} onChange={(v) => set({ margin: v })} />
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid gap-4">
           <Segmented
             label="Paper"
             value={d.paper}
@@ -71,7 +73,7 @@ export function DesignPanel() {
               { value: 'letter', label: 'US Letter' },
             ]}
           />
-          <Segmented label="Dates" value={d.dateFormat} onChange={(dateFormat) => set({ dateFormat }, null)} options={DATE_FORMATS.map((f) => ({ value: f.id, label: f.label }))} size="xs" />
+          <Segmented label="Dates" value={d.dateFormat} onChange={(dateFormat) => set({ dateFormat }, null)} options={DATE_FORMATS.map((f) => ({ value: f.id, label: f.label }))} />
         </div>
       </Group>
       <Group title="Photo & icons">
@@ -111,10 +113,11 @@ function TemplateGallery() {
   const doc = useActiveDoc()
   const [filter, setFilter] = useState<TemplateFilter>('All')
   const shown = filterByTag(TEMPLATES, filter)
+  const design = doc?.design
   const designs = useMemo(() => {
-    if (!doc) return {}
-    return Object.fromEntries(TEMPLATES.map((t) => [t.id, { ...doc.design, template: t.id }])) as Record<string, Design>
-  }, [doc])
+    if (!design) return {}
+    return Object.fromEntries(TEMPLATES.map((t) => [t.id, { ...design, template: t.id }])) as Record<string, Design>
+  }, [design])
   if (!doc) return null
   const current = doc.design.template
   return (

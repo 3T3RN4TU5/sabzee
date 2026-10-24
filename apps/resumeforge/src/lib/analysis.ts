@@ -69,6 +69,12 @@ export function firstWord(text: string): string {
   return (text.trim().match(/^[A-Za-z][A-Za-z-]*/)?.[0] ?? '').toLowerCase()
 }
 
+/** The opener as written in the bullet ("Was responsible for"), falling back to the canonical phrase. */
+function openerText(text: string, hit: { pattern: RegExp; phrase: string }): string {
+  const m = text.trim().match(hit.pattern)
+  return m ? m[0].trim().charAt(0).toUpperCase() + m[0].trim().slice(1) : hit.phrase
+}
+
 export function detectWeakOpener(text: string) {
   return WEAK_PHRASES.find((w) => w.pattern.test(text.trim())) ?? null
 }
@@ -137,13 +143,13 @@ export function analyse(data: ResumeData, opts: { pages?: number | null; now?: D
   else add({ rule: 'contact-location', severity: 'info', category: 'Contact', message: 'Add a city/country — many recruiters filter by location', target: { field: 'location' } })
   if (b.linkedin.trim() || b.github.trim() || b.website.trim()) contact += 3
   else add({ rule: 'contact-links', severity: 'warning', category: 'Contact', message: 'Add LinkedIn, GitHub or a portfolio link', target: { field: 'linkedin' } })
-  for (const [field, kind] of [
-    ['website', 'url'],
-    ['linkedin', 'linkedin'],
-    ['github', 'github'],
+  for (const [field, kind, label] of [
+    ['website', 'url', 'Website'],
+    ['linkedin', 'linkedin', 'LinkedIn'],
+    ['github', 'github', 'GitHub'],
   ] as const) {
     const err = fieldError(kind, b[field])
-    if (err) add({ rule: 'contact-link-invalid', severity: 'warning', category: 'Contact', message: err, target: { field } })
+    if (err) add({ rule: 'contact-link-invalid', severity: 'warning', category: 'Contact', message: `${label}: ${err.charAt(0).toLowerCase()}${err.slice(1)}`, target: { field } })
   }
 
   /* ---------- Content ---------- */
@@ -195,7 +201,7 @@ export function analyse(data: ResumeData, opts: { pages?: number | null; now?: D
     const weakHit = detectWeakOpener(x.text)
     if (weakHit) {
       weak++
-      add({ rule: 'weak-verb', severity: 'warning', category: 'Language', message: `Weak opener “${weakHit.phrase}”`, detail: short(x.text), suggestions: weakHit.suggestions, target: bt(x) })
+      add({ rule: 'weak-verb', severity: 'warning', category: 'Language', message: `Weak opener “${openerText(x.text, weakHit)}”`, detail: short(x.text), suggestions: weakHit.suggestions, target: bt(x) })
     } else if (VERB_FORMS.has(w) || /[a-z]{3,}ed$/.test(w)) {
       const base = VERB_FORMS.get(w)?.base ?? w
       if (STRONG_VERBS.has(base) || /[a-z]{3,}ed$/.test(w)) actionCount++

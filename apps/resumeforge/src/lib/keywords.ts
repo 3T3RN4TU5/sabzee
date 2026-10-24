@@ -6,7 +6,7 @@
  * 3. phrase pass: frequent non-stopword bigrams/unigrams and capitalised product names
  * 4. weight = frequency × source weight (+ bonus for terms on "required/must" lines)
  */
-import { monthsBetween } from './dates.ts'
+import { monthsBetween, parseStored } from './dates.ts'
 import { AMBIGUOUS_ALIASES, COMMON_VERBS, LOCATIONS, NAME_NOISE, STOPWORDS, TERMS, VERB_FORMS, type TermCategory } from './dictionaries.ts'
 import { extractJobInfo, isCompanyKeyword } from './jobMatch.ts'
 import { inlineToPlain } from './markdown.ts'
@@ -337,7 +337,27 @@ export function yearsRequired(jd: string): number | null {
 
 export function yearsOfExperience(data: ResumeData, now = new Date()): number {
   const exp = data.sections.filter((s) => s.kind === 'experience' && !s.hidden).flatMap((s) => s.items)
-  const months = exp.reduce((sum, e) => sum + monthsBetween(e.start, e.end, e.current, now), 0)
+  // merge overlapping roles so two concurrent jobs don't double-count the same months
+  const spans: [number, number][] = []
+  for (const e of exp) {
+    const a = parseStored(e.start)
+    const len = monthsBetween(e.start, e.end, e.current, now)
+    if (!a || len <= 0) continue
+    const from = a.year * 12 + (a.month || 1) - 1
+    spans.push([from, from + len])
+  }
+  spans.sort((x, y) => x[0] - y[0])
+  let months = 0
+  let curFrom = -1
+  let curTo = -1
+  for (const [from, to] of spans) {
+    if (from > curTo) {
+      months += curTo - curFrom
+      curFrom = from
+      curTo = to
+    } else curTo = Math.max(curTo, to)
+  }
+  months += curTo - curFrom
   return Math.round((months / 12) * 10) / 10
 }
 

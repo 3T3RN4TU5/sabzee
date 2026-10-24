@@ -40,7 +40,7 @@ export function SnapshotsMenu() {
             <h2 className="text-sm font-bold text-slate-900 dark:text-white">Versions</h2>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Save a snapshot before big changes or to keep one version per job. Restoring can be undone.</p>
             <form onSubmit={save} className="mt-3 flex gap-2">
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={`Version ${snaps.length + 1}`} maxLength={120} aria-label="Version name" className={cn(inputClass, 'h-8 py-1')} data-autofocus />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={`Version ${snaps.length + 1}`} maxLength={120} aria-label="Version name" className={cn(inputClass, 'h-8 py-1')} data-autofocus data-native-undo="" />
               <Button type="submit" variant="primary" icon={Save}>
                 Save
               </Button>
@@ -103,6 +103,7 @@ function SnapshotRow({ snap }: { snap: Snapshot }) {
             autoFocus
             maxLength={120}
             aria-label="Version name"
+            data-native-undo=""
             className={cn(inputClass, 'h-7 px-2 py-0.5 text-sm')}
           />
           <IconButton size="xs" type="submit" icon={Check} label="Save name" />

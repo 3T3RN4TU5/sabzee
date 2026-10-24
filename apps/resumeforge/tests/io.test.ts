@@ -45,6 +45,24 @@ describe('JSON Resume', () => {
     }
   })
 
+  it('keeps free-text dates through a JSON Resume round-trip', () => {
+    const sample = developerSample()
+    const exp = sample.sections.find((s) => s.kind === 'experience')!
+    exp.items[0] = { ...exp.items[0], start: 'Summer 2016', end: '', current: true }
+    exp.items[1] = { ...exp.items[1], start: '2019-01', end: 'Spring 2020', current: false }
+    const awards = createSection('awards', 'Awards', { items: [createEntry('awards', { title: 'Hackathon winner', start: 'Fall 2018' })] })
+    sample.sections.push(awards)
+    const j = toJsonResume(sample)
+    assert.equal(j.work![0].startDate, undefined)
+    assert.deepEqual(j.work![0]['x-resumeforge'], { start: 'Summer 2016', current: true })
+    const back = fromJsonResume(JSON.parse(JSON.stringify(j)))
+    const bexp = back.sections.find((s) => s.kind === 'experience')!
+    assert.deepEqual([bexp.items[0].start, bexp.items[0].end, bexp.items[0].current], ['Summer 2016', '', true])
+    assert.deepEqual([bexp.items[1].start, bexp.items[1].end, bexp.items[1].current], ['2019-01', 'Spring 2020', false])
+    assert.equal(back.sections.find((s) => s.kind === 'awards')!.items[0].start, 'Fall 2018')
+    assert.deepEqual(withoutIds(back), withoutIds(sample))
+  })
+
   it('imports a third-party JSON Resume without ResumeForge metadata', () => {
     const data = fromJsonResume({
       basics: { name: 'Riya Shah', label: 'Designer', email: 'riya@example.com', location: { city: 'Pune', countryCode: 'IN' }, profiles: [{ network: 'LinkedIn', username: 'riyashah' }] },

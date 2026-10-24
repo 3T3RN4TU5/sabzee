@@ -71,7 +71,7 @@ export function DragHandle({ handle: { attach, props }, label, size = 'sm', clas
       aria-label={label}
       title="Drag to reorder (or focus and press Space)"
       className={cn(
-        'grid shrink-0 cursor-grab touch-none place-items-center rounded-md text-slate-300 transition hover:bg-slate-100 hover:text-slate-600 focus-visible:text-indigo-600 focus-visible:outline-2 focus-visible:outline-indigo-500 active:cursor-grabbing dark:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300',
+        'grid shrink-0 cursor-grab touch-none place-items-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:text-indigo-600 focus-visible:outline-2 focus-visible:outline-indigo-500 active:cursor-grabbing dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200',
         size === 'xs' ? 'h-7 w-5' : 'h-8 w-6',
         className,
       )}

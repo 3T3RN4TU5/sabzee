@@ -3,8 +3,8 @@
  * from the job description, all CoverLetter fields, a quality check and PDF / TXT export.
  * The preview pane shows <CoverLetterDocument> while this panel is active. OWNER: cover agent.
  */
-import { CalendarDays, CheckCircle2, Copy, Download, FileText, Printer, Sparkles, Wand2, XCircle } from 'lucide-react'
-import { useMemo, useRef, type ReactNode } from 'react'
+import { CalendarDays, CheckCircle2, Copy, Download, FileText, FileType, Printer, Sparkles, Wand2, XCircle } from 'lucide-react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { LETTER_STARTERS, letterToText, starterLetter, type LetterStarter } from '../../lib/coverLetter.ts'
 import { printFilename } from '../../lib/filename.ts'
 import { extractJobInfo } from '../../lib/jobMatch.ts'
@@ -13,6 +13,7 @@ import type { CoverLetter, ResumeDoc } from '../../lib/types.ts'
 import { confirmDialog, resumeActions, toast, useActiveDoc } from '../../store'
 import { Button, cn, TextArea, TextField } from '../../ui'
 import { copyText, downloadFile } from '../io/download.ts'
+import { exportDocx } from '../io/exporters.ts'
 import { printDocument } from '../io/print.ts'
 import { setLetterLayout, useLetterLayout, useLetterPrefs } from './letterPrefs.ts'
 
@@ -35,7 +36,7 @@ function Editor({ doc }: { doc: ResumeDoc }) {
   const applyStarter = async (s: LetterStarter) => {
     if (l.body.trim() && !(await confirmDialog({ title: `Replace your letter with “${s.name}”?`, message: 'Your current text will be replaced. You can undo with Ctrl+Z.', confirmLabel: 'Replace' }))) return
     const base: CoverLetter = { ...l, company: l.company || info.company, role: l.role || info.role }
-    const out = starterLetter(s.id, doc.data, base)
+    const out = starterLetter(s.id, doc.data, base, doc.jobDescription)
     set({ ...out, company: base.company, role: base.role, date: l.date || todayIso() }, null)
     toast(`Started from “${s.name}” — replace the [bracketed] parts`, 'success')
   }
@@ -199,6 +200,18 @@ function Chips({ label, options, current, onPick }: { label: string; options: st
 function ExportBar({ doc }: { doc: ResumeDoc }) {
   const text = () => letterToText(doc.coverLetter, doc.data)
   const empty = !doc.coverLetter.body.trim()
+  const [wordBusy, setWordBusy] = useState(false)
+  const word = async () => {
+    setWordBusy(true)
+    try {
+      const name = await exportDocx(doc, 'letter')
+      toast(`Downloaded ${name}`, 'success')
+    } catch {
+      toast('Could not create the Word file', 'error')
+    } finally {
+      setWordBusy(false)
+    }
+  }
   return (
     <div className="flex flex-wrap items-end gap-2">
       <div className="min-w-0 basis-full">
@@ -207,6 +220,9 @@ function ExportBar({ doc }: { doc: ResumeDoc }) {
       </div>
       <Button size="sm" variant="primary" icon={Printer} onClick={() => void printDocument({ target: 'letter' })} disabled={empty} title={empty ? 'Write your letter first' : 'Save as PDF'}>
         PDF
+      </Button>
+      <Button size="sm" icon={FileType} disabled={empty || wordBusy} onClick={() => void word()} title={empty ? 'Write your letter first' : 'Editable in Word and Google Docs'}>
+        {wordBusy ? 'Word…' : 'Word'}
       </Button>
       <Button
         size="sm"

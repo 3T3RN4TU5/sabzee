@@ -101,8 +101,9 @@ function ClassicEntry({ e }: { e: EntryView }) {
   const org = joined([e.subtitle ? <span key="sub" className="cl-sub">{e.subtitle}</span> : null, e.meta ? <span key="grade" className="cl-grade">{e.meta}</span> : null], ' · ')
   return (
     <div className={cx('cl-entry', `cl-entry--${e.kind}`)}>
-      <Line left={title} right={topRight} />
-      <Line left={org} right={second} className="cl-line--2" />
+      {/* with no title, the organisation moves up to the heading row so the date never sits above it */}
+      <Line left={title ?? org} right={topRight} />
+      <Line left={title ? org : null} right={second} className="cl-line--2" />
       {e.description && <Rich as="div" className="cl-desc" text={e.description} />}
       {e.keywords.length > 0 && <Keywords className="cl-tech" items={e.keywords} separator=" · " />}
       <Bullets items={e.bullets} className="cl-bullets" />

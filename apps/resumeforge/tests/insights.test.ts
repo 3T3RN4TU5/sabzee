@@ -69,10 +69,16 @@ describe('rewrite helpers', () => {
     const fixes = issueFixes({ rule: 'weak-verb', suggestions: ['Led', 'Owned'] }, 'Responsible for building the API')
     assert.deepEqual(
       fixes.map((f) => f.label),
-      ['Built', 'Led', 'Owned'],
+      ['Built'],
     )
     assert.equal(fixes[0].value, 'Built the API')
-    assert.equal(fixes[1].value, 'Led building the API')
+    // never "Led building the API"
+    const values = (text: string, suggestions: string[]) => issueFixes({ rule: 'weak-verb', suggestions }, text).map((f) => f.value)
+    assert.deepEqual(values('Involved in designing APIs', ['Contributed to', 'Drove']), ['Designed APIs'])
+    assert.deepEqual(values('Was responsible for the payments API', ['Led', 'Owned']), ['Led the payments API', 'Owned the payments API'])
+    assert.deepEqual(values('Responsible for reconciling ledgers', ['Led']), [null])
+    assert.deepEqual(values('Helped the team ship faster', ['Supported']), ['Enabled the team to ship faster'])
+    assert.deepEqual(values('Helped stuff', ['Supported', 'Contributed to']), ['Supported stuff', 'Contributed to stuff'])
     const copyOnly = issueFixes({ rule: 'buzzword', suggestions: ['x'] }, 'team player')
     assert.equal(copyOnly[0].value, null)
     assert.deepEqual(issueFixes({ rule: 'weak-verb', suggestions: ['Led'] }, null), [{ label: 'Led', value: null }])
@@ -160,10 +166,12 @@ describe('bullet helper tools', () => {
 
   it('extracts and fills template placeholders', () => {
     const t = BULLET_TEMPLATES[0].pattern
-    assert.deepEqual(templatePlaceholders(t), ['X', 'Y', 'Z'])
-    assert.equal(fillTemplate(t, { X: 'a 20% faster checkout', Y: 'p95 latency', Z: 'caching' }), 'Accomplished a 20% faster checkout as measured by p95 latency by doing caching')
-    assert.equal(fillTemplate(t, { X: 'Cut costs 10%', Y: 'AWS bills' }), 'Accomplished cut costs 10% as measured by AWS bills by doing [Z]')
-    assert.equal(fillTemplate(t, { X: 'more sales' }), 'Accomplished more sales as measured by [Y] by doing [Z]')
+    const [what, metric, how] = templatePlaceholders(t)
+    assert.deepEqual(templatePlaceholders(t), ['What you achieved, with a number', 'metric', 'what you did'])
+    assert.equal(fillTemplate(t, { [what]: 'cut checkout time 20%', [metric]: 'p95 latency', [how]: 'adding a Redis cache' }), 'Cut checkout time 20% as measured by p95 latency, by adding a Redis cache')
+    assert.equal(fillTemplate(t, { [what]: 'Cut costs 10%', [metric]: 'AWS bills', [how]: 'By Moving batch jobs to spot instances.' }), 'Cut costs 10% as measured by AWS bills, by moving batch jobs to spot instances')
+    assert.equal(fillTemplate(t, { [what]: 'Grew sales 5%' }), 'Grew sales 5% as measured by [metric], by [what you did]')
+    assert.equal(fillTemplate('Partnered with [teams] to [goal]', { teams: 'design', goal: 'to Redesign onboarding' }), 'Partnered with design to redesign onboarding')
     assert.deepEqual(
       templateParts('Led [N] people').map((p) => p.placeholder),
       [false, true, false],

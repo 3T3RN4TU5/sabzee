@@ -81,3 +81,9 @@ describe('XSS safety', () => {
     assert.equal(escapeHtml(`"'<>&`), '&quot;&#39;&lt;&gt;&amp;')
   })
 })
+
+describe('plain-text links inside parentheses', () => {
+  it('avoids nested parentheses', () => {
+    assert.equal(inlineToPlain('Built a tool (see [demo](https://x.com/d)) and [blog](https://b.dev)', true), 'Built a tool (see demo: x.com/d) and blog (b.dev)')
+  })
+})

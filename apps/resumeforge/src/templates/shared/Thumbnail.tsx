@@ -20,8 +20,9 @@ export const TemplateThumbnail = memo(function TemplateThumbnail({ data: liveDat
   const design = useDeferredValue(liveDesign)
   const paper = paperSize(design.paper)
   const scale = width / paper.widthPx
+  // inert + aria-hidden: the miniature's links must not be focusable or announced (thumbnails often sit inside a <button>)
   return (
-    <div className={className} style={{ width, height: paper.heightPx * scale, overflow: 'hidden', pointerEvents: 'none' }} aria-hidden="true">
+    <div className={className} style={{ width, height: paper.heightPx * scale, overflow: 'hidden', pointerEvents: 'none' }} aria-hidden="true" inert>
       <PagedDocument data={data} design={design} templateId={templateId} mode="thumbnail" scale={scale} maxPages={1} />
     </div>
   )

@@ -16,7 +16,7 @@
   bottom: calc(var(--rf-margin) * 0.55);
   font-size: 0.72em;
   letter-spacing: 0.12em;
-  color: #9ca3af;
+  color: #6b7280;
   font-variant-numeric: tabular-nums;
 }
 
@@ -125,7 +125,7 @@
 }
 .rf-t-minimal .mi-entry .rf-entry__location,
 .rf-t-minimal .mi-entry .rf-entry__dot {
-  color: #9ca3af;
+  color: #6b7280;
 }
 .rf-t-minimal .mi-entry .rf-entry__aside {
   font-size: 0.84em;

@@ -3,7 +3,7 @@
  * and the active resume (or the cover letter while the Cover letter panel is open) as real pages.
  * Click a block to jump to its fields. OWNER: shell agent.
  */
-import { AlertTriangle, Check, ChevronDown, LayoutTemplate, Maximize2, Minus, Plus } from 'lucide-react'
+import { AlertTriangle, ChevronDown, LayoutTemplate, Maximize2, Minus, Plus } from 'lucide-react'
 import { Suspense, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react'
 import { fitScale, stepZoom, ZOOM_PRESETS } from '../lib/shell.ts'
 import { paperSize } from '../lib/templateData.ts'
@@ -14,8 +14,23 @@ import { CoverLetterDocument } from './lazy.ts'
 
 const PAD = 48
 
-export function PreviewPane() {
-  const doc = useActiveDoc()
+/**
+ * While the preview is hidden (mobile Edit tab) it only follows the document after typing pauses,
+ * so it is not re-rendered and re-measured on every keystroke — the page count stays fresh for the
+ * ATS check and the Design panel. Visible again → it catches up immediately.
+ */
+function useIdleValue<T>(value: T, hidden: boolean, delay = 900): T {
+  const [idle, setIdle] = useState(value)
+  useEffect(() => {
+    if (!hidden) return
+    const t = setTimeout(() => setIdle(value), delay)
+    return () => clearTimeout(t)
+  }, [value, hidden, delay])
+  return hidden ? idle : value
+}
+
+export function PreviewPane({ hidden = false }: { hidden?: boolean }) {
+  const doc = useIdleValue(useActiveDoc(), hidden)
   const panel = useUiStore((s) => s.panel)
   const zoom = useUiStore((s) => s.zoom)
   const pages = useUiStore((s) => s.pageCount)
@@ -92,7 +107,8 @@ export function PreviewPane() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-center gap-1 border-b border-slate-200/80 bg-white/80 px-2 py-1.5 text-xs text-slate-500 backdrop-blur sm:px-3 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-400">
+      {/* relative z-20: backdrop-blur creates a stacking context — without it the menus open behind the (transformed) pages. */}
+      <div className="relative z-20 flex shrink-0 items-center gap-1 border-b border-slate-200/80 bg-white/80 px-2 py-1.5 text-xs text-slate-500 backdrop-blur sm:px-3 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-400">
         {letter ? (
           <span className="px-1.5 font-semibold text-slate-700 dark:text-slate-200">Cover letter · {tpl.name}</span>
         ) : (
@@ -153,7 +169,7 @@ export function PreviewPane() {
             ]}
           />
           <IconButton size="xs" icon={Plus} label="Zoom in" onClick={() => uiActions.setZoom(stepZoom(scale, 1, ZOOM_LIMITS))} disabled={scale >= ZOOM_LIMITS.max - 1e-6} />
-          <IconButton size="xs" icon={zoom === 'fit' ? Check : Maximize2} label="Fit to width" onClick={() => uiActions.setZoom('fit')} className={cn('hidden sm:inline-flex', zoom === 'fit' && 'text-indigo-600 dark:text-indigo-400')} />
+          <IconButton size="xs" icon={Maximize2} label="Fit to width" aria-pressed={zoom === 'fit'} onClick={() => uiActions.setZoom('fit')} className={cn('hidden sm:inline-flex', zoom === 'fit' && 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-300 dark:ring-indigo-500/30')} />
         </div>
       </div>
       <div ref={box} className="rf-scroll min-h-0 flex-1 overflow-auto" id="preview-pane" tabIndex={-1} aria-label="Resume preview">

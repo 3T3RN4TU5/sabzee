@@ -36,6 +36,8 @@
   min-width: 0;
 }
 .rf-t-corporate .co-photo {
+  /* the portrait may overhang the header row a little instead of making the whole header taller */
+  margin-block: -0.4em;
   box-shadow: 0 0 0 1px rgb(var(--rf-accent-rgb) / 0.25);
 }
 .rf-t-corporate .co-ident__text {
@@ -113,7 +115,7 @@
   font-size: 0.72em;
   line-height: 1;
   letter-spacing: 0.04em;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 /* ---------- section headings ---------- */

@@ -9,7 +9,7 @@ const TONES = { success: 'text-emerald-400', error: 'text-rose-400', info: 'text
 export function Toaster() {
   const toasts = useUiStore((s) => s.toasts)
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex flex-col items-center gap-2 px-4 print:hidden" aria-live="polite" role="status">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-[60] lg:bottom-4 flex flex-col items-center gap-2 px-4 print:hidden" aria-live="polite" role="status">
       {toasts.map((t) => {
         const Icon = ICONS[t.kind]
         return (

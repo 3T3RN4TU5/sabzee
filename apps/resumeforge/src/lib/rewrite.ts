@@ -141,10 +141,19 @@ export interface IssueFix {
  * Weak openers also get the "hidden verb" suggestion first ("Responsible for building" → "Built").
  */
 export function issueFixes(issue: Pick<Issue, 'rule' | 'suggestions'>, text: string | null): IssueFix[] {
-  const suggestions = [...(issue.suggestions ?? [])]
+  let suggestions = [...(issue.suggestions ?? [])]
   if (issue.rule === 'weak-verb' && text) {
     const d = derivedVerb(text)
-    if (d && !suggestions.some((s) => s.toLowerCase() === d.toLowerCase())) suggestions.unshift(d)
+    // "Responsible for building X" → only "Built X"; "Led building X" would be ungrammatical
+    if (d) suggestions = [d]
+    else if (/^[a-z]{3,}ing\b/i.test(afterOpener(text) ?? '')) {
+      // an unknown gerund ("Responsible for reconciling") — no safe automatic rewrite
+      return suggestions.map((label) => ({ label, value: null }))
+    } else if (hidesBareVerb(text)) {
+      // "Helped the team ship faster" → "Enabled the team to ship faster" (the only safe shape)
+      const value = enableRewrite(text)
+      return value ? [{ label: 'Enabled', value }] : suggestions.map((label) => ({ label, value: null }))
+    }
   }
   return suggestions.map((label) => {
     if (text === null) return { label, value: null }
@@ -166,4 +175,31 @@ export function issueFixes(issue: Pick<Issue, 'rule' | 'suggestions'>, text: str
     }
     return { label, value: value !== null && value !== text ? value : null }
   })
+}
+
+/** Text after the weak opener, or null. */
+function afterOpener(text: string): string | null {
+  const t = text.trim()
+  const hit = detectWeakOpener(t)
+  const m = hit && t.match(hit.pattern)
+  return m ? t.slice(m[0].length).trimStart() : null
+}
+
+/** "Helped <object> <bare verb> …": a verb in base form within the next few words. */
+function hidesBareVerb(text: string): boolean {
+  const t = text.trim()
+  if (!/^helped\b/i.test(t)) return false
+  const rest = afterOpener(t)
+  if (!rest) return false
+  const words = rest.split(/\s+/).slice(1, 5)
+  return words.some((w) => VERB_FORMS.get(w.toLowerCase())?.tense === 'present' && VERB_FORMS.get(w.toLowerCase())?.base === w.toLowerCase())
+}
+
+function enableRewrite(text: string): string | null {
+  const rest = afterOpener(text)
+  if (!rest || startsWithMarkup(text)) return null
+  const words = rest.split(/\s+/)
+  const i = words.findIndex((w, k) => k > 0 && k < 5 && VERB_FORMS.get(w.toLowerCase())?.base === w.toLowerCase())
+  if (i < 1) return null
+  return `Enabled ${[...words.slice(0, i), 'to', ...words.slice(i)].join(' ')}`
 }

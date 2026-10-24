@@ -4,8 +4,9 @@ import { join } from 'node:path'
 import { describe, it } from 'node:test'
 import { COMMON_VERBS, LOCATIONS } from '../src/lib/dictionaries.ts'
 import { extractJobInfo, isCompanyKeyword } from '../src/lib/jobMatch.ts'
-import { extractKeywords, matchResume, tokenize } from '../src/lib/keywords.ts'
-import { blankData } from '../src/lib/samples.ts'
+import { analyse } from '../src/lib/analysis.ts'
+import { extractKeywords, matchResume, tokenize, yearsOfExperience } from '../src/lib/keywords.ts'
+import { blankData, developerSample } from '../src/lib/samples.ts'
 
 const fixture = (name: string) => readFileSync(join(import.meta.dirname, 'fixtures', name), 'utf8')
 const DA = fixture('da-jd.txt')
@@ -123,5 +124,33 @@ describe('company / location detection', () => {
     assert.equal(isCompanyKeyword({ label: 'Pay' }, 'Razorpay'), false)
     assert.equal(isCompanyKeyword({ label: 'Health Inc' }, 'Lumen Health'), false)
     assert.equal(isCompanyKeyword({ label: 'umen Heal' }, 'Lumen Health'), false)
+  })
+})
+
+describe('years of experience', () => {
+  it('merges overlapping roles instead of summing them', () => {
+    const data = developerSample()
+    const exp = data.sections.find((s) => s.kind === 'experience')!
+    const base = exp.items[0]
+    exp.items = [
+      { ...base, id: 'a', start: '2020-01', end: '2021-12', current: false },
+      { ...base, id: 'b', start: '2021-01', end: '2022-12', current: false }, // overlaps a by a year
+      { ...base, id: 'c', start: '2024-01', end: '2024-12', current: false },
+    ]
+    assert.equal(yearsOfExperience(data, new Date('2026-01-01')), 4)
+  })
+
+  it('names the field in contact link errors', () => {
+    const data = developerSample()
+    data.basics.github = 'gitlab.com/someone'
+    const msg = analyse(data, { now: new Date('2026-01-01') }).issues.find((i) => i.rule === 'contact-link-invalid')?.message
+    assert.match(msg ?? '', /^GitHub: /)
+  })
+
+  it('quotes the weak opener as written', () => {
+    const data = developerSample()
+    data.sections.find((s) => s.kind === 'experience')!.items[0].bullets = ['Was responsible for the payments API used by 2M users']
+    const msg = analyse(data, { now: new Date('2026-01-01') }).issues.find((i) => i.rule === 'weak-verb')?.message
+    assert.equal(msg, 'Weak opener “Was responsible for”')
   })
 })

@@ -30,26 +30,33 @@ export function MonthField({ label, value, onChange, fieldRef, flash, disabled, 
   const id = useId()
   const parsed = parseStored(value)
   const legacy = value.trim() && !parsed ? value.trim() : ''
-  const month = parsed?.month ?? 0
+  // A month picked before any year is kept here (not saved) until a year is chosen — never guess the year.
+  const [pendingMonth, setPendingMonth] = useState(0)
   const year = parsed?.year ?? 0
+  const month = parsed ? parsed.month || 0 : pendingMonth
   const years = useMemo(() => {
     const ys = yearOptions()
     if (year && !ys.includes(year)) ys.push(year)
     return ys.sort((a, b) => b - a)
   }, [year])
   const set = (m: number, y: number) => {
-    if (!y && !m) return onChange('')
-    onChange(toStored({ year: y || new Date().getFullYear(), month: m }))
+    if (!y) {
+      setPendingMonth(m)
+      if (parsed) onChange('')
+      return
+    }
+    setPendingMonth(0)
+    onChange(toStored({ year: y, month: m }))
   }
   return (
-    <FieldShell className={className} flash={flash} hint={legacy ? `Saved as text: “${legacy}” — pick a month and year to standardise it.` : undefined}>
+    <FieldShell className={className} flash={flash} hint={legacy ? `Saved as text: “${legacy}” — pick a month and year to standardise it.` : !year && pendingMonth ? 'Pick a year to save this date.' : undefined}>
       <div ref={fieldRef} role="group" aria-labelledby={`${id}-l`}>
         <div className="mb-1 flex items-center justify-between gap-2">
           <span id={`${id}-l`} className="text-xs font-semibold text-slate-600 dark:text-slate-300">
             {label}
           </span>
-          {(value || legacy) && !disabled && (
-            <button type="button" onClick={() => onChange('')} className="rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200" aria-label="Clear date" title="Clear date">
+          {(value || legacy || pendingMonth > 0) && !disabled && (
+            <button type="button" onClick={() => (setPendingMonth(0), onChange(''))} className="rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200" aria-label="Clear date" title="Clear date">
               <X className="size-3.5" aria-hidden />
             </button>
           )}
@@ -133,6 +140,7 @@ export function TagsInput({ label, tags, onChange, placeholder, fieldRef, flash,
         ))}
         <input
           id={id}
+          data-native-undo=""
           value={draft}
           placeholder={tags.length ? '' : placeholder}
           onChange={(e) => {

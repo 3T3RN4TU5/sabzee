@@ -96,7 +96,8 @@ describe('docx model — resume', () => {
     const all = docxModelText(model)
     assert.ok(all.includes('Languages: TypeScript, JavaScript, Python, Java, SQL  —  Expert'))
     assert.ok(all.includes('English (Native / bilingual)   ·   Hindi'))
-    assert.ok(all.includes('Grade / GPA: CGPA 8.7 / 10'))
+    assert.ok(all.includes('CGPA 8.7 / 10'))
+    assert.ok(!all.includes('Grade / GPA'))
   })
 
   it('omits hidden and empty sections and honours the date format', () => {

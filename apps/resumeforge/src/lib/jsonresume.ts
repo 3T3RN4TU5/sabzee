@@ -71,7 +71,22 @@ function splitDegree(title: string): { studyType?: string; area?: string } {
   return { studyType: title.slice(0, i), area: title.slice(i + 2) }
 }
 
+/** JSON Resume dates must be ISO; free-text dates ("Summer 2016") ride along in a custom field. */
+const X_KEY = 'x-resumeforge'
+
+function freeTextDates(e: Entry): Json | undefined {
+  const start = e.start.trim() && !date(e.start) ? e.start.trim() : undefined
+  const end = !e.current && e.end.trim() && !date(e.end) ? e.end.trim() : undefined
+  return start || end ? clean({ start, end, current: start && e.current ? true : undefined }) : undefined
+}
+
 function entryToJson(kind: SectionKind, e: Entry): Json {
+  const out = entryToJsonBase(kind, e)
+  const x = kind === 'custom' ? undefined : freeTextDates(e)
+  return x ? { ...out, [X_KEY]: x } : out
+}
+
+function entryToJsonBase(kind: SectionKind, e: Entry): Json {
   const range = { startDate: date(e.start), endDate: e.current ? undefined : date(e.end) }
   switch (kind) {
     case 'experience':
@@ -179,6 +194,22 @@ export function levelFromText(text: string, kind: 'skills' | 'languages'): numbe
 }
 
 function entryFromJson(kind: SectionKind, j: Json): Entry {
+  const e = entryFromJsonBase(kind, j)
+  const x = j[X_KEY]
+  if (kind === 'custom' || !x || typeof x !== 'object' || Array.isArray(x)) return e
+  const xs = x as Json
+  if (!e.start && s(xs.start)) {
+    e.start = s(xs.start)
+    if (xs.current === true && !e.end) e.current = true
+  }
+  if (!e.end && s(xs.end)) {
+    e.end = s(xs.end)
+    e.current = false
+  }
+  return e
+}
+
+function entryFromJsonBase(kind: SectionKind, j: Json): Entry {
   const range = () => {
     const start = importDate(j.startDate)
     const end = importDate(j.endDate)

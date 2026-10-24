@@ -35,15 +35,20 @@ export function templatePlaceholders(pattern: string): string[] {
 
 /** Replace placeholders with the given values; unfilled ones stay bracketed (the ATS check flags them). */
 export function fillTemplate(pattern: string, values: Record<string, string>): string {
-  return pattern
+  const out = pattern
     .replace(PLACEHOLDER_RE, (whole, name: string, offset: number) => {
-      const v = values[name]?.trim()
+      let v = values[name]?.trim().replace(/[.;,]+$/, '')
       if (!v) return whole
-      // mid-sentence: "Accomplished Cut costs" → "Accomplished cut costs" (acronyms / CamelCase untouched)
+      // "… by [what you did]" filled with "by rebuilding X" → don't repeat the joining word
+      const before = pattern.slice(0, offset).match(/\b(by|to|for|with|in|across|serving|of)\s*$/i)?.[1]
+      if (before && v.toLowerCase().startsWith(`${before.toLowerCase()} `)) v = v.slice(before.length + 1).trimStart()
+      // mid-sentence: "… by Rebuilding the form" → "… by rebuilding the form" (acronyms / CamelCase untouched)
       return offset > 0 && /^[A-Z][a-z]+(?:\s|$)/.test(v) ? v.charAt(0).toLowerCase() + v.slice(1) : v
     })
     .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([,.;])/g, '$1')
     .trim()
+  return out.charAt(0).toUpperCase() + out.slice(1)
 }
 
 /** Split a pattern into literal text and placeholder parts (for highlighting in the UI). */

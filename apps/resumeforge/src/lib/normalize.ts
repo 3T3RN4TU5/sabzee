@@ -3,7 +3,18 @@ import { uid } from './ids.ts'
 import { ADDABLE_KINDS } from './sections.ts'
 import type { Basics, CoverLetter, Entry, ResumeData, ResumeDoc, Section, SectionKind, Snapshot } from './types.ts'
 
-const str = (v: unknown, max = 20000): string => (typeof v === 'string' ? v.slice(0, max) : typeof v === 'number' ? String(v) : '')
+/** C0 control characters (except tab / newline / CR) and non-characters are illegal in XML (DOCX) and invisible on screen. */
+// eslint-disable-next-line no-control-regex
+const CONTROL_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g
+export const stripControlChars = (s: string): string => s.replace(CONTROL_RE, '')
+
+const str = (v: unknown, max = 20000): string => (typeof v === 'string' ? stripControlChars(v).slice(0, max) : typeof v === 'number' ? String(v) : '')
+
+/** Longest photo data URL accepted on import (~220 KB) — the in-app cropper produces far smaller JPEGs. */
+export const MAX_PHOTO_CHARS = 300_000
+/** Field caps shared with the importer. */
+export const MAX_NAME = 120
+export const MAX_JOB_DESCRIPTION = 50000
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {})
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
 
@@ -25,7 +36,7 @@ export const emptyCoverLetter: CoverLetter = {
 
 export function normalizeBasics(v: unknown): Basics {
   const b = obj(v)
-  const photo = str(b.photo, 2_000_000)
+  const photo = typeof b.photo === 'string' && b.photo.length <= MAX_PHOTO_CHARS ? b.photo : ''
   return {
     name: str(b.name, 200),
     title: str(b.title, 200),
@@ -81,14 +92,21 @@ export function normalizeSection(v: unknown): Section | null {
 export function normalizeData(v: unknown): ResumeData {
   const d = obj(v)
   const seen = new Set<string>()
+  const seenEntries = new Set<string>()
   const sections = arr(d.sections)
     .map(normalizeSection)
     .filter((s): s is Section => s !== null)
     .map((s) => {
-      // ids must be unique for drag & drop / focus targets
+      // ids must be unique for drag & drop / focus targets — sections and entries across the whole doc
       if (seen.has(s.id)) s = { ...s, id: uid() }
       seen.add(s.id)
-      return s
+      const items = s.items.map((e) => {
+        let id = e.id
+        while (seenEntries.has(id)) id = uid()
+        seenEntries.add(id)
+        return id === e.id ? e : { ...e, id }
+      })
+      return { ...s, items }
     })
   return { basics: normalizeBasics(d.basics), sections }
 }
@@ -120,13 +138,13 @@ export function normalizeDoc(v: unknown): ResumeDoc {
   const now = Date.now()
   return {
     id: str(d.id, 64) || uid(),
-    name: str(d.name, 120) || 'Untitled resume',
+    name: str(d.name, MAX_NAME) || 'Untitled resume',
     createdAt: typeof d.createdAt === 'number' ? d.createdAt : now,
     updatedAt: typeof d.updatedAt === 'number' ? d.updatedAt : now,
     data: normalizeData(d.data),
     design: normalizeDesign(d.design),
     coverLetter: normalizeCoverLetter(d.coverLetter),
-    jobDescription: str(d.jobDescription, 50000),
+    jobDescription: str(d.jobDescription, MAX_JOB_DESCRIPTION),
     snapshots: arr(d.snapshots)
       .map(normalizeSnapshot)
       .filter((s): s is Snapshot => s !== null)

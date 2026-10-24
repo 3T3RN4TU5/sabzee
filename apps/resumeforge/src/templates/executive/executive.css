@@ -13,12 +13,14 @@
   display: flex;
   align-items: center;
   gap: 1.4em;
-  padding: calc(var(--rf-margin) * 0.64) var(--ex-x);
+  padding: calc(var(--rf-margin) * 0.56) var(--ex-x);
   background: var(--rf-accent);
   border-bottom: 3px solid var(--rf-accent-deep);
   color: var(--rf-on-accent);
 }
 .rf-t-executive .ex-photo {
+  /* let the portrait reach a little into the band padding so it never makes the band taller than the contacts need */
+  margin-block: calc(var(--rf-margin) * -0.16);
   box-shadow: 0 0 0 2.5px rgb(var(--rf-on-accent-rgb) / 0.85);
 }
 .rf-t-executive .ex-id {

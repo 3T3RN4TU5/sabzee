@@ -31,7 +31,7 @@ export function ContentEditor() {
       <BasicsCard basics={data.basics} />
       <div className="flex items-center gap-2 px-1 pt-2">
         <h2 className="mr-auto text-xs font-bold tracking-wide text-slate-500 uppercase dark:text-slate-400">Sections</h2>
-        <Button size="xs" variant="ghost" icon={ChevronsUpDown} onClick={() => setManyOpen(ids, true)}>
+        <Button size="xs" variant="ghost" icon={ChevronsUpDown} onClick={() => setManyOpen([...ids, ...data.sections.flatMap((s) => s.items.map((e) => e.id))], true)}>
           Expand
         </Button>
         <Button size="xs" variant="ghost" icon={ChevronsDownUp} onClick={() => setManyOpen([...ids, ...data.sections.flatMap((s) => s.items.map((e) => e.id))], false)}>
@@ -116,7 +116,7 @@ function CustomSectionDialog({ onClose, onCreate }: { onClose: () => void; onCre
           onCreate(title.trim() || 'Custom section')
         }}
       >
-        <TextField label="Section title" value={title} onValue={setTitle} placeholder="Leadership" maxLength={60} data-autofocus />
+        <TextField label="Section title" value={title} onValue={setTitle} placeholder="Leadership" maxLength={60} data-autofocus data-native-undo="" />
       </form>
     </Modal>
   )

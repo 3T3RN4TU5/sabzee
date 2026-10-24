@@ -73,6 +73,7 @@ export function SectionCard({ section: s, index, count, handle }: { section: Sec
                 </span>
               }
               size="xs"
+              block={false}
               value={s.column}
               onChange={(column) => resumeActions.updateSection(s.id, { column }, null)}
               options={COLUMNS}
