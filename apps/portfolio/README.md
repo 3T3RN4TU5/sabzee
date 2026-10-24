@@ -11,6 +11,10 @@ A fast, dark-themed single-page portfolio that showcases my projects, skills and
 - Hero, about, projects, skills, live GitHub and contact sections with smooth scrolling and an active-section nav (`IntersectionObserver`)
 - **Live GitHub stats** (repos, stars, followers, top languages, recently pushed repos) fetched on the server with `"use cache"` + `cacheLife("hours")` and streamed behind `<Suspense>` — gracefully falls back if the API is unavailable
 - Project cards with highlights, tech stack, live demo and source links
+
+![Portfolio hero: Hi, I'm Jeevan. Data, ML & Full-Stack Developer](docs/screenshot.jpg)
+
+![Animated demo: scrolling through the portfolio](docs/demo.gif)
 - Optional `mailto:` contact form with validation (no backend or third-party service required)
 - SEO: metadata, Open Graph tags, `sitemap.xml`, `robots.txt`, SVG app icon
 - Respects `prefers-reduced-motion`; fully responsive with a mobile menu
