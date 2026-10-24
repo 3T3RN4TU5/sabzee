@@ -205,6 +205,11 @@ export function scopeJobDescription(jd: string): JdLine[] {
   return out
 }
 
+const isTitleLike = (line: string) => {
+  const n = line.trim().split(/\s+/).length
+  return n <= 6 || (n <= 8 && !/[.!?]$/.test(line.trim()))
+}
+
 /** Words that sometimes alias a skill but not after these words ("present findings to leadership"). */
 const CONTEXT_SKIP: Record<string, RegExp> = {
   leadership: /^(?:to|with|for|senior|executive|company|our|the)$/,
@@ -223,7 +228,7 @@ export function extractKeywords(jd: string, limit = 30): Keyword[] {
   })
   // the title line ("Product Manager, Growth") — capitalised words there are the role, not keywords
   const first = scoped.findIndex((l) => l.text.trim())
-  const titleLine = first >= 0 && scoped[first].text.split(/\s+/).length <= 8 && !/[.!?]$/.test(scoped[first].text.trim()) ? first : -1
+  const titleLine = first >= 0 && scoped.filter((l) => l.text.trim()).length > 1 && isTitleLike(scoped[first].text) ? first : -1
   // SHOUTING LINES: every word capitalised means nothing ("ORACLE" is not an acronym there)
   const shouting = new Set<number>()
   lines.forEach((l, i) => {
