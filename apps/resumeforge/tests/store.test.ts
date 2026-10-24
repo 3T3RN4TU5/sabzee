@@ -179,3 +179,29 @@ describe('throttled storage', () => {
     assert.equal(errors.length, 1)
   })
 })
+
+describe('throttled storage r2', () => {
+  it('retries a failed key after space frees up, even if that key is never written again', () => {
+    const backing = new Map<string, string>()
+    let full = true
+    const fake = { getItem: (k: string) => backing.get(k) ?? null, setItem: (k: string, v: string) => { if (full && k === 'ui') throw new Error('Quota'); backing.set(k, v) }, removeItem: (k: string) => void backing.delete(k) } as unknown as Storage
+    const s = createThrottledStorage(() => fake, 10)
+    const status: boolean[] = []
+    s.onStatus = (ok) => status.push(ok)
+    s.setItem('ui', 'U1'); s.setItem('docs', 'D1'); s.flush()
+    assert.deepEqual(status, [false])
+    full = false
+    s.setItem('docs', 'D2'); s.flush()
+    assert.deepEqual(status, [false, true])
+    assert.equal(backing.get('ui'), 'U1')
+    assert.equal(s.failing.size, 0)
+  })
+  it('reports failure when no backend exists', () => {
+    const s = createThrottledStorage(() => undefined, 10)
+    const status: boolean[] = []
+    s.onStatus = (ok) => status.push(ok)
+    s.setItem('k', 'v'); s.flush()
+    assert.deepEqual(status, [false])
+    assert.equal(s.getItem('k'), 'v')
+  })
+})

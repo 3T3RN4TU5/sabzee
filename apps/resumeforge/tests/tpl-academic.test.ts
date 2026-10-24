@@ -71,3 +71,18 @@ describe('academic: terminate', () => {
     assert.equal(terminate('  '), '')
   })
 })
+
+describe('academic: splitAuthors performance', () => {
+  it('splits long whitespace runs in linear time', () => {
+    const inputs = [`a${' '.repeat(20000)}b`, `M. Iyer,${' \t'.repeat(10000)}R. Varma`, `${', '.repeat(10000)}x`]
+    for (const input of inputs) {
+      const t = performance.now()
+      splitAuthors(input, 'Meera Iyer')
+      assert.ok(performance.now() - t < 200, `took ${performance.now() - t} ms`)
+    }
+  })
+  it('still flags the owner after collapsing whitespace', () => {
+    const tokens = splitAuthors('R.  Varma,\n  M.   Iyer and S. Khan', 'Meera Iyer')
+    assert.deepEqual(tokens.filter((t) => t.self).map((t) => t.text), ['M. Iyer'])
+  })
+})

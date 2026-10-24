@@ -50,7 +50,9 @@ function isOwner(author: string, key: { initial: string; surname: string }): boo
 
 /** Split "M. Iyer, R. Varma and S. Khan" into author/separator tokens, flagging the owner's name. */
 export function splitAuthors(list: string, ownerName: string): AuthorToken[] {
-  const text = list.trim()
+  // Collapse whitespace runs first: the separator alternatives all start with \s*, which made
+  // splitting a long whitespace run quadratic (~2 s on 20k spaces).
+  const text = list.replace(/\s+/g, ' ').trim()
   if (!text) return []
   const key = ownerKey(ownerName)
   const pieces = text.split(SEPARATOR)
