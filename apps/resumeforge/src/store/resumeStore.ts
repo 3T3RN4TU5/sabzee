@@ -14,7 +14,7 @@ import { emptyHistory, record, redo as redoHistory, undo as undoHistory, type Hi
 import { uid } from '../lib/ids.ts'
 import type { ImportedResume } from '../lib/importer.ts'
 import { initialState, migratePersisted, STORAGE_KEY, STORE_VERSION } from '../lib/migrate.ts'
-import { emptyCoverLetter, normalizeDoc } from '../lib/normalize.ts'
+import { emptyCoverLetter, MAX_JOB_DESCRIPTION, MAX_NAME, normalizeData, normalizeDoc } from '../lib/normalize.ts'
 import * as ops from '../lib/ops.ts'
 import type { EntryPatch, SectionPatch } from '../lib/ops.ts'
 import { makeDoc, type StarterKind } from '../lib/samples.ts'
@@ -144,13 +144,13 @@ export const resumeActions = {
     return insertDoc(
       {
         id: uid(),
-        name: (imported.name || '').trim().slice(0, 120) || 'Imported resume',
+        name: (imported.name || '').trim().slice(0, MAX_NAME) || 'Imported resume',
         createdAt: now,
         updatedAt: now,
-        data: imported.data,
+        data: normalizeData(imported.data),
         design: imported.design ?? { ...defaultDesign },
         coverLetter: imported.coverLetter ?? { ...emptyCoverLetter },
-        jobDescription: (imported.jobDescription ?? '').slice(0, 50000),
+        jobDescription: (imported.jobDescription ?? '').slice(0, MAX_JOB_DESCRIPTION),
         snapshots: [],
       },
       opts.activate ?? true,
@@ -177,7 +177,7 @@ export const resumeActions = {
   },
 
   renameResume(id: string, name: string): void {
-    commit(id, () => ({ name: name.slice(0, 120) }), { undoable: false })
+    commit(id, () => ({ name: name.slice(0, MAX_NAME) }), { undoable: false })
   },
 
   /** Delete a resume; the most recently edited remaining one becomes active (or null). Returns what `restoreResume` needs to undo it. */
@@ -331,7 +331,7 @@ export const resumeActions = {
 
   /** Not part of undo history (it is a scratch input for the JD matcher). */
   setJobDescription(text: string): void {
-    commit(get().activeId, () => ({ jobDescription: text.slice(0, 50000) }), { undoable: false, silent: true })
+    commit(get().activeId, () => ({ jobDescription: text.slice(0, MAX_JOB_DESCRIPTION) }), { undoable: false, silent: true })
   },
 
   /* ----- snapshots (versions) ----- */
@@ -363,7 +363,7 @@ export const resumeActions = {
   },
 
   renameSnapshot(snapshotId: string, name: string): void {
-    commit(get().activeId, (doc) => ({ snapshots: doc.snapshots.map((x) => (x.id === snapshotId ? { ...x, name: name.slice(0, 120) } : x)) }), { undoable: false, silent: true })
+    commit(get().activeId, (doc) => ({ snapshots: doc.snapshots.map((x) => (x.id === snapshotId ? { ...x, name: name.slice(0, MAX_NAME) } : x)) }), { undoable: false, silent: true })
   },
 
   deleteSnapshot(snapshotId: string): void {
