@@ -2,6 +2,10 @@
 
 **Live demo:** [ai-interview-coach-jeevan.vercel.app](https://ai-interview-coach-jeevan.vercel.app)
 
+![Interview Coach landing page with a sample question, answer and score](docs/screenshot.jpg)
+
+![Animated demo: scrolling through the Interview Coach landing page](docs/demo.gif)
+
 Practice realistic job interviews with an AI interviewer powered by Claude. Pick a target role, seniority and interview style (optionally paste a job description), then answer one question at a time — typed or dictated by voice. Every answer gets a 0–10 score, specific strengths and improvements and a model answer, and the session ends with a readiness report you can download or print. Without an API key the app runs in a fully working **demo mode** with a curated question bank and a transparent heuristic scorer.
 
 **Tech:** Next.js 16 (App Router, Route Handlers, Cache Components) · React 19 · TypeScript · Tailwind CSS v4 · Anthropic TypeScript SDK (Claude Opus 5.5) · Zod 4 · Web Speech API · Lucide icons
