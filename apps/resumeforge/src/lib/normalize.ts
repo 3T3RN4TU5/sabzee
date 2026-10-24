@@ -10,8 +10,14 @@ export const stripControlChars = (s: string): string => s.replace(CONTROL_RE, ''
 
 const str = (v: unknown, max = 20000): string => (typeof v === 'string' ? stripControlChars(v).slice(0, max) : typeof v === 'number' ? String(v) : '')
 
-/** Longest photo data URL accepted on import (~220 KB) — the in-app cropper produces far smaller JPEGs. */
-export const MAX_PHOTO_CHARS = 300_000
+/** Largest decoded photo accepted anywhere (the in-app cropper's output budget). */
+export const MAX_PHOTO_BYTES = 220 * 1024
+/**
+ * Longest photo data URL accepted on load / import, derived from MAX_PHOTO_BYTES: base64 length of
+ * that many bytes plus room for the longest accepted prefix ("data:image/jpeg;base64,"). The cropper
+ * checks its output against this exact number, so a photo it saves always survives a reload.
+ */
+export const MAX_PHOTO_CHARS = Math.ceil(MAX_PHOTO_BYTES / 3) * 4 + 'data:image/jpeg;base64,'.length
 /** Field caps shared with the importer. */
 export const MAX_NAME = 120
 export const MAX_JOB_DESCRIPTION = 50000

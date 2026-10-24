@@ -3,7 +3,7 @@
  * keyword (and a target to jump to), "add to skills", years-of-experience comparison, company/role
  * detection for cover-letter autofill and a demo job description.
  */
-import type { TermCategory } from './dictionaries.ts'
+import { LOCATIONS, NAME_NOISE, TERMS, type TermCategory } from './dictionaries.ts'
 import type { MatchResult } from './keywords.ts'
 import type { FieldTarget } from './target.ts'
 import type { ResumeData, SectionKind } from './types.ts'
@@ -180,10 +180,21 @@ const tidy = (s: string) =>
     .replace(/^[\s\-–—:|,]+|(?<![\s\-–—:|,.!])[\s\-–—:|,.!]+$/g, '')
     .trim()
 
+const TERM_WORDS: Set<string> = new Set(TERMS.flatMap((t) => [t.name.toLowerCase(), ...t.aliases]))
+const SPECIALIZATION = new Set(['frontend', 'front-end', 'backend', 'back-end', 'full stack', 'full-stack', 'growth', 'payments', 'infrastructure', 'infra', 'mobile', 'web', 'ai', 'ml', 'platform', 'security', 'core', 'search', 'ads', 'checkout', 'identity', 'reliability', 'remote', 'hybrid', 'contract', 'full-time', 'part-time', 'internship'])
+
+/** "Frontend" / "Growth" / "Data Platform" after a job title is the team, not the employer. */
+function isSpecialization(name: string): boolean {
+  const l = name.toLowerCase()
+  if (SPECIALIZATION.has(l) || TERM_WORDS.has(l) || LOCATIONS.has(l)) return true
+  const ws = l.split(/\s+/)
+  return ws.every((w) => SPECIALIZATION.has(w) || TERM_WORDS.has(w) || NAME_NOISE.has(w) || LOCATIONS.has(w))
+}
+
 function validCompany(name: string | undefined): string {
   // "Swiggy, Bangalore" / "Razorpay (Bengaluru, Hybrid)" / "Acme · Remote" → just the name
   const n = tidy((name ?? '').split(/(?<!\s)\s*[,(|·•[]\s*|(?<!\s)\s+[-–—]\s+/)[0])
-  if (!n || n.length > 60 || NOT_COMPANY.test(n) || NOT_COMPANY.test(n.split(' ')[0]) || ROLE_WORD.test(n)) return ''
+  if (!n || n.length > 60 || NOT_COMPANY.test(n) || NOT_COMPANY.test(n.split(' ')[0]) || ROLE_WORD.test(n) || isSpecialization(n)) return ''
   return n
 }
 
@@ -211,9 +222,23 @@ export function extractJobInfo(jd: string): { company: string; role: string } {
     const r = /^(?:job title|title|role|position|job)\s*[:\-–—]\s*(.+)$/i.exec(l)
     if (r && !role) role = validRole(r[1])
   }
-  // Title line: "Senior Frontend Engineer — Acme Corp" / "… at Acme Corp" / "Acme Corp | Senior …"
-  for (const l of lines.slice(0, 4)) {
+  // "Flipkart is hiring a Product Analyst (Bengaluru)" / "Acme is looking for a Data Engineer to …"
+  for (const l of lines.slice(0, 6)) {
     if (role && company) break
+    const h = new RegExp(`^(${CAPS_NAME})[ \\t]+(?:is|are)[ \\t]+(?:hiring|looking for|seeking)[ \\t]+(?:an?[ \\t]+)?([^.!?(\\n]+)`).exec(l)
+    if (!h) continue
+    company ||= validCompany(h[1])
+    role ||= validRole(h[2].split(/\s+(?:to|in|at|for|who|with|based|on)\s+/i)[0])
+  }
+  // "We are Zeta." / "We at CRED are looking for …" / "We're Acme, a …"
+  if (!company) {
+    const we = new RegExp(`(?:^|[.!]\\s+)We(?:[ \\t]+are|'re|’re|[ \\t]+at)[ \\t]+(${CAPS_NAME})(?=[ \\t]*(?:[,.!—–-]|$)|[ \\t]+(?:are|is|we|and)\\b)`, 'm').exec(lines.join('\n'))
+    company = validCompany(we?.[1])
+  }
+  // Title line: "Senior Frontend Engineer — Acme Corp" / "… at Acme Corp" / "Acme Corp | Senior …"
+  for (const [i, l] of lines.slice(0, 4).entries()) {
+    if (role && company) break
+    if (/\b(?:is|are)\s+(?:hiring|looking|seeking)\b/i.test(l)) continue
     const parts = l.split(/(?<!\s)\s+(?:[-–—|@·]|at)\s+/i)
     if (parts.length >= 2) {
       const [a, b] = parts
@@ -226,6 +251,9 @@ export function extractJobInfo(jd: string): { company: string; role: string } {
       }
     } else if (!role && l.split(' ').length <= 8 && !/[.!?]$/.test(l)) {
       role = validRole(l)
+    } else if (role && !company && i > 0 && validRole(lines[i - 1]) && /^[A-Z][\w&.'’-]*(?: [A-Z][\w&.'’-]*){0,2}$/.test(l)) {
+      // the employer on its own line right under the title: "Senior Engineer - Frontend\nAtlassian"
+      company = validCompany(l)
     }
   }
   const text = lines.join('\n')
