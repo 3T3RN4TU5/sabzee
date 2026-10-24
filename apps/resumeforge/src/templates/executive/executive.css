@@ -1,0 +1,362 @@
+/* Executive template — every selector is scoped to .rf-t-executive (the document root class). */
+
+.rf-t-executive .ex-page {
+  --ex-x: calc(var(--rf-margin) * 1.1);
+  height: 100%;
+  color: #273142;
+  font-variant-numeric: lining-nums;
+}
+
+/* ---------- header band (page 1) ---------- */
+
+.rf-t-executive .ex-band {
+  display: flex;
+  align-items: center;
+  gap: 1.4em;
+  padding: calc(var(--rf-margin) * 0.56) var(--ex-x);
+  background: var(--rf-accent);
+  border-bottom: 3px solid var(--rf-accent-deep);
+  color: var(--rf-on-accent);
+}
+.rf-t-executive .ex-photo {
+  /* let the portrait reach a little into the band padding so it never makes the band taller than the contacts need */
+  margin-block: calc(var(--rf-margin) * -0.16);
+  box-shadow: 0 0 0 2.5px rgb(var(--rf-on-accent-rgb) / 0.85);
+}
+.rf-t-executive .ex-id {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.rf-t-executive .ex-name {
+  font-family: var(--rf-font-heading);
+  font-size: 2.5em;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.005em;
+  color: var(--rf-on-accent);
+}
+.rf-t-executive .ex-role {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  margin-top: 0.6em;
+  font-size: 0.82em;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: rgb(var(--rf-on-accent-rgb) / 0.88);
+}
+.rf-t-executive .ex-role::before {
+  content: '';
+  flex: none;
+  width: 2.2em;
+  height: 1.5px;
+  background: rgb(var(--rf-on-accent-rgb) / 0.6);
+}
+
+/* contact block: right of the identity, behind a fine vertical rule */
+.rf-t-executive .ex-reach {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 58%;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding-left: 1.4em;
+  border-left: 1px solid rgb(var(--rf-on-accent-rgb) / 0.3);
+}
+.rf-t-executive .ex-contact {
+  font-size: 0.82em;
+  color: rgb(var(--rf-on-accent-rgb) / 0.94);
+}
+.rf-t-executive .ex-contact.rf-contact--grid {
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  column-gap: 1.5em;
+  row-gap: 0.42em;
+}
+.rf-t-executive .ex-contact.rf-contact--stack {
+  row-gap: 0.4em;
+}
+.rf-t-executive .ex-contact .rf-contact__icon {
+  color: rgb(var(--rf-on-accent-rgb) / 0.78);
+  opacity: 1;
+}
+.rf-t-executive .ex-contact .rf-contact__item {
+  gap: 0.5em;
+}
+/* long contacts: a wrapping row under the title, using the full width of the band */
+.rf-t-executive .ex-contact--below {
+  margin-top: 0.85em;
+  column-gap: 1.3em;
+  row-gap: 0.3em;
+}
+
+/* ---------- continuation band (pages 2+) ---------- */
+
+.rf-t-executive .ex-cont {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.7em var(--ex-x);
+  background: var(--rf-accent);
+  border-bottom: 3px solid var(--rf-accent-deep);
+  color: var(--rf-on-accent);
+}
+.rf-t-executive .ex-cont__name {
+  font-family: var(--rf-font-heading);
+  font-size: 1.15em;
+  font-weight: 700;
+}
+.rf-t-executive .ex-cont__role {
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: rgb(var(--rf-on-accent-rgb) / 0.82);
+}
+
+/* ---------- body ---------- */
+
+.rf-t-executive .ex-body {
+  padding: calc(var(--rf-margin) * 0.52) var(--ex-x) 0;
+}
+
+.rf-t-executive .ex-h {
+  margin-bottom: 0.5em;
+  padding-bottom: 0.22em;
+  border-bottom: 2px solid var(--ex-mark);
+  font-family: var(--rf-font-heading);
+  font-size: 1.04em;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: calc(var(--rf-heading-tracking) + 0.03em);
+  text-transform: var(--rf-heading-transform);
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-h--normal {
+  font-size: 1.12em;
+  letter-spacing: 0.005em;
+}
+
+.rf-t-executive .ex-summary {
+  color: #2f3a4b;
+}
+
+/* shared line: left text, right date */
+.rf-t-executive .ex-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.2em;
+}
+.rf-t-executive .ex-line__l {
+  min-width: 0;
+}
+.rf-t-executive .ex-line__r {
+  flex: none;
+  white-space: nowrap;
+}
+.rf-t-executive .ex-date {
+  font-size: 0.86em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #374151;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.rf-t-executive .ex-sep {
+  color: #9ca3af;
+}
+.rf-t-executive .ex-desc {
+  margin-top: 0.15em;
+  color: #2f3a4b;
+}
+.rf-t-executive .ex-body .rf-link {
+  color: var(--rf-accent-ink);
+}
+
+/* ---------- main entries ---------- */
+
+.rf-t-executive .ex-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-line--2 {
+  margin-top: 0.03em;
+}
+.rf-t-executive .ex-org {
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-loc {
+  color: #6b7280;
+}
+.rf-t-executive .ex-meta {
+  color: #4b5563;
+}
+.rf-t-executive .ex-link {
+  font-size: 0.9em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-line__r--link {
+  max-width: 55%;
+  white-space: normal;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.rf-t-executive .ex-keywords {
+  margin-top: 0.2em;
+  font-size: 0.88em;
+  color: #6b7280;
+}
+.rf-t-executive .ex-bullets {
+  margin-top: 0.3em;
+}
+.rf-t-executive .ex-bullets > li {
+  padding-left: 1.15em;
+  color: #2f3a4b;
+}
+.rf-t-executive .ex-bullets > li + li {
+  margin-top: 0.14em;
+}
+.rf-t-executive .ex-bullets > li::before {
+  left: 0.25em;
+  top: calc(0.5lh - 0.16em);
+  width: 0.32em;
+  height: 0.32em;
+  background: var(--ex-mark);
+}
+
+/* ---------- compact rows (certifications, awards) ---------- */
+
+.rf-t-executive .ex-compact__title {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-compact__by {
+  color: #4b5563;
+}
+.rf-t-executive .ex-compact__link {
+  display: block;
+  font-size: 0.9em;
+  color: var(--rf-accent-ink);
+}
+
+/* ---------- publications ---------- */
+
+.rf-t-executive .ex-pub__title {
+  font-weight: 600;
+  color: #111827;
+}
+.rf-t-executive .ex-pub__by {
+  margin-top: 0.05em;
+  font-size: 0.94em;
+  color: #4b5563;
+}
+.rf-t-executive .ex-pub__venue {
+  font-style: italic;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-pub__by .rf-entry__link {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- core competencies ---------- */
+
+.rf-t-executive .ex-comp {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2em;
+  row-gap: 0.55em;
+}
+.rf-t-executive .ex-comp__cell {
+  min-width: 0;
+  padding-left: 0.7em;
+  border-left: 2px solid var(--ex-mark);
+}
+.rf-t-executive .ex-comp__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8em;
+}
+.rf-t-executive .ex-comp__name {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-comp__level {
+  flex: none;
+  margin-left: auto;
+  font-size: 0.74em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-comp__list {
+  margin-top: 0.08em;
+  font-size: 0.93em;
+  color: #4b5563;
+}
+
+/* ---------- languages, interests, references ---------- */
+
+.rf-t-executive .ex-langs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 1.2em;
+  row-gap: 0.55em;
+}
+.rf-t-executive .ex-lang {
+  min-width: 0;
+  line-height: 1.35;
+  padding-left: 0.7em;
+  border-left: 2px solid var(--ex-mark);
+}
+.rf-t-executive .ex-lang__name {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-lang__level {
+  font-size: 0.86em;
+  color: #6b7280;
+}
+
+.rf-t-executive .ex-inline {
+  color: #2f3a4b;
+}
+.rf-t-executive .ex-inline__sep {
+  color: var(--ex-mark);
+}
+.rf-t-executive .ex-inline__detail {
+  color: #6b7280;
+}
+
+.rf-t-executive .ex-refs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2em;
+  row-gap: 0.8em;
+}
+.rf-t-executive .ex-ref {
+  min-width: 0;
+}
+.rf-t-executive .ex-ref__name {
+  font-weight: 700;
+  color: #111827;
+}
+.rf-t-executive .ex-ref__role {
+  color: #4b5563;
+}
+.rf-t-executive .ex-ref__contact {
+  display: block;
+  font-size: 0.92em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-executive .ex-ref__note {
+  margin-top: 0.15em;
+  font-size: 0.92em;
+  color: #6b7280;
+}

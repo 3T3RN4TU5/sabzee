@@ -1,0 +1,24 @@
+Data Analyst – Swiggy, Bangalore
+
+Responsibilities:
+* Analyse large datasets to identify trends and insights that drive business decisions
+* Build and maintain dashboards in Tableau and Power BI for the operations and marketing teams
+* Write complex SQL queries to extract data from our data warehouse (Snowflake / BigQuery)
+* Perform A/B testing and statistical analysis to evaluate product experiments
+* Partner with stakeholders to define KPIs and present findings to leadership
+* Automate recurring reports using Python (pandas, NumPy)
+
+Must have:
+- 2+ years of experience as a Data Analyst or similar role
+- Strong SQL skills and experience with Excel (pivot tables, VLOOKUP)
+- Proficiency in Python or R for data analysis
+- Experience with data visualization tools such as Tableau or Power BI
+- Excellent communication skills and attention to detail
+- Bachelor's degree in Statistics, Mathematics, Computer Science or a related field
+
+Good to have:
+- Knowledge of ETL pipelines and dbt
+- Experience with Google Analytics
+- Understanding of machine learning basics
+
+Why join us? Fast-paced environment, great team, free meals.

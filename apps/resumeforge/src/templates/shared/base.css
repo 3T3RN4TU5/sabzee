@@ -1,0 +1,357 @@
+/*
+ * Base styles for every resume document. Rules that templates may want to restyle are wrapped in
+ * :where() (zero specificity), so `.rf-t-<id> .rf-entry__title { … }` in a template always wins.
+ * Tailwind preflight is active in the page: lists are unstyled, headings/paragraphs have no margins,
+ * images are display:block — templates must style what they use.
+ */
+
+/* ---------- document roots & pages (structural, not meant to be overridden) ---------- */
+
+.rf-doc {
+  color-scheme: light;
+  color: var(--rf-text);
+  font-family: var(--rf-font-body);
+  font-size: var(--rf-font-size);
+  line-height: var(--rf-line-height);
+  text-align: left;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.rf-doc *,
+.rf-doc *::before,
+.rf-doc *::after {
+  box-sizing: border-box;
+}
+
+.rf-page {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+}
+
+.rf-viewport {
+  position: relative;
+}
+
+.rf-mode-preview .rf-page,
+.rf-mode-thumbnail .rf-page {
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.06),
+    0 10px 30px -6px rgb(15 23 42 / 0.18);
+}
+
+.rf-col {
+  display: block;
+  min-width: 0;
+}
+
+.rf-block {
+  display: flow-root; /* keeps child margins inside the block so measurements are exact */
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Off-screen measuring copy (see PagedDocument). */
+.rf-measure {
+  position: fixed;
+  left: -100000px;
+  top: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Click-to-edit preview */
+.rf-interactive .rf-block,
+.rf-interactive .rf-header > * {
+  cursor: pointer;
+}
+.rf-interactive .rf-block:hover,
+.rf-interactive .rf-header > *:hover {
+  outline: 1.5px dashed rgb(99 102 241 / 0.6);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Print: only .rf-print-root (rendered by the app's PrintRoot) is printed. */
+.rf-print-root {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body > *:not(.rf-print-root) {
+    display: none !important;
+  }
+  .rf-print-root {
+    display: block !important;
+  }
+  .rf-print-root .rf-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    break-after: page;
+    page-break-after: always;
+  }
+  .rf-print-root .rf-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .rf-doc,
+  .rf-doc * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* ---------- typography defaults (overridable) ---------- */
+
+:where(.rf-doc) :where(strong, b) {
+  font-weight: 700;
+}
+:where(.rf-doc) :where(em, i) {
+  font-style: italic;
+}
+:where(.rf-doc) :where(.rf-code) {
+  font-family: var(--rf-font-mono);
+  font-size: 0.9em;
+  padding: 0 0.25em;
+  border-radius: 3px;
+  background: rgb(var(--rf-accent-rgb) / 0.08);
+}
+:where(.rf-doc) :where(.rf-link) {
+  color: inherit;
+  text-decoration: none;
+}
+:where(.rf-doc) :where(.rf-paragraphs) > :where(.rf-p + .rf-p) {
+  margin-top: 0.5em;
+}
+
+/* ---------- contact list ---------- */
+
+:where(.rf-doc) :where(.rf-contact) {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.9em;
+  row-gap: 0.25em;
+  align-items: center;
+}
+:where(.rf-doc) :where(.rf-contact--stack) {
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: 0.45em;
+}
+:where(.rf-doc) :where(.rf-contact--grid) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1.2em;
+}
+:where(.rf-doc) :where(.rf-contact__item) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-width: 0;
+}
+:where(.rf-doc) :where(.rf-contact__text) {
+  /* emails/URLs carry <wbr> break points (ContactText); break-word only splits a word as a last resort and,
+     unlike "anywhere", does not let grid/flex columns shrink to a few characters */
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+:where(.rf-doc) :where(.rf-contact__icon) {
+  flex: none;
+  opacity: 0.9;
+}
+:where(.rf-doc) :where(.rf-contact__sep) {
+  opacity: 0.5;
+  margin: 0 -0.35em;
+}
+
+/* ---------- bullets & keywords ---------- */
+
+:where(.rf-doc) :where(.rf-bullets) {
+  list-style: none;
+  margin: 0.3em 0 0;
+  padding: 0;
+}
+:where(.rf-doc) :where(.rf-bullets) > :where(li) {
+  position: relative;
+  padding-left: 1.05em;
+}
+:where(.rf-doc) :where(.rf-bullets) > :where(li + li) {
+  margin-top: 0.18em;
+}
+:where(.rf-doc) :where(.rf-bullets) > :where(li)::before {
+  content: '';
+  position: absolute;
+  left: 0.2em;
+  top: calc(0.5lh - 0.17em);
+  width: 0.34em;
+  height: 0.34em;
+  border-radius: 50%;
+  background: var(--rf-accent);
+}
+:where(.rf-doc) :where(.rf-bullets--square) > :where(li)::before {
+  border-radius: 0;
+}
+:where(.rf-doc) :where(.rf-bullets--dash) > :where(li)::before {
+  content: '–';
+  background: none;
+  width: auto;
+  height: auto;
+  top: 0;
+  left: 0.1em;
+  color: var(--rf-accent);
+}
+:where(.rf-doc) :where(.rf-bullets--arrow) > :where(li)::before {
+  content: '›';
+  background: none;
+  width: auto;
+  height: auto;
+  top: 0;
+  left: 0.15em;
+  font-weight: 700;
+  color: var(--rf-accent);
+}
+:where(.rf-doc) :where(.rf-bullets--none) > :where(li) {
+  padding-left: 0;
+}
+:where(.rf-doc) :where(.rf-bullets--none) > :where(li)::before {
+  display: none;
+}
+
+:where(.rf-doc) :where(.rf-keywords--chips) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+}
+:where(.rf-doc) :where(.rf-chip) {
+  display: inline-block;
+  padding: 0.08em 0.55em;
+  border-radius: 999px;
+  font-size: 0.86em;
+  line-height: 1.5;
+  background: var(--rf-accent-soft);
+  color: var(--rf-accent-ink);
+}
+:where(.rf-doc) :where(.rf-keywords--inline, .rf-keywords--comma) {
+  font-size: 0.92em;
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-keywords__label) {
+  font-weight: 600;
+}
+
+/* ---------- DefaultEntry ---------- */
+
+:where(.rf-doc) :where(.rf-entry__head) {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+}
+:where(.rf-doc) :where(.rf-entry__heading) {
+  /* the heading always keeps the larger share of the row: a long link in the aside wraps instead */
+  flex: 1 1 auto;
+  min-width: 55%;
+}
+:where(.rf-doc) :where(.rf-entry__title) {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+:where(.rf-doc) :where(.rf-entry__sub) {
+  color: var(--rf-accent-ink);
+  font-weight: 500;
+}
+:where(.rf-doc) :where(.rf-entry__location) {
+  color: var(--rf-muted);
+  font-weight: 400;
+}
+:where(.rf-doc) :where(.rf-entry__dot) {
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-entry__aside) {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 45%;
+  text-align: right;
+  font-size: 0.88em;
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-entry__date) {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+:where(.rf-doc) :where(.rf-entry__when) {
+  font-size: 0.88em;
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-entry__link) {
+  color: var(--rf-accent-ink);
+  overflow-wrap: anywhere;
+}
+/* in the narrow date column a (shortened) link stays on one line and is cut with an ellipsis rather than
+   wrapping into a stack of fragments; the href keeps the full address */
+:where(.rf-doc) :where(.rf-entry__aside) :where(.rf-entry__link) {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:where(.rf-doc) :where(.rf-entry__meta) {
+  font-size: 0.92em;
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-entry--publications) :where(.rf-entry__meta) {
+  font-style: italic;
+}
+:where(.rf-doc) :where(.rf-entry__desc) {
+  display: block;
+  margin-top: 0.2em;
+}
+:where(.rf-doc) :where(.rf-entry__keywords) {
+  margin-top: 0.25em;
+}
+
+:where(.rf-doc) :where(.rf-skill__name, .rf-lang__name, .rf-interest__name) {
+  font-weight: 600;
+  color: var(--rf-heading);
+}
+:where(.rf-doc) :where(.rf-skill__level) {
+  font-weight: 400;
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-entry--side.rf-skill) :where(.rf-skill__bar) {
+  margin: 0.25em 0 0.2em;
+}
+:where(.rf-doc) :where(.rf-entry--side) :where(.rf-skill__keywords) {
+  font-size: 0.92em;
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-lang) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8em;
+}
+:where(.rf-doc) :where(.rf-lang__level) {
+  color: var(--rf-muted);
+  font-size: 0.9em;
+}
+:where(.rf-doc) :where(.rf-interest__details) {
+  color: var(--rf-muted);
+}
+:where(.rf-doc) :where(.rf-interest__details)::before {
+  content: ' — ';
+}

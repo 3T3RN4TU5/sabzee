@@ -1,0 +1,256 @@
+/* Classic template — every selector is scoped to .rf-t-classic (the document root class). */
+
+.rf-t-classic .cl-page {
+  height: 100%;
+  padding: var(--rf-margin) calc(var(--rf-margin) * 1.2) 0;
+  color: #262626;
+  font-variant-numeric: lining-nums;
+}
+
+/* ---------- running head on pages 2+ ---------- */
+
+.rf-t-classic .cl-running {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: calc(var(--rf-section-gap) * 0.9);
+  padding-bottom: 0.3em;
+  border-bottom: 0.5px solid var(--cl-mark);
+  font-size: 0.78em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6b6b6b;
+}
+.rf-t-classic .cl-running__name {
+  font-family: var(--rf-font-heading);
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+
+/* ---------- header ---------- */
+
+.rf-t-classic .cl-header {
+  text-align: center;
+  margin-bottom: calc(var(--rf-section-gap) * 1.1);
+}
+.rf-t-classic .cl-name {
+  font-family: var(--rf-font-heading);
+  font-size: 2.25em;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  color: #141414;
+}
+.rf-t-classic .cl-role {
+  margin-top: 0.35em;
+  font-size: 0.86em;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #555;
+}
+.rf-t-classic .cl-contact {
+  justify-content: center;
+  margin-top: 0.65em;
+  column-gap: 0.95em;
+  font-size: 0.86em;
+  color: #333;
+}
+.rf-t-classic .cl-contact .rf-contact__sep {
+  margin: 0 -0.35em;
+  opacity: 1;
+  color: var(--cl-mark);
+}
+.rf-t-classic .cl-contact .rf-contact__icon {
+  color: var(--rf-accent-ink);
+  opacity: 0.9;
+}
+.rf-t-classic .cl-contact .rf-contact__item {
+  gap: 0.32em;
+}
+
+/* ---------- section headings ---------- */
+
+.rf-t-classic .cl-h {
+  margin-bottom: 0.45em;
+  padding-bottom: 0.14em;
+  border-bottom: 0.6px solid var(--cl-mark);
+  font-family: var(--rf-font-heading);
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: calc(var(--rf-heading-tracking) + 0.06em);
+  text-transform: var(--rf-heading-transform);
+  color: var(--rf-accent-ink);
+}
+.rf-t-classic .cl-h--normal {
+  font-size: 1.08em;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- summary ---------- */
+
+.rf-t-classic .cl-summary {
+  color: #2b2b2b;
+}
+.rf-t-classic .cl-summary .rf-link,
+.rf-t-classic .cl-desc .rf-link,
+.rf-t-classic .cl-bullets .rf-link {
+  color: var(--rf-accent-ink);
+}
+
+/* ---------- entries ---------- */
+
+.rf-t-classic .cl-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.2em;
+}
+.rf-t-classic .cl-line__l {
+  min-width: 0;
+}
+.rf-t-classic .cl-line__r {
+  flex: none;
+  max-width: 60%;
+  text-align: right;
+  white-space: nowrap;
+}
+.rf-t-classic .cl-line__r .cl-link {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.rf-t-classic .cl-etitle {
+  font-weight: 700;
+  font-size: 1.03em;
+  color: #141414;
+}
+.rf-t-classic .cl-entry--compact .cl-etitle,
+.rf-t-classic .cl-entry--publications .cl-etitle {
+  font-size: 1em;
+}
+.rf-t-classic .cl-entry--publications .cl-etitle {
+  font-weight: 600;
+}
+.rf-t-classic .cl-sub {
+  font-style: italic;
+  color: #333;
+}
+.rf-t-classic .cl-loc {
+  font-style: italic;
+  color: #4d4d4d;
+}
+.rf-t-classic .cl-sep {
+  color: #6b6b6b;
+}
+.rf-t-classic .cl-date {
+  font-variant-numeric: lining-nums tabular-nums;
+  color: #333;
+}
+.rf-t-classic .cl-link {
+  color: var(--rf-accent-ink);
+  font-size: 0.94em;
+}
+.rf-t-classic .cl-authors {
+  color: #444;
+}
+.rf-t-classic .cl-grade {
+  color: #4d4d4d;
+}
+.rf-t-classic .cl-note {
+  font-size: 0.94em;
+  color: #555;
+}
+.rf-t-classic .cl-desc {
+  margin-top: 0.15em;
+  color: #2b2b2b;
+}
+.rf-t-classic .cl-tech {
+  margin-top: 0.12em;
+  font-size: 0.92em;
+  font-style: italic;
+  color: #555;
+}
+.rf-t-classic .cl-tech .rf-keywords__sep {
+  color: var(--cl-mark);
+}
+
+.rf-t-classic .cl-bullets {
+  margin-top: 0.22em;
+}
+.rf-t-classic .cl-bullets > li {
+  padding-left: 1.15em;
+  color: #2b2b2b;
+}
+.rf-t-classic .cl-bullets > li + li {
+  margin-top: 0.12em;
+}
+.rf-t-classic .cl-bullets > li::before {
+  left: 0.38em;
+  top: calc(0.5lh - 0.13em);
+  width: 0.27em;
+  height: 0.27em;
+  background: #3a3a3a;
+}
+
+/* ---------- skills table ---------- */
+
+/* one grid for all rows (rows use display: contents) so the name column fits the longest name */
+.rf-t-classic .cl-skills {
+  display: grid;
+  grid-template-columns: fit-content(12em) minmax(0, 1fr) auto;
+  column-gap: 1.4em;
+  row-gap: 0.18em;
+  align-items: baseline;
+}
+.rf-t-classic .cl-skill {
+  display: contents;
+}
+.rf-t-classic .cl-skill__list {
+  grid-column: 2;
+}
+.rf-t-classic .cl-skill__name {
+  grid-column: 1;
+  font-weight: 700;
+  color: #141414;
+}
+.rf-t-classic .cl-skill--untitled .cl-skill__list {
+  grid-column: 1 / 3;
+}
+.rf-t-classic .cl-skill__list {
+  color: #2b2b2b;
+}
+.rf-t-classic .cl-skill__level {
+  grid-column: 3;
+  font-size: 0.92em;
+  font-style: italic;
+  color: #5c5c5c;
+}
+
+/* ---------- inline lists (languages, interests) ---------- */
+
+.rf-t-classic .cl-inline__name {
+  font-weight: 600;
+  color: #1c1c1c;
+}
+.rf-t-classic .cl-inline__detail {
+  font-style: italic;
+  color: #4d4d4d;
+}
+.rf-t-classic .cl-inline__sep {
+  color: var(--cl-mark);
+}
+
+/* ---------- references ---------- */
+
+.rf-t-classic .cl-refs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2em;
+  row-gap: 0.7em;
+}
+.rf-t-classic .cl-ref__contact {
+  display: block;
+  font-size: 0.94em;
+  color: var(--rf-accent-ink);
+}

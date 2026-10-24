@@ -1,0 +1,265 @@
+/* Academic CV template — every selector is scoped to .rf-t-academic (the document root class). */
+
+.rf-t-academic {
+  --ac-left: 23mm;
+  --ac-gap: 5mm;
+  --ac-ink: #1f2937;
+  --ac-soft: #374151;
+  --ac-dim: #4b5563;
+}
+
+.rf-t-academic .ac-page {
+  height: 100%;
+  padding: var(--rf-margin) var(--rf-margin) 0;
+  color: var(--ac-ink);
+}
+
+/* ---------- header ---------- */
+
+.rf-t-academic .ac-header {
+  padding-bottom: 0.95em;
+  margin-bottom: calc(var(--rf-section-gap) * 1.05);
+  border-bottom: 3px double var(--rf-accent);
+}
+.rf-t-academic .ac-header--photo {
+  display: grid;
+  grid-template-columns: var(--ac-left) minmax(0, 1fr);
+  column-gap: var(--ac-gap);
+  align-items: center;
+}
+.rf-t-academic .ac-header__id {
+  min-width: 0;
+}
+.rf-t-academic .ac-name {
+  font-family: var(--rf-font-heading);
+  font-size: 2.3em;
+  font-weight: 700;
+  font-variant: small-caps;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  color: var(--rf-heading);
+}
+.rf-t-academic .ac-role {
+  margin-top: 0.2em;
+  font-size: 1.08em;
+  font-style: italic;
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-contact {
+  margin-top: 0.65em;
+  column-gap: 1.1em;
+  row-gap: 0.2em;
+  font-size: 0.88em;
+  color: var(--ac-soft);
+}
+.rf-t-academic .ac-contact .rf-contact__icon {
+  color: var(--rf-accent-ink);
+}
+.rf-t-academic .ac-contact .rf-contact__sep {
+  margin: 0 -0.4em;
+}
+
+/* running head on pages 2+ */
+.rf-t-academic .ac-run {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+  padding-bottom: 0.35em;
+  margin-bottom: 1.2em;
+  border-bottom: 0.5px solid var(--rf-accent);
+  font-size: 0.84em;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-run__name {
+  font-family: var(--rf-font-heading);
+  font-weight: 700;
+  color: var(--rf-accent-ink);
+}
+.rf-t-academic .ac-run__page {
+  font-variant-numeric: oldstyle-nums;
+}
+
+/* ---------- the hanging-column grid ---------- */
+
+.rf-t-academic .ac-row,
+.rf-t-academic .ac-hrow {
+  display: grid;
+  grid-template-columns: var(--ac-left) minmax(0, 1fr);
+  column-gap: var(--ac-gap);
+}
+.rf-t-academic .ac-row {
+  align-items: baseline;
+}
+.rf-t-academic .ac-left {
+  min-width: 0;
+  text-align: right;
+  font-size: 0.88em;
+  line-height: 1.4;
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-right {
+  min-width: 0;
+}
+
+/* section heading: accent bar in the left column, small-caps title in the right */
+.rf-t-academic .ac-hrow {
+  align-items: center;
+  margin-bottom: 0.55em;
+}
+.rf-t-academic .ac-hbar {
+  height: 0.42em;
+  background: var(--rf-accent);
+}
+.rf-t-academic .ac-h {
+  font-family: var(--rf-font-heading);
+  font-size: 1.18em;
+  font-weight: 700;
+  font-variant: small-caps;
+  line-height: 1.25;
+  letter-spacing: calc(var(--rf-heading-tracking) + 0.035em);
+  text-transform: var(--rf-heading-transform);
+  color: var(--rf-accent-ink);
+}
+
+/* ---------- entries ---------- */
+
+.rf-t-academic .rf-link {
+  color: inherit;
+}
+.rf-t-academic .ac-sep {
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-date {
+  font-variant-numeric: tabular-nums;
+}
+.rf-t-academic .ac-date--now {
+  font-style: italic;
+}
+.rf-t-academic .ac-title {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-t-academic .ac-sub {
+  font-style: italic;
+  color: var(--ac-ink);
+}
+.rf-t-academic .ac-loc {
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-url {
+  font-size: 0.92em;
+  color: var(--rf-accent-ink);
+  overflow-wrap: anywhere;
+}
+.rf-t-academic .ac-meta {
+  margin-top: 0.05em;
+  font-size: 0.94em;
+  font-style: italic;
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-desc {
+  margin-top: 0.15em;
+  color: var(--ac-soft);
+}
+.rf-t-academic .ac-kw {
+  margin-top: 0.15em;
+  font-size: 0.92em;
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-kw__label {
+  font-style: italic;
+}
+.rf-t-academic .ac-bullets {
+  margin-top: 0.22em;
+}
+.rf-t-academic .ac-bullets > li {
+  padding-left: 1.05em;
+  color: var(--ac-soft);
+}
+.rf-t-academic .ac-bullets > li + li {
+  margin-top: 0.12em;
+}
+.rf-t-academic .ac-bullets > li::before {
+  color: var(--rf-accent-ink);
+}
+.rf-t-academic .ac-summary {
+  color: var(--ac-soft);
+}
+/* ragged-right: justified short summaries opened visible rivers (hyphenation is not reliable in every
+   browser/PDF engine, so we do not rely on it to even out the word spacing) */
+.rf-t-academic .ac-summary .rf-p {
+  text-align: left;
+  hyphens: auto;
+}
+
+/* publications */
+.rf-t-academic .ac-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--rf-accent-ink);
+}
+.rf-t-academic .ac-cite {
+  color: var(--ac-ink);
+}
+.rf-t-academic .ac-authors {
+  color: var(--ac-soft);
+}
+.rf-t-academic .ac-self {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-t-academic .ac-cite__title {
+  color: var(--rf-heading);
+}
+
+/* skills / languages / interests */
+.rf-t-academic .ac-label {
+  font-weight: 600;
+  color: var(--ac-ink);
+}
+.rf-t-academic .ac-skill {
+  color: var(--ac-soft);
+}
+.rf-t-academic .ac-level {
+  font-style: italic;
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-inline {
+  color: var(--ac-soft);
+}
+.rf-t-academic .ac-inline__name {
+  font-weight: 600;
+  color: var(--ac-ink);
+}
+
+/* references */
+.rf-t-academic .ac-refs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2em;
+  row-gap: 0.8em;
+}
+.rf-t-academic .ac-ref__name {
+  font-weight: 700;
+  color: var(--rf-heading);
+}
+.rf-t-academic .ac-ref__role {
+  font-style: italic;
+  color: var(--ac-soft);
+}
+.rf-t-academic .ac-ref__contact {
+  font-size: 0.92em;
+  color: var(--rf-accent-ink);
+  overflow-wrap: anywhere;
+}
+.rf-t-academic .ac-ref__note {
+  margin-top: 0.12em;
+  font-size: 0.92em;
+  color: var(--ac-dim);
+}
+.rf-t-academic .ac-line {
+  color: var(--ac-ink);
+}

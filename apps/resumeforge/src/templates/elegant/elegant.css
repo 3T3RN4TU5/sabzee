@@ -1,0 +1,495 @@
+/* Elegant template — every selector is scoped to .rf-t-elegant (the document root class). */
+
+.rf-t-elegant {
+  --el-hair: color-mix(in srgb, var(--rf-accent-ink) 32%, transparent);
+  --el-rule: #ddd6cf;
+  --el-ink: #2b2622;
+  --el-soft: #5f5750;
+}
+
+.rf-t-elegant .el-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: var(--el-ink);
+  line-height: calc(var(--rf-line-height) * 1.03);
+}
+/* EB Garamond has a small x-height: nudge it up so 13 px reads like other faces. */
+.rf-t-elegant .el-page--auto {
+  font-size: 1.05em;
+}
+
+/* hairline stationery frame, inset into the page margin */
+.rf-t-elegant .el-frame {
+  position: absolute;
+  inset: calc(var(--rf-margin) * 0.42);
+  border: 1px solid var(--el-hair);
+  pointer-events: none;
+}
+
+.rf-t-elegant .el-folio {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--rf-margin) * 0.42);
+  transform: translate(-50%, 50%);
+  padding: 0 0.8em;
+  background: #fff;
+  font-size: 0.74em;
+  line-height: 1.2;
+  font-style: italic;
+  font-variant-numeric: lining-nums;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  color: var(--el-soft);
+}
+
+/* continuation pages: ── NAME ── */
+.rf-t-elegant .el-runhead {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: calc(var(--rf-margin) * 0.95) calc(var(--rf-margin) * 1.1) 0;
+  font-family: var(--rf-font-heading);
+  font-size: 0.74em;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--el-soft);
+}
+.rf-t-elegant .el-runhead::before,
+.rf-t-elegant .el-runhead::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--el-hair);
+}
+.rf-t-elegant .el-runhead > span {
+  padding-left: 0.26em;
+}
+
+/* ---------- header ---------- */
+
+.rf-t-elegant .el-header {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: calc(var(--rf-margin) * 0.82) calc(var(--rf-margin) * 1.05) 0;
+}
+
+.rf-t-elegant .el-mono {
+  display: grid;
+  place-items: center;
+  width: 14mm;
+  height: 14mm;
+  margin-bottom: 0.8em;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--rf-accent-ink) 55%, transparent);
+  box-shadow:
+    0 0 0 1.1mm #fff,
+    0 0 0 calc(1.1mm + 1px) var(--el-hair);
+  font-family: var(--rf-font-heading);
+  font-size: 1.38em;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--rf-accent-ink);
+}
+.rf-t-elegant .el-mono > span {
+  transform: translateY(-0.03em);
+}
+
+.rf-t-elegant .el-photo {
+  margin-bottom: 0.85em;
+  box-shadow:
+    0 0 0 1.1mm #fff,
+    0 0 0 calc(1.1mm + 1px) var(--el-hair);
+}
+
+.rf-t-elegant .el-name {
+  max-width: 100%;
+  font-family: var(--rf-font-heading);
+  font-size: 2.45em;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  color: #1c1917;
+}
+.rf-t-elegant .el-name--caps {
+  font-size: 2.2em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding-left: 0.14em; /* balances the trailing tracking */
+}
+
+.rf-t-elegant .el-title {
+  margin-top: 0.35em;
+  font-size: 1.1em;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  color: var(--rf-accent-ink);
+}
+
+.rf-t-elegant .el-orn {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  width: 44mm;
+  margin: 0.8em auto 0.75em;
+}
+.rf-t-elegant .el-orn::before,
+.rf-t-elegant .el-orn::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--el-hair);
+}
+.rf-t-elegant .el-orn > span {
+  flex: none;
+  width: 0.4em;
+  height: 0.4em;
+  transform: rotate(45deg);
+  background: var(--rf-accent-ink);
+}
+
+.rf-t-elegant .el-contact {
+  justify-content: center;
+  column-gap: 1.2em;
+  row-gap: 0.3em;
+  font-size: 0.86em;
+  color: var(--el-soft);
+}
+.rf-t-elegant .el-contact .rf-contact__sep {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 -0.55em;
+  opacity: 1;
+}
+
+/* small diamond separator (contact line, interests) */
+.rf-t-elegant .el-sep {
+  display: inline-block;
+  width: 0.32em;
+  height: 0.32em;
+  margin: 0 0.75em 0.12em;
+  transform: rotate(45deg);
+  background: color-mix(in srgb, var(--rf-accent-ink) 60%, transparent);
+  vertical-align: middle;
+}
+
+/* double hairline under the header */
+.rf-t-elegant .el-rule {
+  align-self: stretch;
+  height: 4px;
+  margin-top: 1em;
+  border-top: 1px solid var(--el-hair);
+  border-bottom: 1px solid var(--el-hair);
+}
+
+/* ---------- body: main + side divided by a hairline ---------- */
+
+.rf-t-elegant .el-body {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  padding: calc(var(--rf-section-gap) * 0.95) calc(var(--rf-margin) * 1.05) var(--rf-margin);
+}
+.rf-t-elegant .el-runhead + .el-body {
+  padding-top: calc(var(--rf-section-gap) * 0.9);
+}
+
+.rf-t-elegant .el-main {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 1.55em;
+}
+.rf-t-elegant .el-body--letter .el-main {
+  padding: 0 calc(var(--rf-margin) * 0.4);
+}
+
+.rf-t-elegant .el-side {
+  order: -1;
+  flex: 0 0 28.5%;
+  min-width: 0;
+  padding-right: 1.45em;
+  border-right: 1px solid var(--el-hair);
+  font-size: 0.93em;
+}
+
+/* ---------- headings: ── Small Caps ── ---------- */
+
+.rf-t-elegant .el-h {
+  display: flex;
+  align-items: center;
+  gap: 0.85em;
+  margin-bottom: 0.75em;
+  font-family: var(--rf-font-heading);
+  font-size: 1.12em;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--rf-accent-ink);
+}
+.rf-t-elegant .el-h::before,
+.rf-t-elegant .el-h::after {
+  content: '';
+  flex: 1 1 0;
+  min-width: 0.8em;
+  height: 1px;
+  background: var(--el-hair);
+}
+.rf-t-elegant .el-h__text {
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: center;
+}
+.rf-t-elegant .el-h--caps .el-h__text {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.2em;
+  padding-left: 0.2em;
+  font-size: 1.12em;
+}
+.rf-t-elegant .el-h--italic .el-h__text {
+  font-style: italic;
+  font-size: 1.06em;
+  letter-spacing: 0.01em;
+}
+.rf-t-elegant .el-h--side {
+  gap: 0.6em;
+  font-size: 1.04em;
+}
+.rf-t-elegant .el-h--side::before,
+.rf-t-elegant .el-h--side::after {
+  min-width: 0.5em;
+}
+/* the narrow column gets tighter tracking so long titles ("Certifications") stay on one line */
+.rf-t-elegant .el-h--side.el-h--caps .el-h__text {
+  letter-spacing: 0.15em;
+  padding-left: 0.15em;
+}
+
+/* ---------- shared entry styling ---------- */
+
+.rf-t-elegant .rf-entry__title {
+  font-weight: 600;
+  color: #1c1917;
+}
+.rf-t-elegant .rf-entry__sub {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--rf-accent-ink);
+}
+.rf-t-elegant .rf-entry__location,
+.rf-t-elegant .rf-entry__dot {
+  color: var(--el-soft);
+}
+.rf-t-elegant .rf-entry__date {
+  font-variant-caps: all-small-caps;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0.08em;
+  font-size: 1.12em;
+  color: var(--el-soft);
+}
+.rf-t-elegant .rf-entry__link {
+  font-style: italic;
+  color: var(--rf-accent-ink);
+}
+.rf-t-elegant .rf-entry__meta {
+  font-style: italic;
+  color: var(--el-soft);
+}
+.rf-t-elegant .rf-entry__desc,
+.rf-t-elegant .rf-bullets > li {
+  color: var(--el-ink);
+}
+.rf-t-elegant .rf-keywords--inline,
+.rf-t-elegant .rf-keywords--comma {
+  font-style: italic;
+  color: var(--el-soft);
+}
+.rf-t-elegant .rf-code {
+  background: rgb(var(--rf-accent-rgb) / 0.08);
+}
+
+/* diamond bullets */
+.rf-t-elegant .rf-bullets {
+  margin-top: 0.3em;
+}
+.rf-t-elegant .rf-bullets > li {
+  padding-left: 1.1em;
+}
+.rf-t-elegant .rf-bullets > li + li {
+  margin-top: 0.16em;
+}
+.rf-t-elegant .rf-bullets > li::before {
+  left: 0.22em;
+  top: calc(0.5lh - 0.15em);
+  width: 0.3em;
+  height: 0.3em;
+  border-radius: 0;
+  transform: rotate(45deg);
+  background: color-mix(in srgb, var(--rf-accent-ink) 75%, transparent);
+}
+
+/* ---------- main column ---------- */
+
+.rf-t-elegant .el-summary {
+  color: var(--el-ink);
+}
+.rf-t-elegant .el-summary > .rf-p:first-child::first-letter {
+  float: left;
+  margin: 0.06em 0.1em 0 0;
+  font-family: var(--rf-font-heading);
+  font-size: 3.05em;
+  font-weight: 400;
+  line-height: 0.82;
+  color: var(--rf-accent-ink);
+}
+
+.rf-t-elegant .el-main .rf-entry__title {
+  font-size: 1.06em;
+}
+.rf-t-elegant .el-main .rf-entry__aside {
+  font-size: 0.86em;
+  padding-left: 0.5em;
+}
+.rf-t-elegant .el-main .rf-entry__keywords {
+  margin-top: 0.2em;
+}
+
+.rf-t-elegant .el-mskill {
+  display: grid;
+  grid-template-columns: 27% 1fr auto;
+  gap: 0 1em;
+  align-items: baseline;
+}
+.rf-t-elegant .el-mskill__name {
+  font-weight: 600;
+  color: #1c1917;
+}
+.rf-t-elegant .el-mskill__kw {
+  font-style: italic;
+  color: var(--el-ink);
+}
+
+.rf-t-elegant .el-langs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35em 2.2em;
+}
+
+/* ---------- side column ---------- */
+
+.rf-t-elegant .el-side .rf-entry__title {
+  font-size: 1.02em;
+  line-height: 1.35;
+}
+.rf-t-elegant .el-side .rf-entry__when {
+  margin-top: 0.05em;
+  font-size: 0.92em;
+  color: var(--el-soft);
+}
+.rf-t-elegant .el-side .rf-entry__when .rf-entry__date {
+  font-size: 1.1em;
+}
+.rf-t-elegant .el-side .rf-entry__meta {
+  overflow-wrap: anywhere;
+  font-size: 0.92em;
+}
+.rf-t-elegant .el-side-summary {
+  font-style: italic;
+  color: var(--el-ink);
+}
+
+/* "Name ········ value" rows */
+.rf-t-elegant .el-leader {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  min-width: 0;
+}
+.rf-t-elegant .el-leader__name {
+  min-width: 0;
+  font-weight: 600;
+  color: #1c1917;
+}
+.rf-t-elegant .el-leader__dots {
+  flex: 1 1 0;
+  min-width: 0.8em;
+  border-bottom: 1px dotted color-mix(in srgb, var(--rf-accent-ink) 45%, transparent);
+  transform: translateY(-0.28em);
+}
+.rf-t-elegant .el-leader__value {
+  flex: none;
+  max-width: 62%;
+  text-align: right;
+}
+.rf-t-elegant .el-lang {
+  display: block;
+}
+.rf-t-elegant .el-lang .rf-lang__level {
+  font-size: 1em;
+  font-style: italic;
+  color: var(--el-soft);
+}
+.rf-t-elegant .el-lang .el-leader__name {
+  font-weight: 500;
+}
+.rf-t-elegant .el-side-langs {
+  display: grid;
+  gap: 0.3em;
+}
+.rf-t-elegant .el-skill__kw {
+  margin-top: 0.15em;
+  font-size: 0.97em;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--el-soft);
+}
+
+.rf-t-elegant .el-dias {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34em;
+  padding: 0 0.12em;
+  vertical-align: middle;
+}
+.rf-t-elegant .el-dia {
+  display: block;
+  width: 0.4em;
+  height: 0.4em;
+  transform: rotate(45deg);
+  border: 1px solid color-mix(in srgb, var(--rf-accent-ink) 55%, transparent);
+}
+.rf-t-elegant .el-dia.is-on {
+  border-color: var(--rf-accent-ink);
+  background: var(--rf-accent-ink);
+}
+
+.rf-t-elegant .el-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 1.25em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-style: italic;
+  color: var(--el-ink);
+}
+.rf-t-elegant .el-interests .el-interest {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-weight: 400;
+  color: inherit;
+}
+.rf-t-elegant .el-interest::before {
+  content: '';
+  flex: none;
+  width: 0.3em;
+  height: 0.3em;
+  transform: rotate(45deg);
+  background: color-mix(in srgb, var(--rf-accent-ink) 60%, transparent);
+}
