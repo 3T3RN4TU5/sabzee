@@ -149,16 +149,86 @@ export interface Keyword {
 }
 
 const REQUIRED_LINE = /\b(required|must|minimum|need to have|you have|you bring|requirements|qualifications|essential)\b/i
+/** Labels that make what follows optional ("Nice to have: Rust", a "Bonus" heading). */
+const OPTIONAL_LABEL = /^(?:nice[- ]to[- ]haves?|good[- ]to[- ]haves?|bonus(?: points)?|preferred(?: qualifications| skills)?|desirable|optional|pluses|a plus|plus)\b/i
+/** Headings after which nothing is a requirement (and benefits aren't keywords at all). */
+const OFF_LABEL = /^(?:benefits|perks|what we offer|we offer|compensation|salary|about us|why join us|why us)\b/i
+const BENEFIT_LABEL = /^(?:benefits|perks|what we offer|we offer|you('ll| will) (?:get|enjoy)|compensation|salary)\b/i
+const REQUIRED_LABEL = /^(?:requirements|(?:minimum |basic |required )?qualifications|what you('| wi)ll need|must[- ]haves?|you have|what we're looking for|required(?: skills)?)\b/i
+/** Sentence breaks inside a line (not after "e.g." / "Sr."); each sentence gets its own required flag. */
+const SENTENCE_BREAK = /(?<!\b(?:e\.g|i\.e|etc|vs|sr|jr|approx|incl|no)\.)(?<=[.!?;])\s+(?=[A-Z"“(*•-])/
+
+interface JdLine {
+  text: string
+  required: boolean
+  /** Benefits / perks text — ignored entirely. */
+  skip: boolean
+}
+
+/** Split a JD into sentence-level lines and mark which are requirements. */
+export function scopeJobDescription(jd: string): JdLine[] {
+  const out: JdLine[] = []
+  let block: 'required' | 'optional' | 'benefits' | null = null
+  for (const rawLine of jd.split(/\r?\n/)) {
+    for (const seg of rawLine.split(SENTENCE_BREAK)) {
+      const t = seg.replace(LIST_MARKER, '').replace(/^[#*\s]+|\*\*/g, '').trim()
+      const label = OPTIONAL_LABEL.exec(t) ?? REQUIRED_LABEL.exec(t) ?? OFF_LABEL.exec(t) ?? BENEFIT_LABEL.exec(t)
+      // "Nice to have: Rust" scopes just this sentence; a bare "Nice to have" heading starts a block
+      const content = label ? t.slice(label[0].length).replace(/^[^:]{0,25}:/, '').replace(/^[\s:–—-]+/, '').trim() : ''
+      const heading = !!label && (!content || (/^[^:]{0,40}:?$/.test(t) && t.split(/\s+/).length <= 5 && !/[.!?,]/.test(t)))
+      let required: boolean
+      let skip = false
+      if (label && OPTIONAL_LABEL.test(t)) {
+        required = false
+        if (heading) block = 'optional'
+      } else if (label && BENEFIT_LABEL.test(t)) {
+        required = false
+        skip = true
+        if (heading) block = 'benefits'
+      } else if (label && OFF_LABEL.test(t)) {
+        required = false
+        if (heading) block = null
+      } else if (label) {
+        required = true
+        block = 'required'
+      } else if (block === 'benefits') {
+        // a new heading-like line ends the benefits block
+        if (t && t.split(/\s+/).length <= 4 && !/[.,;]/.test(t) && !LIST_MARKER.test(seg) && /^[A-Z]/.test(t)) block = null
+        skip = block === 'benefits'
+        required = false
+      } else {
+        required = block === 'required' || (block !== 'optional' && REQUIRED_LINE.test(t))
+      }
+      out.push({ text: seg, required, skip })
+    }
+  }
+  return out
+}
+
+/** Words that sometimes alias a skill but not after these words ("present findings to leadership"). */
+const CONTEXT_SKIP: Record<string, RegExp> = {
+  leadership: /^(?:to|with|for|senior|executive|company|our|the)$/,
+}
 
 export function extractKeywords(jd: string, limit = 30): Keyword[] {
-  const tokens = tokenize(jd)
-  const lines = jd.split(/\r?\n/)
+  const scoped = scopeJobDescription(jd)
+  const lines = scoped.map((l) => (l.skip ? '' : l.text))
+  const tokens = tokenize(lines.join('\n')).filter((tk, i, all) => {
+    const skip = CONTEXT_SKIP[tk.norm]
+    return !(skip && i > 0 && all[i - 1].line === tk.line && skip.test(all[i - 1].norm))
+  })
   const requiredLines = new Set<number>()
-  let inRequiredBlock = false
+  scoped.forEach((l, i) => {
+    if (l.required) requiredLines.add(i)
+  })
+  // the title line ("Product Manager, Growth") — capitalised words there are the role, not keywords
+  const first = scoped.findIndex((l) => l.text.trim())
+  const titleLine = first >= 0 && scoped[first].text.split(/\s+/).length <= 8 && !/[.!?]$/.test(scoped[first].text.trim()) ? first : -1
+  // SHOUTING LINES: every word capitalised means nothing ("ORACLE" is not an acronym there)
+  const shouting = new Set<number>()
   lines.forEach((l, i) => {
-    if (/^\s*(nice to have|bonus|preferred|good to have|benefits|perks|about us)/i.test(l)) inRequiredBlock = false
-    else if (/^\s*(requirements|qualifications|what you('| wi)ll need|must have|you have|what we're looking for)/i.test(l)) inRequiredBlock = true
-    if (inRequiredBlock || REQUIRED_LINE.test(l)) requiredLines.add(i)
+    const ws = l.match(/[A-Za-z]{2,}/g) ?? []
+    if (ws.length >= 4 && ws.filter((w) => w === w.toUpperCase()).length / ws.length > 0.7) shouting.add(i)
   })
 
   const out = new Map<string, Keyword>()
@@ -199,7 +269,7 @@ export function extractKeywords(jd: string, limit = 30): Keyword[] {
   const isCap = (tk: Token) => /^[A-Z][a-z]+[A-Z]|^[A-Z]{2,6}$|^[A-Z][a-z0-9]+$/.test(tk.raw)
   const isNameCandidate = (i: number) => {
     const tk = tokens[i]
-    return isCap(tk) && !isStop(tk.norm) && !consumed.has(i) && !ALIAS_INDEX.has(tk.norm)
+    return isCap(tk) && !isStop(tk.norm) && !consumed.has(i) && !ALIAS_INDEX.has(tk.norm) && tk.line !== titleLine && !shouting.has(tk.line)
   }
   for (let i = 0; i < tokens.length; ) {
     if (!isNameCandidate(i)) {
