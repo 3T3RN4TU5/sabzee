@@ -19,6 +19,7 @@ import {
   RichParagraphs,
   contactEntries,
   cx,
+  shortUrl,
   displayName,
   hasPhoto,
   sectionsToBlocks,
@@ -63,7 +64,7 @@ function Link({ e, icons }: { e: EntryView; icons: boolean }) {
   return (
     <EntryLink entry={e} className="su-link">
       {icons && <ContactIcon kind="website" size="0.95em" className="su-link__icon" />}
-      <span>{e.url}</span>
+      <span>{shortUrl(e.url)}</span>
     </EntryLink>
   )
 }

@@ -1,0 +1,27 @@
+Senior Frontend Engineer — Razorpay (Bengaluru, Hybrid)
+
+About the role
+We are looking for a Senior Frontend Engineer to join our Checkout team. You will build fast, accessible payment experiences used by millions of customers every day.
+
+What you'll do
+- Build and maintain high-quality web applications using React, TypeScript and Next.js
+- Own the performance of our checkout: Core Web Vitals, bundle size, lazy loading
+- Collaborate with designers and product managers to ship new features end to end
+- Write unit and integration tests with Jest and React Testing Library; maintain Cypress or Playwright end-to-end suites
+- Contribute to our design system built with Storybook and Tailwind CSS
+- Mentor junior engineers and review pull requests
+
+Requirements
+- 4+ years of professional experience in frontend development
+- Strong proficiency in JavaScript (ES6+), TypeScript, HTML5 and CSS3
+- Deep experience with React and state management (Redux, Zustand or similar)
+- Experience with REST and GraphQL APIs
+- Familiarity with CI/CD pipelines, Git and code review
+- Solid understanding of web accessibility (WCAG) and responsive design
+
+Nice to have
+- Experience with micro-frontends, Webpack or Vite
+- Knowledge of Node.js
+- Experience in fintech or payments
+
+We offer competitive salary, ESOPs, health insurance and flexible working hours. Razorpay is an equal opportunity employer.

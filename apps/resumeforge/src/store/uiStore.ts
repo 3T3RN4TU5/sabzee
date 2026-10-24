@@ -80,6 +80,8 @@ export interface UiState {
   printing: PrintJob | null
   /** What Ctrl+P prints on the current screen (set by screens via usePrintSource). */
   printSource: PrintJob | null
+  /** The last localStorage write failed (quota full / storage blocked): changes are NOT being saved. */
+  saveError: boolean
 }
 
 export const useUiStore = create<UiState>()(
@@ -97,6 +99,7 @@ export const useUiStore = create<UiState>()(
       confirm: null,
       printing: null,
       printSource: null,
+      saveError: false,
     }),
     {
       name: 'resumeforge-ui',
@@ -180,6 +183,24 @@ export const uiActions = {
   setPrintSource(printSource: PrintJob | null): void {
     set({ printSource })
   },
+}
+
+/* ---------------- save status (localStorage quota) ---------------- */
+
+let saveToastId: string | null = null
+const SAVE_ERROR_MESSAGE = 'Changes are not being saved — browser storage is full. Delete old versions or resumes, or export a backup (Download → JSON).'
+
+persistStorage.onStatus = (ok) => {
+  const was = get().saveError
+  if (ok === !was) return
+  set({ saveError: !ok })
+  if (!ok) {
+    saveToastId = uiActions.toast(SAVE_ERROR_MESSAGE, 'error', { duration: 0 })
+  } else {
+    if (saveToastId) uiActions.dismissToast(saveToastId)
+    saveToastId = null
+    uiActions.toast('Saving works again — all changes are stored', 'success')
+  }
 }
 
 export type UiActions = typeof uiActions

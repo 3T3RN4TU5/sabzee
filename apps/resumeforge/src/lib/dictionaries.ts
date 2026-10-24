@@ -30,9 +30,12 @@ export interface Term {
   name: string
   category: TermCategory
   aliases: string[]
+  /** Canonical name of a broader term this one also satisfies on a resume (Tableau → Data visualization). */
+  implies?: string
 }
 
 const t = (name: string, category: TermCategory, ...aliases: string[]): Term => ({ name, category, aliases })
+const ti = (name: string, category: TermCategory, implies: string, ...aliases: string[]): Term => ({ name, category, aliases, implies })
 
 /** Canonical terms. Aliases are lowercase and may be multi-word (max 3 tokens). */
 export const TERMS: Term[] = [
@@ -74,6 +77,8 @@ export const TERMS: Term[] = [
   t('Responsive design', 'frontend', 'responsive design', 'responsive'),
   t('Web performance', 'frontend', 'web performance', 'core web vitals', 'performance optimization'),
   t('Frontend', 'frontend', 'frontend', 'front-end', 'front end'),
+  t('Micro-frontends', 'frontend', 'micro-frontends', 'micro-frontend', 'microfrontends', 'micro frontends'),
+  t('Storybook', 'frontend', 'storybook'),
   // backend
   t('Node.js', 'backend', 'node.js', 'nodejs', 'node'),
   t('Express', 'backend', 'express', 'express.js', 'expressjs'),
@@ -125,8 +130,16 @@ export const TERMS: Term[] = [
   t('Observability', 'devops', 'observability', 'monitoring', 'prometheus', 'grafana', 'datadog'),
   t('Git', 'tool', 'git', 'github', 'gitlab', 'version control'),
   // testing
-  t('Unit testing', 'testing', 'unit testing', 'unit tests', 'jest', 'vitest', 'pytest', 'junit'),
-  t('End-to-end testing', 'testing', 'e2e', 'end-to-end', 'playwright', 'cypress', 'selenium'),
+  t('Unit testing', 'testing', 'unit testing', 'unit tests', 'unit test'),
+  ti('Jest', 'testing', 'Unit testing', 'jest'),
+  ti('Vitest', 'testing', 'Unit testing', 'vitest'),
+  ti('pytest', 'testing', 'Unit testing', 'pytest'),
+  ti('JUnit', 'testing', 'Unit testing', 'junit'),
+  ti('React Testing Library', 'testing', 'Unit testing', 'react testing library', 'testing library'),
+  t('End-to-end testing', 'testing', 'e2e', 'end-to-end', 'end-to-end testing', 'end-to-end tests', 'e2e testing', 'e2e tests'),
+  ti('Playwright', 'testing', 'End-to-end testing', 'playwright'),
+  ti('Cypress', 'testing', 'End-to-end testing', 'cypress'),
+  ti('Selenium', 'testing', 'End-to-end testing', 'selenium'),
   t('Test-driven development', 'methodology', 'tdd', 'test-driven development', 'test driven development'),
   // mobile
   t('React Native', 'mobile', 'react native'),
@@ -150,7 +163,11 @@ export const TERMS: Term[] = [
   t('dbt', 'data', 'dbt'),
   t('ETL', 'data', 'etl', 'elt', 'data pipelines', 'data pipeline'),
   t('Data analysis', 'data', 'data analysis', 'analytics', 'data analytics'),
-  t('Data visualization', 'data', 'data visualization', 'tableau', 'power bi', 'looker', 'dashboards'),
+  t('Data visualization', 'data', 'data visualization', 'data visualisation', 'dashboards'),
+  ti('Tableau', 'data', 'Data visualization', 'tableau'),
+  ti('Power BI', 'data', 'Data visualization', 'power bi', 'powerbi'),
+  ti('Looker', 'data', 'Data visualization', 'looker', 'looker studio'),
+  t('Google Analytics', 'tool', 'google analytics', 'ga4'),
   t('Statistics', 'data', 'statistics', 'statistical', 'a/b testing', 'experimentation', 'hypothesis testing'),
   t('Excel', 'tool', 'excel', 'spreadsheets', 'google sheets'),
   // design & tools
@@ -192,6 +209,42 @@ export const TERMS: Term[] = [
   t('PMP', 'certification', 'pmp'),
   t('Scrum Master', 'certification', 'csm', 'scrum master', 'certified scrum master'),
 ]
+
+const words = (s: string) => s.split(/\s+/).filter(Boolean)
+
+/**
+ * Places that show up in job postings (title lines, "Location:" rows). Never reported as keywords.
+ * Multi-word places are stored with a single space ("new york").
+ */
+export const LOCATIONS = new Set([
+  ...words(`india bangalore bengaluru mumbai bombay delhi ncr gurgaon gurugram noida hyderabad chennai madras pune kolkata calcutta ahmedabad jaipur kochi cochin chandigarh indore lucknow coimbatore trivandrum thiruvananthapuram mysore mysuru nagpur surat vadodara bhubaneswar visakhapatnam goa mangalore
+    usa us uk america canada mexico brazil argentina germany france spain italy netherlands belgium ireland portugal poland sweden norway denmark finland switzerland austria czechia romania ukraine israel turkey uae dubai qatar saudi egypt nigeria kenya africa singapore malaysia indonesia philippines thailand vietnam japan china korea taiwan australia zealand pakistan bangladesh sri lanka nepal
+    london manchester edinburgh dublin berlin munich hamburg amsterdam rotterdam paris lyon madrid barcelona lisbon milan rome zurich geneva vienna prague warsaw stockholm oslo copenhagen helsinki tallinn
+    seattle boston chicago austin denver atlanta miami dallas houston portland toronto vancouver montreal ottawa sydney melbourne brisbane auckland tokyo osaka seoul beijing shanghai shenzhen hongkong jakarta manila bangkok
+    apac emea latam europe asia americas remote hybrid onsite on-site wfh`),
+  'new delhi', 'new york', 'new york city', 'san francisco', 'bay area', 'silicon valley', 'los angeles', 'san diego', 'san jose', 'washington dc', 'hong kong',
+  'kuala lumpur', 'tel aviv', 'abu dhabi', 'sri lanka', 'new zealand', 'south africa', 'united states', 'united kingdom', 'united arab emirates', 'southeast asia', 'south asia', 'north america', 'middle east', 'navi mumbai',
+])
+
+/**
+ * Capitalised words that are not product / tool names: job-title words, section headings and generic
+ * business nouns. Stripped from the ends of a capitalised run in the keyword "name" pass.
+ */
+export const NAME_NOISE = new Set(
+  words(`senior junior staff principal lead leads head chief associate assistant intern interns trainee fresher graduate sr jr mid mid-level entry entry-level
+    engineer engineers developer developers programmer analyst analysts scientist scientists manager managers designer designers architect architects consultant consultants specialist specialists director directors executive executives officer administrator coordinator owner owners representative recruiter researcher strategist technician
+    software hardware data product products project platform platforms team teams squad group department division unit business operations marketing sales finance support customer customers client clients user users service services solutions technology technologies tech engineering
+    company inc ltd llc llp pvt plc corp corporation limited private gmbh co
+    about overview summary responsibilities requirements qualifications benefits perks role position job description details location salary compensation apply skills experience education
+    january february march april may june july august september october november december monday tuesday wednesday thursday friday saturday sunday
+    mr mrs ms dr
+    bachelor bachelors bachelor's master masters master's degree diploma phd mba btech b.tech mtech m.tech be bsc msc`),
+)
+
+/** Verbs that often open bullets in job descriptions; not product names even when capitalised. */
+export const COMMON_VERBS = new Set(
+  words(`analyse analyze build maintain write perform partner automate own collaborate contribute mentor review ship design develop define present support drive lead create implement deliver ensure manage work help join learn grow improve optimise optimize communicate coordinate deploy test debug monitor research identify evaluate translate gather prepare plan execute report track measure scale architect champion conduct establish leverage utilise utilize use participate provide assist handle oversee understand apply bring take make run solve think thrive shape`),
+)
 
 /** Ambiguous aliases (common words or single letters) only count when the source token has a capital letter. */
 export const AMBIGUOUS_ALIASES = new Set(['c', 'r', 'go', 'ts', 'ui', 'ux', 'api', 'apis', 'ml', 'node', 'rest', 'swift', 'dart', 'rust', 'spring', 'express', 'shell', 'next', 'sprint', 'lambda', 'spark', 'flask', 'ruby', 'scala'])

@@ -53,3 +53,21 @@ export const PHOTO_RADIUS: Record<PhotoShape, string> = { circle: '50%', rounded
 export function hasPhoto(basics: Pick<Basics, 'photo'>, design: Pick<Design, 'showPhoto'>): boolean {
   return design.showPhoto && !!basics.photo
 }
+
+/**
+ * Display text for a long (already prettified) URL: keeps the host and as much of the path as fits in
+ * `max` characters, cutting at a "/" or "-" boundary where possible and ending with "…". The href is
+ * untouched, so the link still goes to the full address. Short URLs are returned as-is.
+ */
+export function shortUrl(url: string, max = 42): string {
+  if (url.length <= max) return url
+  const slash = url.indexOf('/')
+  const host = slash === -1 ? url : url.slice(0, slash)
+  if (host.length >= max - 1) return `${url.slice(0, max - 1)}…`
+  const budget = max - 1
+  let cut = url.slice(0, budget)
+  const boundary = Math.max(cut.lastIndexOf('/'), cut.lastIndexOf('-'), cut.lastIndexOf('_'), cut.lastIndexOf('.'))
+  // only snap back to a boundary when it keeps most of the budget (and stays inside the path)
+  if (boundary > host.length && boundary >= budget * 0.6) cut = url.slice(0, boundary)
+  return `${cut}…`
+}

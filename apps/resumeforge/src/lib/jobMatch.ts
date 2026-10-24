@@ -143,10 +143,12 @@ export function withKeyword(keywords: string[], label: string): string[] {
 
 /** True when a keyword is just (part of) the employer's name — not something to add to a resume. */
 export function isCompanyKeyword(row: Pick<MatchRow, 'label'>, company: string): boolean {
-  const c = company.trim().toLowerCase()
-  if (!c) return false
-  const l = row.label.trim().toLowerCase()
-  return l === c || c.split(/\s+/).includes(l) || (l.includes(' ') && c.includes(l))
+  const cw = company.toLowerCase().split(/[^\p{L}\p{N}&+#.'’-]+/u).filter(Boolean)
+  const lw = row.label.toLowerCase().split(/[^\p{L}\p{N}&+#.'’-]+/u).filter(Boolean)
+  if (!cw.length || !lw.length || lw.length > cw.length) return false
+  // the keyword's words appear as a contiguous run of the company's words ("Lumen" / "Lumen Health")
+  for (let i = 0; i + lw.length <= cw.length; i++) if (lw.every((w, k) => cw[i + k] === w)) return true
+  return false
 }
 
 export type YearsStatus = 'meets' | 'close' | 'below' | 'unknown'
@@ -179,7 +181,8 @@ const tidy = (s: string) =>
     .trim()
 
 function validCompany(name: string | undefined): string {
-  const n = tidy(name ?? '')
+  // "Swiggy, Bangalore" / "Razorpay (Bengaluru, Hybrid)" / "Acme · Remote" → just the name
+  const n = tidy((name ?? '').split(/\s*[,(|·•[]\s*|\s+[-–—]\s+/)[0])
   if (!n || n.length > 60 || NOT_COMPANY.test(n) || NOT_COMPANY.test(n.split(' ')[0]) || ROLE_WORD.test(n)) return ''
   return n
 }

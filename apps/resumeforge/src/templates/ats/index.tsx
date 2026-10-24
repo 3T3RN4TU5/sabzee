@@ -53,7 +53,7 @@ function CompactEntry({ e }: { e: EntryView }) {
       </div>
       {e.url && (
         <div className="at-small">
-          <EntryLink entry={e} />
+          <EntryLink entry={e} full />
         </div>
       )}
       {e.description && <Rich as="div" className="at-desc" text={e.description} />}
@@ -100,7 +100,7 @@ function Entry({ e }: { e: EntryView }) {
           {e.meta && (org || e.url) && <span>. </span>}
           {org && <span className="at-org">{org}</span>}
           {org && e.url && <span className="at-sep"> | </span>}
-          {e.url && <EntryLink entry={e} />}
+          {e.url && <EntryLink entry={e} full />}
         </div>
       )}
       {!pub && (org || e.url || e.location) && (
@@ -108,7 +108,7 @@ function Entry({ e }: { e: EntryView }) {
           <span className="at-lead">
             {org && <span className="at-org">{org}</span>}
             {org && e.url && <span className="at-sep"> | </span>}
-            {e.url && <EntryLink entry={e} />}
+            {e.url && <EntryLink entry={e} full />}
           </span>
           {e.location && <span className="at-loc">{e.location}</span>}
         </div>

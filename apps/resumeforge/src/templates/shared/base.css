@@ -259,7 +259,9 @@
   gap: 1em;
 }
 :where(.rf-doc) :where(.rf-entry__heading) {
-  min-width: 0;
+  /* the heading always keeps the larger share of the row: a long link in the aside wraps instead */
+  flex: 1 1 auto;
+  min-width: 55%;
 }
 :where(.rf-doc) :where(.rf-entry__title) {
   font-weight: 700;
@@ -277,14 +279,16 @@
   color: var(--rf-muted);
 }
 :where(.rf-doc) :where(.rf-entry__aside) {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 45%;
   text-align: right;
   font-size: 0.88em;
   color: var(--rf-muted);
-  white-space: nowrap;
 }
 :where(.rf-doc) :where(.rf-entry__date) {
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 :where(.rf-doc) :where(.rf-entry__when) {
   font-size: 0.88em;
@@ -292,6 +296,7 @@
 }
 :where(.rf-doc) :where(.rf-entry__link) {
   color: var(--rf-accent-ink);
+  overflow-wrap: anywhere;
 }
 :where(.rf-doc) :where(.rf-entry__meta) {
   font-size: 0.92em;

@@ -21,7 +21,7 @@ import { sanitizeUrl } from '../../lib/markdown.ts'
 import type { EntryView } from '../../lib/templateData.ts'
 import { LevelBar, LevelDots } from './Level.tsx'
 import { Rich } from './Rich.tsx'
-import { cx } from './utils.ts'
+import { cx, shortUrl } from './utils.ts'
 
 /* ---------------- Bullets ---------------- */
 
@@ -85,13 +85,18 @@ export function Keywords({ items, variant = 'inline', separator = ' · ', label,
 
 /* ---------------- Links ---------------- */
 
-/** Pretty link for an entry (`entry.url` text, `entry.href` target). Class: .rf-entry__link .rf-link. */
-export function EntryLink({ entry, className, children }: { entry: Pick<EntryView, 'url' | 'href'>; className?: string; children?: ReactNode }) {
+/**
+ * Pretty link for an entry (`entry.url` text, `entry.href` target). Class: .rf-entry__link .rf-link.
+ * Long URLs are shortened for display (host + start of the path + "…", see `shortUrl`); the href keeps
+ * the full address. Pass `full` to print the whole URL (it then wraps anywhere), e.g. for ATS output.
+ */
+export function EntryLink({ entry, className, children, full = false }: { entry: Pick<EntryView, 'url' | 'href'>; className?: string; children?: ReactNode; full?: boolean }) {
   if (!entry.url) return null
-  if (!entry.href) return <span className={cx('rf-entry__link', className)}>{children ?? entry.url}</span>
+  const text = children ?? (full ? entry.url : shortUrl(entry.url))
+  if (!entry.href) return <span className={cx('rf-entry__link', className)}>{text}</span>
   return (
     <a className={cx('rf-entry__link rf-link', className)} href={entry.href} target="_blank" rel="noopener noreferrer">
-      {children ?? entry.url}
+      {text}
     </a>
   )
 }

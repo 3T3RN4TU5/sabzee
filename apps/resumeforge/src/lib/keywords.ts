@@ -7,7 +7,8 @@
  * 4. weight = frequency × source weight (+ bonus for terms on "required/must" lines)
  */
 import { monthsBetween } from './dates.ts'
-import { AMBIGUOUS_ALIASES, STOPWORDS, TERMS, type TermCategory } from './dictionaries.ts'
+import { AMBIGUOUS_ALIASES, COMMON_VERBS, LOCATIONS, NAME_NOISE, STOPWORDS, TERMS, VERB_FORMS, type TermCategory } from './dictionaries.ts'
+import { extractJobInfo, isCompanyKeyword } from './jobMatch.ts'
 import { inlineToPlain } from './markdown.ts'
 import type { ResumeData, SectionKind } from './types.ts'
 
@@ -18,8 +19,10 @@ export interface Token {
   raw: string
   /** Index of the line in the source text. */
   line: number
-  /** True when this token starts a sentence or line. */
+  /** True when this token starts a sentence, line or list item. */
   sentenceStart: boolean
+  /** True when punctuation (comma, bracket, dash …) separates this token from the previous one. */
+  breakBefore: boolean
 }
 
 const ALIAS_INDEX: Map<string, { name: string; category: TermCategory }> = (() => {
@@ -31,33 +34,49 @@ const ALIAS_INDEX: Map<string, { name: string; category: TermCategory }> = (() =
   return m
 })()
 
+/** term id → id of the broader term it also satisfies (jest → unit testing). */
+const IMPLIES: Map<string, string> = new Map(TERMS.filter((t) => t.implies).map((t) => [t.name.toLowerCase(), t.implies!.toLowerCase()]))
+
 const KEEP_WHOLE = new Set(['.net', 'c++', 'c#', 'ci/cd', 'ui/ux', 'a/b', 'node.js', 'next.js', 'vue.js', 'react.js', 'express.js', 'nest.js', 'asp.net', 'socket.io', 'r&d', 'e-commerce'])
+
+/** List markers at the start of a line: "* ", "- ", "• ", "1. ", "2) ", "(a) ", "a. ". */
+const LIST_MARKER = /^\s*(?:[*•·▪◦‣➢➤►✓✔>+\-–—]+|\(?\d{1,2}[.)]|\(?[a-zA-Z][.)])\s+/
+const SEPARATOR = /^[\s,;:!?()[\]{}"“”‘’|•·–—]+$/
 
 export function tokenize(text: string): Token[] {
   const out: Token[] = []
-  text.split(/\r?\n/).forEach((lineText, line) => {
+  text.split(/\r?\n/).forEach((rawLine, line) => {
+    const lineText = rawLine.replace(LIST_MARKER, '')
     let sentenceStart = true
+    let breakBefore = true
     const parts = lineText.split(/(\s+|[,;:!?()[\]{}"“”‘’|•·–—]+)/)
     for (const part of parts) {
       if (!part) continue
-      if (/^[\s,;:!?()[\]{}"“”‘’|•·–—]+$/.test(part)) {
-        if (/[!?:;•]/.test(part)) sentenceStart = true
+      if (SEPARATOR.test(part)) {
+        if (/[!?:;•|–—]/.test(part)) sentenceStart = true
+        if (/\S/.test(part)) breakBefore = true
         continue
       }
       let raw = part
       const endsSentence = /[.!?]$/.test(raw) && !/^(e\.g|i\.e|etc)\.?$/i.test(raw)
       raw = raw.replace(/^['".]+(?!net\b)|['".\-/&]+$/gi, '')
-      if (!raw) {
+      if (!raw || !/[\p{L}\p{N}]/u.test(raw)) {
+        // stray punctuation ("*", "/", "&") — skip without consuming the sentence start
         if (endsSentence) sentenceStart = true
+        if (raw || endsSentence) breakBefore = true
         continue
       }
       const lower = raw.toLowerCase()
       const pieces = KEEP_WHOLE.has(lower) || ALIAS_INDEX.has(lower) || !/[/&]/.test(raw) ? [raw] : raw.split(/[/&]/).filter(Boolean)
-      for (const p of pieces) {
-        out.push({ norm: p.toLowerCase(), raw: p, line, sentenceStart })
+      pieces.forEach((p, k) => {
+        out.push({ norm: p.toLowerCase(), raw: p, line, sentenceStart, breakBefore: breakBefore || k > 0 })
         sentenceStart = false
+        breakBefore = false
+      })
+      if (endsSentence) {
+        sentenceStart = true
+        breakBefore = true
       }
-      if (endsSentence) sentenceStart = true
     }
   })
   return out
@@ -168,18 +187,48 @@ export function extractKeywords(jd: string, limit = 30): Keyword[] {
     key.split(' ').forEach((w) => usedInPhrases.add(w))
   }
 
-  // capitalised product / tool names that are not in the dictionary (Snowflake-style)
+  // capitalised product / tool names that are not in the dictionary (Snowflake, Computer Science)
+  const lowerSeen = new Set(tokens.filter((tk) => tk.raw === tk.norm).map((tk) => tk.norm))
   const names = new Map<string, { label: string; count: number; lines: Set<number> }>()
   const unigrams = new Map<string, { label: string; count: number; lines: Set<number> }>()
+  const nameIdx = new Set<number>()
+  const isCap = (tk: Token) => /^[A-Z][a-z]+[A-Z]|^[A-Z]{2,6}$|^[A-Z][a-z0-9]+$/.test(tk.raw)
+  const isNameCandidate = (i: number) => {
+    const tk = tokens[i]
+    return isCap(tk) && !isStop(tk.norm) && !consumed.has(i) && !ALIAS_INDEX.has(tk.norm)
+  }
+  for (let i = 0; i < tokens.length; ) {
+    if (!isNameCandidate(i)) {
+      i++
+      continue
+    }
+    // a run of capitalised words on one line with no punctuation between them
+    let j = i + 1
+    while (j < tokens.length && tokens[j].line === tokens[i].line && !tokens[j].breakBefore && isNameCandidate(j)) j++
+    let run = tokens.slice(i, j)
+    for (let k = i; k < j; k++) nameIdx.add(k)
+    i = j
+    // the first word of a sentence / bullet is capitalised anyway — only trust it inside a longer run
+    if (run[0].sentenceStart && (run.length === 1 || isCommonWord(run[0].norm))) run = run.slice(1)
+    if (!run.length) continue
+    const words = run.map((tk) => tk.norm)
+    const phrase = words.join(' ')
+    if (words.every((w) => NAME_NOISE.has(w) || LOCATIONS.has(w)) || LOCATIONS.has(phrase)) continue
+    if (run.length === 1) {
+      const tk = run[0]
+      const acronym = /^[A-Z]{2,6}$/.test(tk.raw)
+      // "Checkout" when "checkout" also appears lowercase is an ordinary word, not a product
+      if (!acronym && (isCommonWord(tk.norm) || lowerSeen.has(tk.norm))) continue
+    }
+    const n = names.get(phrase) ?? { label: run.map((tk) => tk.raw).join(' '), count: 0, lines: new Set<number>() }
+    n.count++
+    n.lines.add(run[0].line)
+    names.set(phrase, n)
+  }
   tokens.forEach((tk, i) => {
-    if (isStop(tk.norm) || consumed.has(i) || ALIAS_INDEX.has(tk.norm)) return
+    if (isStop(tk.norm) || consumed.has(i) || nameIdx.has(i) || ALIAS_INDEX.has(tk.norm) || LOCATIONS.has(tk.norm)) return
     const st = stem(tk.norm)
-    if (/^[A-Z][a-z]+[A-Z]|^[A-Z]{2,6}$|^[A-Z][a-z0-9]+$/.test(tk.raw) && !tk.sentenceStart && tk.raw.length > 1) {
-      const n = names.get(tk.norm) ?? { label: tk.raw, count: 0, lines: new Set<number>() }
-      n.count++
-      n.lines.add(tk.line)
-      names.set(tk.norm, n)
-    } else if (tk.norm.length > 3 && !usedInPhrases.has(st)) {
+    if (tk.norm.length > 3 && !usedInPhrases.has(st)) {
       const u = unigrams.get(st) ?? { label: tk.norm, count: 0, lines: new Set<number>() }
       u.count++
       u.lines.add(tk.line)
@@ -196,7 +245,25 @@ export function extractKeywords(jd: string, limit = 30): Keyword[] {
     out.set(key, { key, label: u.label, category: 'phrase', source: 'phrase', count: u.count, weight: Math.min(u.count, 4) * 0.8, required: false })
   }
 
-  return [...out.values()].sort((a, b) => b.weight - a.weight || b.count - a.count || a.label.localeCompare(b.label)).slice(0, limit)
+  const company = extractJobInfo(jd).company
+  return [...out.values()]
+    .filter((k) => !isCompanyKeyword(k, company))
+    .sort((a, b) => b.weight - a.weight || b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, limit)
+}
+
+/** Base form test for words that are never product names (verbs, job-title words, headings). */
+function isCommonWord(w: string): boolean {
+  return COMMON_VERBS.has(w) || VERB_FORMS.has(w) || NAME_NOISE.has(w)
+}
+
+/** Resume-side term hits plus the broader terms they imply (Jest ⇒ Unit testing). */
+function withImplied(hits: Map<string, TermHit>): Map<string, TermHit> {
+  for (const [id, hit] of [...hits]) {
+    const broader = IMPLIES.get(id)
+    if (broader && !hits.has(broader)) hits.set(broader, { ...hit, name: broader, lines: new Set(hit.lines) })
+  }
+  return hits
 }
 
 /* --------------------------- resume side --------------------------- */
@@ -277,9 +344,9 @@ export function yearsOfExperience(data: ResumeData, now = new Date()): number {
 export function matchResume(data: ResumeData, jd: string, now = new Date()): MatchResult {
   const keywords = extractKeywords(jd)
   const corpus = resumeCorpus(data)
-  const allTerms = findTerms(tokenize(corpus.text))
+  const allTerms = withImplied(findTerms(tokenize(corpus.text)))
   const allPhrases = phraseSet(corpus.text)
-  const perSection = corpus.sections.map((s) => ({ ...s, terms: findTerms(tokenize(s.text)), phrases: phraseSet(s.text) }))
+  const perSection = corpus.sections.map((s) => ({ ...s, terms: withImplied(findTerms(tokenize(s.text))), phrases: phraseSet(s.text) }))
 
   let got = 0
   let total = 0
