@@ -4,7 +4,8 @@
   --tl-gutter: 23mm;
   --tl-rail: 7.5mm;
   --tl-line: 2px;
-  --tl-line-color: rgb(var(--rf-accent-rgb) / 0.32);
+  /* accent-ink keeps the rail visible with very light accents */
+  --tl-line-color: color-mix(in srgb, var(--rf-accent-ink) 38%, transparent);
   --tl-ink: #1f2937;
   --tl-soft: #374151;
   --tl-dim: #4b5563;

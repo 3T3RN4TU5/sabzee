@@ -20,6 +20,7 @@ export const emptyCoverLetter: CoverLetter = {
   body: '',
   closing: 'Sincerely,',
   signature: '',
+  layout: 'classic',
 }
 
 export function normalizeBasics(v: unknown): Basics {
@@ -96,8 +97,9 @@ export function normalizeCoverLetter(v: unknown): CoverLetter {
   const c = obj(v)
   const out = { ...emptyCoverLetter }
   for (const k of Object.keys(emptyCoverLetter) as (keyof CoverLetter)[]) {
-    if (typeof c[k] === 'string') out[k] = str(c[k])
+    if (k !== 'layout' && typeof c[k] === 'string') out[k] = str(c[k])
   }
+  if (c.layout === 'classic' || c.layout === 'accent' || c.layout === 'minimal') out.layout = c.layout
   return out
 }
 

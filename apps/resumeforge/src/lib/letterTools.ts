@@ -5,9 +5,9 @@
 import { inlineToPlain } from './markdown.ts'
 import { letterParagraphs } from './coverLetter.ts'
 import { words } from './readability.ts'
-import type { CoverLetter } from './types.ts'
+import type { CoverLetter, LetterLayoutId } from './types.ts'
 
-export type LetterLayoutId = 'classic' | 'accent' | 'minimal'
+export type { LetterLayoutId }
 
 export const LETTER_LAYOUTS: { id: LetterLayoutId; name: string; description: string }[] = [
   { id: 'classic', name: 'Classic block', description: 'Traditional business letter: date, address block, subject line.' },
@@ -123,3 +123,21 @@ export function greetingOptions(letter: Pick<CoverLetter, 'recipient' | 'company
 }
 
 export const CLOSINGS = ['Sincerely,', 'Best regards,', 'Kind regards,', 'With gratitude,', 'Respectfully,']
+
+/**
+ * Fold the legacy per-resume layout map (localStorage['resumeforge-letter'] → { layouts: { [docId]: id } },
+ * used before CoverLetter had a `layout` field) into the documents. Returns the same array when nothing changes.
+ */
+export function applyLegacyLetterLayouts<T extends { id: string; coverLetter: CoverLetter }>(docs: T[], legacy: unknown): T[] {
+  const raw = legacy && typeof legacy === 'object' ? (legacy as { state?: { layouts?: unknown }; layouts?: unknown }) : null
+  const layouts = raw?.state?.layouts ?? raw?.layouts
+  if (!layouts || typeof layouts !== 'object') return docs
+  let changed = false
+  const out = docs.map((d) => {
+    const v = (layouts as Record<string, unknown>)[d.id]
+    if (!isLetterLayout(v) || d.coverLetter.layout === v) return d
+    changed = true
+    return { ...d, coverLetter: { ...d.coverLetter, layout: v } }
+  })
+  return changed ? out : docs
+}

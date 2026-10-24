@@ -66,7 +66,7 @@ function Editor({ doc }: { doc: ResumeDoc }) {
   return (
     <div className="space-y-4 p-4 sm:p-5">
       <ExportBar doc={doc} />
-      <LayoutPicker docId={doc.id} />
+      <LayoutPicker />
 
       <Section title="Start from a template" sub="Drafts a letter from your resume — your strongest bullet, top skills and current role.">
         <div className="grid gap-2">
@@ -275,8 +275,8 @@ function LayoutThumb({ id, active }: { id: LetterLayoutId; active: boolean }) {
   )
 }
 
-function LayoutPicker({ docId }: { docId: string }) {
-  const layout = useLetterLayout(docId)
+function LayoutPicker() {
+  const layout = useLetterLayout()
   return (
     <section aria-labelledby="rf-letter-layout" className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
       <h3 id="rf-letter-layout" className="text-sm font-bold text-slate-900 dark:text-white">
@@ -292,7 +292,7 @@ function LayoutPicker({ docId }: { docId: string }) {
               role="radio"
               aria-checked={on}
               title={o.description}
-              onClick={() => setLetterLayout(docId, o.id)}
+              onClick={() => setLetterLayout(o.id)}
               className={cn(
                 'rounded-xl p-1.5 text-left ring-1 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500',
                 on ? 'bg-indigo-50 ring-2 ring-indigo-500 dark:bg-indigo-500/10 dark:ring-indigo-400' : 'bg-slate-50 ring-slate-200 hover:ring-slate-300 dark:bg-slate-800/50 dark:ring-slate-700 dark:hover:ring-slate-600',

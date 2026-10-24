@@ -117,6 +117,9 @@ export interface Design {
   showIcons: boolean
 }
 
+/** Visual layout of the cover letter (see LETTER_LAYOUTS in lib/letterTools.ts). */
+export type LetterLayoutId = 'classic' | 'accent' | 'minimal'
+
 export interface CoverLetter {
   recipient: string
   recipientTitle: string
@@ -130,6 +133,8 @@ export interface CoverLetter {
   body: string
   closing: string
   signature: string
+  /** Visual layout; header, colours and fonts still follow the resume template. */
+  layout: LetterLayoutId
 }
 
 export interface Snapshot {

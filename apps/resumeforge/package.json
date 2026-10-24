@@ -27,12 +27,13 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "jszip": "^3.10.2",
     "oxlint": "^1.81.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.3.0"
   },
-  "description": "ResumeForge \u2014 ATS-friendly resume builder with 13 templates, JD matcher, ATS checker, cover letters and DOCX/PDF export",
+  "description": "ResumeForge — ATS-friendly resume builder with 13 templates, JD matcher, ATS checker, cover letters and DOCX/PDF export",
   "author": "Jeevan (https://github.com/Jeevan2410)",
   "engines": {
     "node": ">=22"

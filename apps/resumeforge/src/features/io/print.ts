@@ -53,15 +53,13 @@ export async function printDocument(job: PrintJob = { target: 'resume' }): Promi
   const data = job.data ?? getActiveDoc()?.data
   if (!data) return false
   restore?.()
-  const previousTitle = document.title
+  // PrintRoot sets document.title to pdfTitle(job) while the job is mounted and restores it afterwards.
   const done = () => {
     window.removeEventListener('afterprint', done)
     if (restore === done) restore = null
-    document.title = previousTitle
     uiActions.endPrint()
   }
   restore = done
-  document.title = pdfTitle({ ...job, data })
   window.addEventListener('afterprint', done)
   try {
     uiActions.startPrint(job)
