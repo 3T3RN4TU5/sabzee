@@ -109,6 +109,7 @@ export const TERMS: Term[] = [
   t('Elasticsearch', 'database', 'elasticsearch', 'elastic search', 'opensearch'),
   t('SQLite', 'database', 'sqlite'),
   t('Cassandra', 'database', 'cassandra'),
+  t('Oracle', 'database', 'oracle', 'oracle db', 'oracle database'),
   t('Snowflake', 'data', 'snowflake'),
   t('BigQuery', 'data', 'bigquery', 'big query'),
   t('Supabase', 'database', 'supabase'),
@@ -121,13 +122,18 @@ export const TERMS: Term[] = [
   t('Lambda', 'cloud', 'lambda', 'aws lambda', 'serverless'),
   t('Vercel', 'cloud', 'vercel'),
   t('Docker', 'devops', 'docker', 'containers', 'containerization'),
-  t('Kubernetes', 'devops', 'kubernetes', 'k8s', 'eks', 'gke'),
+  t('Kubernetes', 'devops', 'kubernetes', 'k8s'),
+  ti('Amazon EKS', 'cloud', 'Kubernetes', 'eks', 'amazon eks', 'aws eks'),
+  ti('GKE', 'cloud', 'Kubernetes', 'gke', 'google kubernetes engine'),
   t('Terraform', 'devops', 'terraform', 'infrastructure as code', 'iac'),
   t('CI/CD', 'devops', 'ci/cd', 'cicd', 'continuous integration', 'continuous delivery', 'continuous deployment'),
   t('GitHub Actions', 'devops', 'github actions'),
   t('Jenkins', 'devops', 'jenkins'),
   t('Linux', 'devops', 'linux', 'unix'),
-  t('Observability', 'devops', 'observability', 'monitoring', 'prometheus', 'grafana', 'datadog'),
+  t('Observability', 'devops', 'observability', 'monitoring'),
+  ti('Prometheus', 'devops', 'Observability', 'prometheus'),
+  ti('Grafana', 'devops', 'Observability', 'grafana'),
+  ti('Datadog', 'devops', 'Observability', 'datadog'),
   t('Git', 'tool', 'git', 'github', 'gitlab', 'version control'),
   // testing
   t('Unit testing', 'testing', 'unit testing', 'unit tests', 'unit test'),
@@ -162,13 +168,15 @@ export const TERMS: Term[] = [
   t('Airflow', 'data', 'airflow', 'apache airflow'),
   t('dbt', 'data', 'dbt'),
   t('ETL', 'data', 'etl', 'elt', 'data pipelines', 'data pipeline'),
-  t('Data analysis', 'data', 'data analysis', 'analytics', 'data analytics'),
+  // bare "analytics" is too vague (Google Analytics, product analytics, analytics events)
+  t('Data analysis', 'data', 'data analysis', 'data analytics', 'analyze data', 'analyse data', 'analyzing data', 'analysing data'),
   t('Data visualization', 'data', 'data visualization', 'data visualisation', 'dashboards'),
   ti('Tableau', 'data', 'Data visualization', 'tableau'),
   ti('Power BI', 'data', 'Data visualization', 'power bi', 'powerbi'),
   ti('Looker', 'data', 'Data visualization', 'looker', 'looker studio'),
   t('Google Analytics', 'tool', 'google analytics', 'ga4'),
-  t('Statistics', 'data', 'statistics', 'statistical', 'a/b testing', 'experimentation', 'hypothesis testing'),
+  t('Statistics', 'data', 'statistics', 'statistical', 'hypothesis testing'),
+  ti('A/B testing', 'data', 'Statistics', 'a/b testing', 'a/b tests', 'a/b test', 'ab testing', 'split testing', 'experimentation'),
   t('Excel', 'tool', 'excel', 'spreadsheets', 'google sheets'),
   // design & tools
   t('Figma', 'design', 'figma'),
@@ -179,7 +187,9 @@ export const TERMS: Term[] = [
   t('Security', 'security', 'security', 'owasp', 'application security'),
   t('OAuth', 'security', 'oauth', 'oauth2', 'oidc', 'sso', 'authentication'),
   // methodology
-  t('Agile', 'methodology', 'agile', 'scrum', 'kanban', 'sprint', 'sprints'),
+  t('Agile', 'methodology', 'agile', 'sprint', 'sprints'),
+  ti('Scrum', 'methodology', 'Agile', 'scrum'),
+  ti('Kanban', 'methodology', 'Agile', 'kanban'),
   t('Code review', 'methodology', 'code review', 'code reviews'),
   t('System design', 'methodology', 'system design', 'architecture', 'software architecture'),
   t('Object-oriented programming', 'methodology', 'oop', 'object-oriented', 'object oriented'),
@@ -221,7 +231,10 @@ export const LOCATIONS = new Set([
     usa us uk america canada mexico brazil argentina germany france spain italy netherlands belgium ireland portugal poland sweden norway denmark finland switzerland austria czechia romania ukraine israel turkey uae dubai qatar saudi egypt nigeria kenya africa singapore malaysia indonesia philippines thailand vietnam japan china korea taiwan australia zealand pakistan bangladesh sri lanka nepal
     london manchester edinburgh dublin berlin munich hamburg amsterdam rotterdam paris lyon madrid barcelona lisbon milan rome zurich geneva vienna prague warsaw stockholm oslo copenhagen helsinki tallinn
     seattle boston chicago austin denver atlanta miami dallas houston portland toronto vancouver montreal ottawa sydney melbourne brisbane auckland tokyo osaka seoul beijing shanghai shenzhen hongkong jakarta manila bangkok
-    apac emea latam europe asia americas remote hybrid onsite on-site wfh`),
+    apac emea latam europe asia americas remote hybrid onsite on-site wfh
+    maharashtra karnataka telangana kerala gujarat rajasthan haryana punjab bihar odisha orissa assam jharkhand chhattisgarh uttarakhand
+    california texas florida massachusetts illinois ontario quebec bavaria`),
+  'tamil nadu', 'uttar pradesh', 'andhra pradesh', 'madhya pradesh', 'west bengal', 'himachal pradesh', 'jammu and kashmir', 'new jersey', 'north carolina', 'british columbia', 'new south wales',
   'new delhi', 'new york', 'new york city', 'san francisco', 'bay area', 'silicon valley', 'los angeles', 'san diego', 'san jose', 'washington dc', 'hong kong',
   'kuala lumpur', 'tel aviv', 'abu dhabi', 'sri lanka', 'new zealand', 'south africa', 'united states', 'united kingdom', 'united arab emirates', 'southeast asia', 'south asia', 'north america', 'middle east', 'navi mumbai',
 ])
@@ -337,13 +350,20 @@ export interface WeakPhrase {
   pattern: RegExp
   phrase: string
   suggestions: string[]
+  /**
+   * The suggestions can't be swapped in mechanically ("Worked with designers" → "Built designers" is
+   * nonsense; "Worked with React" → "Partnered with React" too) — chips are copy-only.
+   */
+  copyOnly?: boolean
 }
 
 /** Weak openers, matched at the start of a bullet. */
 export const WEAK_PHRASES: WeakPhrase[] = [
   { pattern: /^(was |am |is )?responsible for\b/i, phrase: 'Responsible for', suggestions: ['Led', 'Owned', 'Managed'] },
   { pattern: /^(was |am )?in charge of\b/i, phrase: 'In charge of', suggestions: ['Led', 'Directed', 'Headed'] },
-  { pattern: /^worked (on|with|in)\b/i, phrase: 'Worked on', suggestions: ['Built', 'Developed', 'Delivered'] },
+  { pattern: /^worked on\b/i, phrase: 'Worked on', suggestions: ['Built', 'Developed', 'Delivered'] },
+  { pattern: /^worked (?:closely )?(?:with|alongside)\b/i, phrase: 'Worked with', suggestions: ['Partnered with', 'Collaborated with'], copyOnly: true },
+  { pattern: /^worked (?:in|at|as)\b/i, phrase: 'Worked in', suggestions: ['Contributed to', 'Served as', 'Drove'], copyOnly: true },
   { pattern: /^helped( to| with)?\b/i, phrase: 'Helped', suggestions: ['Supported', 'Contributed to', 'Partnered on'] },
   { pattern: /^assisted( with| in)?\b/i, phrase: 'Assisted', suggestions: ['Supported', 'Coordinated', 'Partnered on'] },
   { pattern: /^(participated|took part) in\b/i, phrase: 'Participated in', suggestions: ['Contributed to', 'Collaborated on', 'Drove'] },

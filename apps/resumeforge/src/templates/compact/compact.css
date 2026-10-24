@@ -63,6 +63,12 @@
   color: var(--rf-accent-ink);
   opacity: 1;
 }
+/* long contacts: a wrapping row under the title, using the full header width */
+.rf-t-compact .cp-contact--below {
+  max-width: none;
+  margin-top: 0.5em;
+  column-gap: 1.1em;
+}
 
 /* running head on pages 2+ */
 .rf-t-compact .cp-run {

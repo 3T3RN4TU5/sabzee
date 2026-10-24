@@ -14,8 +14,21 @@ import { PhotoCropDialog } from './PhotoCropDialog.tsx'
 
 type BasicKey = Exclude<keyof Basics, 'photo'>
 
-/** Session memory: cropped photo data URL → the full-resolution original it was cut from, so re-cropping does not start from the compressed 480 px JPEG. */
+/**
+ * Session memory: cropped photo data URL → the full-resolution original it was cut from, so
+ * re-cropping does not start from the compressed 480 px JPEG. Originals can be megabytes each, so
+ * only the most recent few crops are remembered (enough for "crop again" after an undo or two).
+ */
 const originals = new Map<string, string>()
+const MAX_ORIGINALS = 3
+function rememberOriginal(cropped: string, original: string): void {
+  originals.delete(cropped)
+  originals.set(cropped, original)
+  for (const k of originals.keys()) {
+    if (originals.size <= MAX_ORIGINALS) break
+    originals.delete(k)
+  }
+}
 const FIELDS: { key: BasicKey; label: string; placeholder: string; type?: string; check?: 'email' | 'phone' | 'url' | 'linkedin' | 'github'; auto?: string }[] = [
   { key: 'name', label: 'Full name', placeholder: 'Aarav Mehta', auto: 'name' },
   { key: 'title', label: 'Job title', placeholder: 'Full-Stack Developer', auto: 'organization-title' },
@@ -106,7 +119,7 @@ function PhotoField({ basics }: { basics: Basics }) {
     const src = crop?.src
     setCrop(null)
     if (!url) return toast('Could not process the image', 'error')
-    if (src && src !== url) originals.set(url, src)
+    if (src && src !== url) rememberOriginal(url, src)
     // Photo + shape/visibility in one undo step.
     resumeActions.updatePhoto(url, shape !== design.photoShape || !design.showPhoto ? { photoShape: shape, showPhoto: true } : undefined)
     toast('Photo updated', 'success')

@@ -220,6 +220,10 @@
   max-width: 55%;
   font-size: 0.86em;
   text-align: right;
+  /* one line, cut with an ellipsis, rather than a stack of URL fragments */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rf-t-timeline .tl-e__title .tl-e__sub {
   font-family: var(--rf-font-body);

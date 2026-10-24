@@ -7,7 +7,7 @@ import { Lightbulb, Plus, X } from 'lucide-react'
 import { Suspense, useRef, useState, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { BulletHelper } from '../../app/lazy.ts'
 import type { Entry } from '../../lib/types.ts'
-import { resumeActions, useFieldFocus } from '../../store'
+import { resumeActions, toast, useFieldFocus } from '../../store'
 import { Button, cn, IconButton, inputClass } from '../../ui'
 import { handleMarkShortcut } from './markEdit.ts'
 import { MarkToolbar } from './RichTextArea.tsx'
@@ -15,6 +15,9 @@ import { DragHandle, SortableItem, SortableList, type DragHandleProps } from './
 import { useStableKeys } from './stableKeys.ts'
 
 const MARKER = /^\s*(?:[-*•·▪◦‣–]|\d{1,2}[.)])\s+/
+/** Same cap as normalizeEntry (lib/normalize.ts) — more would be silently dropped on the next load. */
+const MAX_BULLETS = 60
+const limitToast = () => toast(`An entry can hold up to ${MAX_BULLETS} bullets — split it into another entry for more.`, 'info', { duration: 6000 })
 
 export function BulletsEditor({ sectionId, entry, label, hint, className }: { sectionId: string; entry: Entry; label: string; hint?: string; className?: string }) {
   const { ref, flash } = useFieldFocus<HTMLDivElement>({ sectionId, entryId: entry.id, field: 'bullets' })
@@ -34,6 +37,7 @@ export function BulletsEditor({ sectionId, entry, label, hint, className }: { se
     })
 
   const add = (index = bullets.length, text = '') => {
+    if (bullets.length >= MAX_BULLETS) return limitToast()
     resumeActions.addBullet(sectionId, entry.id, text, index)
     focusBullet(index)
   }
@@ -120,7 +124,8 @@ function BulletRow({ sectionId, entry, index, text, handle, onFocusEl, onAdd, on
       const at = el.selectionStart
       const before = el.value.slice(0, at).trimEnd()
       const after = el.value.slice(el.selectionEnd).trimStart()
-      if (after) {
+      if (count >= MAX_BULLETS) limitToast()
+      else if (after) {
         const bullets = [...entry.bullets]
         bullets.splice(index, 1, before, after)
         resumeActions.updateEntry(sectionId, entry.id, { bullets }, null)
@@ -142,7 +147,7 @@ function BulletRow({ sectionId, entry, index, text, handle, onFocusEl, onAdd, on
   const onPaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
     const raw = e.clipboardData.getData('text')
     if (!/\r?\n/.test(raw.trim())) return
-    const lines = raw
+    let lines = raw
       .split(/\r?\n/)
       .map((l) => l.replace(MARKER, '').trim())
       .filter(Boolean)
@@ -152,6 +157,14 @@ function BulletRow({ sectionId, entry, index, text, handle, onFocusEl, onAdd, on
     const value = el.value
     const bullets = [...entry.bullets]
     const whole = el.selectionStart === 0 && el.selectionEnd === value.length
+    const inserts = value.trim() && !whole && el.selectionStart === el.selectionEnd && (el.selectionStart === 0 || el.selectionStart >= value.trimEnd().length)
+    // Pasted lines become bullets; keep within the per-entry cap (replacing this bullet frees one slot).
+    const room = MAX_BULLETS - bullets.length + (inserts ? 0 : 1)
+    if (lines.length > room) {
+      limitToast()
+      if (room <= 0) return
+      lines = lines.slice(0, room)
+    }
     if (value.trim() && !whole && el.selectionStart === el.selectionEnd && el.selectionStart >= value.trimEnd().length) {
       // Caret at the end of a non-empty bullet: every pasted line becomes a new bullet after it.
       bullets.splice(index + 1, 0, ...lines)

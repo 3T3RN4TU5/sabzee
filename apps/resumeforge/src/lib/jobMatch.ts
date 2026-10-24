@@ -177,18 +177,18 @@ const CAPS_NAME = String.raw`[A-Z0-9][\w&.'’-]*(?:[ \t]+(?:&[ \t]+)?[A-Z0-9][\
 const tidy = (s: string) =>
   s
     .replace(/\s+/g, ' ')
-    .replace(/^[\s\-–—:|,]+|[\s\-–—:|,.!]+$/g, '')
+    .replace(/^[\s\-–—:|,]+|(?<![\s\-–—:|,.!])[\s\-–—:|,.!]+$/g, '')
     .trim()
 
 function validCompany(name: string | undefined): string {
   // "Swiggy, Bangalore" / "Razorpay (Bengaluru, Hybrid)" / "Acme · Remote" → just the name
-  const n = tidy((name ?? '').split(/\s*[,(|·•[]\s*|\s+[-–—]\s+/)[0])
+  const n = tidy((name ?? '').split(/(?<!\s)\s*[,(|·•[]\s*|(?<!\s)\s+[-–—]\s+/)[0])
   if (!n || n.length > 60 || NOT_COMPANY.test(n) || NOT_COMPANY.test(n.split(' ')[0]) || ROLE_WORD.test(n)) return ''
   return n
 }
 
 function validRole(role: string | undefined): string {
-  const r = tidy(role ?? '').replace(/\s*\((?:m\/f\/d|f\/m\/d|all genders?)\)\s*$/i, '')
+  const r = tidy(role ?? '').replace(/(?<!\s)\s*\((?:m\/f\/d|f\/m\/d|all genders?)\)\s*$/i, '')
   if (!r || r.length > 80 || r.split(' ').length > 8 || !ROLE_WORD.test(r)) return ''
   return r
 }
@@ -214,7 +214,7 @@ export function extractJobInfo(jd: string): { company: string; role: string } {
   // Title line: "Senior Frontend Engineer — Acme Corp" / "… at Acme Corp" / "Acme Corp | Senior …"
   for (const l of lines.slice(0, 4)) {
     if (role && company) break
-    const parts = l.split(/\s+(?:[-–—|@·]|at)\s+/i)
+    const parts = l.split(/(?<!\s)\s+(?:[-–—|@·]|at)\s+/i)
     if (parts.length >= 2) {
       const [a, b] = parts
       if (validRole(a) && !validRole(b)) {

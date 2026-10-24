@@ -37,7 +37,7 @@ export function templatePlaceholders(pattern: string): string[] {
 export function fillTemplate(pattern: string, values: Record<string, string>): string {
   const out = pattern
     .replace(PLACEHOLDER_RE, (whole, name: string, offset: number) => {
-      let v = values[name]?.trim().replace(/[.;,]+$/, '')
+      let v = values[name]?.trim().replace(/(?<![.;,])[.;,]+$/, '')
       if (!v) return whole
       // "… by [what you did]" filled with "by rebuilding X" → don't repeat the joining word
       const before = pattern.slice(0, offset).match(/\b(by|to|for|with|in|across|serving|of)\s*$/i)?.[1]
@@ -46,7 +46,7 @@ export function fillTemplate(pattern: string, values: Record<string, string>): s
       return offset > 0 && /^[A-Z][a-z]+(?:\s|$)/.test(v) ? v.charAt(0).toLowerCase() + v.slice(1) : v
     })
     .replace(/\s{2,}/g, ' ')
-    .replace(/\s+([,.;])/g, '$1')
+    .replace(/(?<!\s)\s+([,.;])/g, '$1')
     .trim()
   return out.charAt(0).toUpperCase() + out.slice(1)
 }

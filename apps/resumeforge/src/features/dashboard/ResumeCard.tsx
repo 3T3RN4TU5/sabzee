@@ -18,7 +18,7 @@ export function ResumeCard({ doc, now }: { doc: ResumeDoc; now: number }) {
   const remove = async () => {
     const ok = await confirmDialog({
       title: `Delete “${doc.name}”?`,
-      message: `This permanently removes the resume${doc.snapshots.length ? `, its ${doc.snapshots.length} saved version${doc.snapshots.length === 1 ? '' : 's'}` : ''} and its cover letter from this browser. Export a JSON backup first if you might need it again.`,
+      message: `This removes the resume${doc.snapshots.length ? `, its ${doc.snapshots.length} saved version${doc.snapshots.length === 1 ? '' : 's'}` : ''} and its cover letter from this browser. You can undo it for a few seconds; after that it is gone for good, so export a JSON backup first if you might need it again.`,
       confirmLabel: 'Delete resume',
       danger: true,
     })
@@ -33,13 +33,23 @@ export function ResumeCard({ doc, now }: { doc: ResumeDoc; now: number }) {
     })
     toast(`Deleted “${doc.name}”`, 'info', {
       duration: 8000,
-      action: deleted ? { label: 'Undo', onClick: () => (resumeActions.restoreResume(deleted), toast(`Restored “${doc.name}”`, 'success')) } : undefined,
+      action: deleted
+        ? {
+            label: 'Undo',
+            onClick: () => {
+              resumeActions.restoreResume(deleted)
+              toast(`Restored “${doc.name}”`, 'success')
+              // Return focus to the restored card (the toast button that had it is about to go away).
+              requestAnimationFrame(() => document.querySelector<HTMLElement>(`article[data-resume-id="${CSS.escape(doc.id)}"] [data-card-name]`)?.focus())
+            },
+          }
+        : undefined,
     })
   }
   const tpl = getTemplate(doc.design.template)
   const hasLetter = doc.coverLetter.body.trim().length > 0
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/5 hover:ring-indigo-300 focus-within:ring-indigo-400 dark:bg-slate-900 dark:ring-slate-800 dark:hover:ring-indigo-500/60" aria-label={doc.name}>
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/5 hover:ring-indigo-300 focus-within:ring-indigo-400 dark:bg-slate-900 dark:ring-slate-800 dark:hover:ring-indigo-500/60" aria-label={doc.name} data-resume-id={doc.id}>
       <button type="button" onClick={open} className="relative block bg-linear-to-b from-slate-100 to-slate-200/70 px-[9%] pt-[8%] outline-none dark:from-slate-800 dark:to-slate-800/60" aria-label={`Open ${doc.name} in the editor`} tabIndex={-1}>
         <LazyMount className="aspect-[210/245] w-full overflow-hidden rounded-t-[3px] shadow-md shadow-slate-900/10">{(w) => <TemplateThumbnail data={doc.data} design={doc.design} width={w} />}</LazyMount>
         <span className="pointer-events-none absolute inset-0 grid place-items-center bg-slate-900/0 opacity-0 transition group-hover:bg-slate-900/10 group-hover:opacity-100">

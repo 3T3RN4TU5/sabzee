@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { MM_TO_PX } from '../../lib/design.ts'
 import { describeFit, fitCandidates, firstFitting, fitPatch, lastPageNearlyEmpty } from '../../lib/fit.ts'
 import type { Design, ResumeData } from '../../lib/types.ts'
-import { resumeActions, toast } from '../../store'
+import { getActiveDoc, resumeActions, toast } from '../../store'
 import { PagedDocument, type LayoutInfo } from '../../templates'
 import { Button, cn } from '../../ui'
 
@@ -124,8 +124,21 @@ export function FitControls({ data, design }: { data: ResumeData; design: Design
         return
       }
       const best = list[at]
-      resumeActions.updateDesign(fitPatch(start, best), null)
-      toast(`Fitted to ${target} page${target === 1 ? '' : 's'}: ${describeFit(start, best)}`, 'success', { duration: 7000, action: { label: 'Undo', onClick: () => resumeActions.undo() } })
+      const docId = getActiveDoc()?.id
+      const applied = fitPatch(start, best)
+      resumeActions.updateDesign(applied, null)
+      // Undo restores exactly the settings the fit changed, on the resume it changed — not whatever
+      // happens to be the latest step in the (active resume's) undo history by then.
+      const undoFit = () => {
+        const now = getActiveDoc()
+        if (!now || now.id !== docId) return void toast('Open that resume again to change its layout back', 'info')
+        const restore: Partial<Design> = {}
+        for (const k of Object.keys(applied) as (keyof typeof applied)[]) if (now.design[k] === best[k]) Object.assign(restore, { [k]: start[k] })
+        if (!Object.keys(restore).length) return void toast('Those settings were already changed since', 'info')
+        resumeActions.updateDesign(restore, null)
+        toast('Layout settings restored', 'success')
+      }
+      toast(`Fitted to ${target} page${target === 1 ? '' : 's'}: ${describeFit(start, best)}`, 'success', { duration: 7000, action: { label: 'Undo', onClick: undoFit } })
     } finally {
       if (mounted.current) {
         setTrial(null)
@@ -139,7 +152,7 @@ export function FitControls({ data, design }: { data: ResumeData; design: Design
   const pct = status?.fill != null ? Math.max(1, Math.round(status.fill * 100)) : null
 
   return (
-    <div className={cn('mb-4 rounded-xl px-3 py-2.5 text-xs ring-1', nearlyEmpty ? 'bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-100 dark:ring-amber-500/30' : 'bg-slate-50 text-slate-600 ring-slate-200 dark:bg-slate-800/50 dark:text-slate-300 dark:ring-slate-700')} aria-live="polite">
+    <div className={cn('mb-4 rounded-xl px-3 py-2.5 text-xs ring-1', nearlyEmpty ? 'bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-100 dark:ring-amber-500/30' : 'bg-slate-50 text-slate-600 ring-slate-200 dark:bg-slate-800/50 dark:text-slate-300 dark:ring-slate-700')}>
       {/* Current layout (re-measured as you change the design) */}
       <LayoutProbe data={data} design={design} onResult={setStatus} />
       {trial && <LayoutProbe key={trial.id} data={data} design={trial.design} onResult={(r) => trial.resolve(r.pages)} />}

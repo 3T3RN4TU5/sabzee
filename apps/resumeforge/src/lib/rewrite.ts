@@ -74,9 +74,42 @@ export function rewriteWeakOpener(text: string, verb: string): string | null {
   let rest = t.slice(m[0].length).trimStart()
   const derived = derivedVerb(t)
   if (derived && derived.toLowerCase() === verb.trim().toLowerCase()) {
+    // "planning and executing launches" → "Planned and executed launches" (every gerund in the chain)
+    const chain = gerundChainToPast(rest)
+    if (chain !== null) return cap(chain)
+    // an unknown verb later in the chain: swap just the hidden verb (issueFixes won't offer this)
     rest = rest.replace(/^[A-Za-z]+\s*/, '')
   }
   return rest ? `${cap(verb.trim())} ${rest}` : cap(verb.trim())
+}
+
+const CHAIN_SEP = /^(?:\s*,\s*(?:(?:and|or)\s+)?|\s+(?:and|or|&)\s+)/i
+
+/**
+ * Turn a leading run of gerunds joined by commas / "and" / "or" into the past tense:
+ * "designing, building and testing the API" → "designed, built and tested the API".
+ * Null when one of the gerunds is not a known verb (the result would mix tenses).
+ */
+export function gerundChainToPast(text: string): string | null {
+  let out = ''
+  let rest = text
+  // the chain is all gerunds ("planning and executing") or all bare verbs ("Helped migrate and test")
+  const firstWord = text.match(/^[A-Za-z]+/)?.[0] ?? ''
+  const gerunds = /[a-z]{2,}ing$/i.test(firstWord)
+  const sameForm = (w: string) => (gerunds ? /[a-z]{2,}ing$/i.test(w) : VERB_FORMS.get(w.toLowerCase())?.base === w.toLowerCase())
+  for (;;) {
+    const w = rest.match(/^[A-Za-z]+/)?.[0]
+    const base = w ? verbBase(w) : null
+    if (!w || !base) return null
+    out += pastTense(base)
+    rest = rest.slice(w.length)
+    const sep = rest.match(CHAIN_SEP)?.[0]
+    const nextWord = sep ? rest.slice(sep.length).match(/^[A-Za-z]+/)?.[0] : undefined
+    if (!sep || !nextWord || !sameForm(nextWord)) break
+    out += sep
+    rest = rest.slice(sep.length)
+  }
+  return out + rest
 }
 
 /** Lower-case a sentence-initial common word so it can follow a verb ("Payment API" → "payment API"). */
@@ -144,8 +177,14 @@ export function issueFixes(issue: Pick<Issue, 'rule' | 'suggestions'>, text: str
   let suggestions = [...(issue.suggestions ?? [])]
   if (issue.rule === 'weak-verb' && text) {
     const d = derivedVerb(text)
+    const copyOnly = suggestions.map((label) => ({ label, value: null }))
     // "Responsible for building X" → only "Built X"; "Led building X" would be ungrammatical
-    if (d) suggestions = [d]
+    if (d) {
+      const value = gerundChainToPast(afterOpener(text) ?? '') === null ? null : rewriteWeakOpener(text, d)
+      // "planning and reconciling" — an unknown verb later in the chain: no safe rewrite
+      return value ? [{ label: d, value }] : copyOnly
+    }
+    if (detectWeakOpener(text.trim())?.copyOnly) return copyOnly
     else if (/^[a-z]{3,}ing\b/i.test(afterOpener(text) ?? '')) {
       // an unknown gerund ("Responsible for reconciling") — no safe automatic rewrite
       return suggestions.map((label) => ({ label, value: null }))

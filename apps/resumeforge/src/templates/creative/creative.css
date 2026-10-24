@@ -253,7 +253,7 @@
 .rf-t-creative .cr-contact__text {
   min-width: 0;
   line-height: 1.3;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   color: var(--rf-text);
 }
 .rf-t-creative .cr-contact--labels .cr-contact__item {

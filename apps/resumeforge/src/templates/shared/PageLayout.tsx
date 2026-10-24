@@ -15,7 +15,8 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { distribute, samePages, zipColumns, type MeasuredBlock } from '../../lib/paginate.ts'
+import { samePages, zipColumns, type MeasuredBlock } from '../../lib/paginate.ts'
+import { distributeKept } from './keep.ts'
 import { mmToPx } from '../../lib/templateData.ts'
 import type { Block, PageLayoutProps } from '../types.ts'
 import { useDocContext } from './context.ts'
@@ -80,14 +81,15 @@ export function PageLayout({ header, main, side = [], page, bottom, gaps }: Page
     const sideH = hasSideCol ? heights('side') : []
     const mainAvail = avail('main')
     const sideAvail = avail('side')
-    const mainPages = distribute(mainH, mainAvail)
-    const sidePages = sideH.length ? distribute(sideH, sideAvail) : [[]]
+    const keeps = (bs: Block[], n: number) => (bs.length === n ? bs.map((b) => !!b.keepWithNext) : [])
+    const mainPages = distributeKept(mainH, keeps(mainBlocks, mainH.length), mainAvail)
+    const sidePages = sideH.length ? distributeKept(sideH, keeps(sideBlocks, sideH.length), sideAvail) : [[]]
     let pages = zipColumns({ main: mainPages, side: sidePages })
     const tooTall = (cols: number[][], hs: MeasuredBlock[], av: (p: number) => number) => cols.some((idx, p) => idx.length === 1 && hs[idx[0]].height - hs[idx[0]].gap > av(p) + 0.5)
     const overflow = tooTall(mainPages, mainH, mainAvail) || (sideH.length > 0 && tooTall(sidePages, sideH, sideAvail))
     if (maxPages && pages.length > maxPages) pages = pages.slice(0, maxPages)
     setModel((prev) => (prev && prev.overflow === overflow && samePages(prev.pages, pages) ? prev : { pages, overflow }))
-  }, [paper.heightPx, bottomPx, maxPages, sideBlocks.length, meta.id])
+  }, [paper.heightPx, bottomPx, maxPages, mainBlocks, sideBlocks, meta.id])
 
   // Re-measure after every render (content, design and template changes all re-render).
   useLayoutEffect(() => {

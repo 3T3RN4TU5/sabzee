@@ -4,11 +4,14 @@
  *   whole(section) ≠ undef → 1 block: heading + that node (chip clouds, compact lists …)
  *   otherwise              → heading + first entry, then one block per entry
  * The last block of a section gets gap 'section', the others 'entry'.
+ * Short lists (≤ SHORT_LIST_MAX one-line-ish entries: languages, certifications …) are kept on one page
+ * (`keepWithNext`), so a lone item is never stranded on the next page apart from its heading.
  */
 import type { ReactNode } from 'react'
 import type { EntryView, SectionView } from '../../lib/templateData.ts'
 import type { Block } from '../types.ts'
 import { DefaultEntry } from './entries.tsx'
+import { isShortList } from './keep.ts'
 import { RichParagraphs } from './Rich.tsx'
 
 export interface BlockRenderers {
@@ -40,6 +43,7 @@ export function sectionsToBlocks(sections: SectionView[], r: BlockRenderers): Bl
       blocks.push({ key: `${s.id}:all`, sectionId: s.id, gap: 'section', letter: r.letter, node: wrap(<>{r.heading(s)}{whole}</>, { section: s, first: true, last: true }) })
       continue
     }
+    const keep = isShortList(s)
     s.entries.forEach((e, i) => {
       const body = r.entry ? r.entry(e, s, i) : <DefaultEntry entry={e} />
       const first = i === 0
@@ -49,6 +53,7 @@ export function sectionsToBlocks(sections: SectionView[], r: BlockRenderers): Bl
         sectionId: s.id,
         entryId: e.id,
         gap: last ? 'section' : 'entry',
+        keepWithNext: keep && !last ? true : undefined,
         letter: r.letter,
         node: wrap(first ? <>{r.heading(s)}{body}</> : body, { section: s, entry: e, first, last }),
       })

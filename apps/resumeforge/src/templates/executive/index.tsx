@@ -19,6 +19,7 @@ import {
   Rich,
   RichParagraphs,
   contactEntries,
+  contactGridFits,
   cx,
   displayName,
   hasPhoto,
@@ -94,16 +95,19 @@ function MainEntry({ e }: { e: EntryView }) {
   const link = e.url ? <EntryLink entry={e} className="ex-link" /> : null
   const right = e.date ? <span className="ex-date">{e.date}</span> : link
   const lowLink = e.date ? link : null
+  // no title (e.g. "Company Only"): the organisation moves up to the title line, beside the date
+  const title = e.title || e.subtitle
+  const promoted = !e.title && !!e.subtitle
   const org = [
-    e.subtitle && <span key="sub" className="ex-org">{e.subtitle}</span>,
+    !promoted && e.subtitle && <span key="sub" className="ex-org">{e.subtitle}</span>,
     e.location && <span key="loc" className="ex-loc">{e.location}</span>,
     e.meta && <span key="meta" className="ex-meta">{e.meta}</span>,
   ].filter(Boolean)
   return (
     <div className={cx('ex-entry', `ex-entry--${e.kind}`)}>
-      {(e.title || right) && (
+      {(title || right) && (
         <div className="ex-line">
-          <div className="ex-line__l">{e.title && <span className="ex-title">{e.title}</span>}</div>
+          <div className="ex-line__l">{title && <span className="ex-title">{title}</span>}</div>
           {right && <div className="ex-line__r">{right}</div>}
         </div>
       )}
@@ -231,7 +235,10 @@ export default function Executive({ data, design, main, headingCase }: TemplateP
   const name = displayName(b)
   const title = b.title.trim()
   const photo = hasPhoto(b, design)
-  const hasContact = contactEntries(b).length > 0
+  const contacts = contactEntries(b)
+  // long emails/URLs don't fit the two-column block at the right: put them in a row under the title instead
+  const contactsBelow = contacts.length > 0 && !contactGridFits(contacts)
+  const hasContact = contacts.length > 0 && !contactsBelow
   // rules, bullets and bars: the accent, deepened just enough to stay visible (3:1) on white
   const frame = { '--ex-mark': ensureContrast(design.accent, '#ffffff', 3) } as CSSProperties
 
@@ -241,6 +248,7 @@ export default function Executive({ data, design, main, headingCase }: TemplateP
       <div className="ex-id">
         <h1 className="ex-name">{name}</h1>
         {title && <div className="ex-role">{title}</div>}
+        {contactsBelow && <ContactList basics={b} layout="inline" className="ex-contact ex-contact--below" iconSize="0.95em" />}
       </div>
       {hasContact && (
         <div className="ex-reach">

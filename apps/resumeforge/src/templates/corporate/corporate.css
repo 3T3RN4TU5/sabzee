@@ -77,6 +77,13 @@
 .rf-t-corporate .co-contact .rf-contact__item {
   gap: 0.5em;
 }
+/* long contacts: a wrapping row under the title, using the full header width */
+.rf-t-corporate .co-contact--below {
+  max-width: none;
+  margin-top: 0.7em;
+  column-gap: 1.3em;
+  row-gap: 0.25em;
+}
 
 .rf-t-corporate .co-rule {
   height: 5px;

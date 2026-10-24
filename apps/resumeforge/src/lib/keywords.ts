@@ -42,6 +42,7 @@ const KEEP_WHOLE = new Set(['.net', 'c++', 'c#', 'ci/cd', 'ui/ux', 'a/b', 'node.
 /** List markers at the start of a line: "* ", "- ", "• ", "1. ", "2) ", "(a) ", "a. ". */
 const LIST_MARKER = /^\s*(?:[*•·▪◦‣➢➤►✓✔>+\-–—]+|\(?\d{1,2}[.)]|\(?[a-zA-Z][.)])\s+/
 const SEPARATOR = /^[\s,;:!?()[\]{}"“”‘’|•·–—]+$/
+const COMPOUND_SUFFIX = /^(.*[\p{L}\p{N}+#])-(based|driven|hosted|native|powered|backed|enabled|centric|first|heavy|focused|oriented|friendly|managed|compatible|integrated)$/iu
 
 export function tokenize(text: string): Token[] {
   const out: Token[] = []
@@ -59,15 +60,18 @@ export function tokenize(text: string): Token[] {
       }
       let raw = part
       const endsSentence = /[.!?]$/.test(raw) && !/^(e\.g|i\.e|etc)\.?$/i.test(raw)
-      raw = raw.replace(/^['".]+(?!net\b)|['".\-/&]+$/gi, '')
+      raw = raw.replace(/^['".]+(?!net\b)|(?<!['".\-/&])['".\-/&]+$/gi, '')
       if (!raw || !/[\p{L}\p{N}]/u.test(raw)) {
-        // stray punctuation ("*", "/", "&") — skip without consuming the sentence start
+        // stray punctuation ("*", "/", "&", a spaced " - ") — skip without consuming the sentence start
         if (endsSentence) sentenceStart = true
-        if (raw || endsSentence) breakBefore = true
+        breakBefore = true
         continue
       }
       const lower = raw.toLowerCase()
-      const pieces = KEEP_WHOLE.has(lower) || ALIAS_INDEX.has(lower) || !/[/&]/.test(raw) ? [raw] : raw.split(/[/&]/).filter(Boolean)
+      const whole = KEEP_WHOLE.has(lower) || ALIAS_INDEX.has(lower)
+      // "Kafka-based", "AWS-hosted", "Python-powered" → the tool name plus the suffix word
+      const compound = whole ? null : COMPOUND_SUFFIX.exec(raw)
+      const pieces = compound ? [compound[1], compound[2]] : whole || !/[/&]/.test(raw) ? [raw] : raw.split(/[/&]/).filter(Boolean)
       pieces.forEach((p, k) => {
         out.push({ norm: p.toLowerCase(), raw: p, line, sentenceStart, breakBefore: breakBefore || k > 0 })
         sentenceStart = false
@@ -331,7 +335,9 @@ export function suggestPlacement(k: Keyword): string {
 }
 
 export function yearsRequired(jd: string): number | null {
-  const m = /(\d{1,2})\s*\+?\s*(?:-|–|to)?\s*(?:\d{1,2})?\s*\+?\s*years?/i.exec(jd)
+  // Bounded, non-overlapping whitespace runs keep this linear: four adjacent unbounded `\s*`
+  // (the old pattern) backtracked O(n⁴) on long whitespace runs after a digit.
+  const m = /(?<!\d)(\d{1,2})[ \t]{0,3}\+?[ \t]{0,3}(?:(?:-|–|to)[ \t]{0,3}\d{1,2}[ \t]{0,3}\+?[ \t]{0,3})?years?\b/i.exec(jd)
   return m ? Number(m[1]) : null
 }
 

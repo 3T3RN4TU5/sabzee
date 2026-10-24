@@ -19,6 +19,8 @@ export interface ThrottledStorage extends StateStorage {
 export function createThrottledStorage(getBackend: () => Storage | undefined, delay = 400): ThrottledStorage {
   const pending = new Map<string, string>()
   let timer: ReturnType<typeof setTimeout> | null = null
+  /** Keys whose last write failed → the value that failed (retried on every later flush). */
+  const failed = new Map<string, string>()
   const failing = new Set<string>()
   const storage: ThrottledStorage = {
     onError: null,
@@ -26,6 +28,7 @@ export function createThrottledStorage(getBackend: () => Storage | undefined, de
     failing,
     getItem: (name) => {
       if (pending.has(name)) return pending.get(name)!
+      if (failed.has(name)) return failed.get(name)!
       try {
         return getBackend()?.getItem(name) ?? null
       } catch {
@@ -38,30 +41,45 @@ export function createThrottledStorage(getBackend: () => Storage | undefined, de
     },
     removeItem: (name) => {
       pending.delete(name)
+      failed.delete(name)
       failing.delete(name)
       try {
         getBackend()?.removeItem(name)
       } catch {
         /* ignore */
       }
+      // Removing a key may be what frees the space another key needed.
+      if (failed.size) storage.flush()
     },
     flush: () => {
       if (timer) {
         clearTimeout(timer)
         timer = null
       }
-      if (!pending.size) return
-      const backend = getBackend()
-      for (const [k, v] of pending) {
+      if (!pending.size && !failed.size) return
+      // Retry earlier failures too: a key that failed while storage was full must not stay
+      // "not saved" forever just because nothing re-wrote it after space was freed.
+      const batch = new Map([...failed, ...pending])
+      pending.clear()
+      let backend: Storage | undefined
+      try {
+        backend = getBackend()
+      } catch {
+        backend = undefined
+      }
+      for (const [k, v] of batch) {
         try {
-          backend?.setItem(k, v)
+          if (!backend) throw new Error('Browser storage is unavailable')
+          backend.setItem(k, v)
+          failed.delete(k)
           failing.delete(k)
         } catch (e) {
+          const isNew = !failed.has(k) || failed.get(k) !== v
+          failed.set(k, v)
           failing.add(k)
-          storage.onError?.(e)
+          if (isNew) storage.onError?.(e)
         }
       }
-      pending.clear()
       storage.onStatus?.(failing.size === 0)
     },
   }

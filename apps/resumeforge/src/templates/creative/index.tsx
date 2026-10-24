@@ -16,6 +16,7 @@ import {
   Photo,
   RichParagraphs,
   contactEntries,
+  ContactText,
   cx,
   displayName,
   hasPhoto,
@@ -105,10 +106,12 @@ function ContactBlock({ basics, icons }: { basics: Basics; icons: boolean }) {
           )}
           {c.href ? (
             <a className="rf-link cr-contact__text" href={c.href} target="_blank" rel="noopener noreferrer">
-              {c.value}
+              <ContactText entry={c} />
             </a>
           ) : (
-            <span className="cr-contact__text">{c.value}</span>
+            <span className="cr-contact__text">
+              <ContactText entry={c} />
+            </span>
           )}
         </li>
       ))}

@@ -78,6 +78,8 @@ export interface Block {
   gap?: 'entry' | 'section' | 'none' | number
   /** Also show this block in cover-letter mode (contact details, photo …). */
   letter?: boolean
+  /** Never end a page after this block: it moves to the next page with the block that follows (short lists). */
+  keepWithNext?: boolean
 }
 
 /** What a template's `page` render function receives for every page. */

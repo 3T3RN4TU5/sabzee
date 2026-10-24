@@ -16,6 +16,7 @@ import {
   Rich,
   RichParagraphs,
   contactEntries,
+  contactGridFits,
   cx,
   displayName,
   hasPhoto,
@@ -223,6 +224,9 @@ export default function Corporate({ data, design, main }: TemplateProps) {
   const b = data.basics
   const name = displayName(b)
   const photo = hasPhoto(b, design)
+  const contacts = contactEntries(b)
+  // long emails/URLs don't fit a two-column grid beside the name: put them in a row under the title instead
+  const contactsBelow = contacts.length > 0 && !contactGridFits(contacts)
 
   const header = (
     <header className="co-header">
@@ -232,9 +236,10 @@ export default function Corporate({ data, design, main }: TemplateProps) {
           <div className="co-ident__text">
             <h1 className="co-name">{name}</h1>
             {b.title.trim() && <div className="co-role">{b.title}</div>}
+            {contactsBelow && <ContactList basics={b} layout="inline" className="co-contact co-contact--below" iconSize="0.95em" />}
           </div>
         </div>
-        {contactEntries(b).length > 0 && <ContactList basics={b} layout="grid" className="co-contact" iconSize="0.95em" />}
+        {contacts.length > 0 && !contactsBelow && <ContactList basics={b} layout="grid" className="co-contact" iconSize="0.95em" />}
       </div>
       <div className="co-rule" aria-hidden="true" />
     </header>

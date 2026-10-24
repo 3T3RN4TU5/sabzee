@@ -5,6 +5,6 @@ export function printFilename(name: string, suffix = 'Resume'): string {
     .replace(/[̀-ͯ]/g, '')
     .replace(/^(dr|mr|mrs|ms|prof)\.?\s+/i, '')
     .replace(/[^A-Za-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
+    .replace(/^_+|(?<!_)_+$/g, '')
   return base ? `${base}_${suffix}` : suffix
 }

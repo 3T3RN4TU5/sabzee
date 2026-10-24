@@ -176,7 +176,7 @@ const plainText = (runs: DocxRun[]) => runs.map((r) => (r.breakBefore ? '\n' : '
 /** Linkify a reference contact / meta value when it is an email or URL. */
 function maybeLink(text: string, base: Omit<DocxRun, 'text'> = {}): DocxRun[] {
   const t = text.trim()
-  const href = /^\S+@\S+\.\S+$|^(https?:\/\/|www\.)\S+$|^[\w-]+(\.[\w-]+)+\/\S*$/i.test(t) ? sanitizeUrl(t) : null
+  const href = /^[^\s@]+@[^\s@]+\.\S+$|^(https?:\/\/|www\.)\S+$|^[\w-]+(\.[\w-]+)+\/\S*$/i.test(t) ? sanitizeUrl(t) : null
   return [{ ...base, text: t, ...(href ? { href } : {}) }]
 }
 

@@ -85,6 +85,12 @@
 .rf-t-executive .ex-contact .rf-contact__item {
   gap: 0.5em;
 }
+/* long contacts: a wrapping row under the title, using the full width of the band */
+.rf-t-executive .ex-contact--below {
+  margin-top: 0.85em;
+  column-gap: 1.3em;
+  row-gap: 0.3em;
+}
 
 /* ---------- continuation band (pages 2+) ---------- */
 

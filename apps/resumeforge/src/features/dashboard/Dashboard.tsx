@@ -200,7 +200,7 @@ function TemplateShowcase() {
           <p className="text-xs text-slate-500 dark:text-slate-400">Every template reads cleanly in applicant-tracking systems. Switch any time — your content stays.</p>
         </div>
       </div>
-      <ul className="rf-scroll -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0">
+      <ul className="rf-scroll -mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:scroll-px-0 sm:px-0">
         {TEMPLATES.map((t) => (
           <li key={t.id} className="w-40 shrink-0 snap-start sm:w-48">
             <button type="button" onClick={() => newResume({ template: t.id, starter: 'developer' })} className="group block w-full rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-indigo-500" aria-label={`Use the ${t.name} template`}>

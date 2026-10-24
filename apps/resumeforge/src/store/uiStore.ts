@@ -124,6 +124,13 @@ const get = useUiStore.getState
 
 let toastSeq = 0
 
+/** Keep at most `max` timed toasts (the newest); sticky ones (duration 0, e.g. "storage is full") are never evicted. */
+function capToasts(toasts: Toast[], max: number): Toast[] {
+  const timed = toasts.filter((t) => t.duration !== 0)
+  const drop = new Set(timed.slice(0, Math.max(0, timed.length - max)))
+  return toasts.filter((t) => !drop.has(t))
+}
+
 export const ZOOM_LIMITS = { min: 0.3, max: 2, step: 0.1 }
 
 export const uiActions = {
@@ -147,7 +154,7 @@ export const uiActions = {
   toast(message: string, kind: ToastKind = 'info', opts: { duration?: number; action?: ToastAction } = {}): string {
     const id = `t${++toastSeq}`
     const duration = opts.duration ?? (kind === 'error' ? 6000 : 3500)
-    set((s) => ({ toasts: [...s.toasts.slice(-3), { id, message, kind, action: opts.action, duration }] }))
+    set((s) => ({ toasts: [...capToasts(s.toasts, 3), { id, message, kind, action: opts.action, duration }] }))
     if (duration > 0) setTimeout(() => uiActions.dismissToast(id), duration)
     return id
   },
@@ -189,13 +196,21 @@ export const uiActions = {
 
 let saveToastId: string | null = null
 const SAVE_ERROR_MESSAGE = 'Changes are not being saved — browser storage is full. Delete old versions or resumes, or export a backup (Download → JSON).'
+const STORAGE_BLOCKED_MESSAGE = 'Changes are not being saved — this browser is blocking site storage (private mode or privacy settings). Export a backup (Download → JSON) before you close the tab.'
+const storageBlocked = (): boolean => {
+  try {
+    return typeof localStorage === 'undefined' || !localStorage
+  } catch {
+    return true
+  }
+}
 
 persistStorage.onStatus = (ok) => {
   const was = get().saveError
   if (ok === !was) return
   set({ saveError: !ok })
   if (!ok) {
-    saveToastId = uiActions.toast(SAVE_ERROR_MESSAGE, 'error', { duration: 0 })
+    saveToastId = uiActions.toast(storageBlocked() ? STORAGE_BLOCKED_MESSAGE : SAVE_ERROR_MESSAGE, 'error', { duration: 0 })
   } else {
     if (saveToastId) uiActions.dismissToast(saveToastId)
     saveToastId = null

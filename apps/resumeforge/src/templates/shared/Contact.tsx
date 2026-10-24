@@ -2,7 +2,7 @@ import { Fragment, type CSSProperties, type ReactNode } from 'react'
 import type { Basics } from '../../lib/types.ts'
 import { useOptionalDocContext } from './context.ts'
 import { ContactIcon } from './icons.tsx'
-import { contactEntries, cx, type ContactKey } from './utils.ts'
+import { breakChunks, contactEntries, cx, type ContactEntry, type ContactKey } from './utils.ts'
 
 export interface ContactListProps {
   basics: Basics
@@ -16,6 +16,8 @@ export interface ContactListProps {
   include?: ContactKey[]
   /** Render anchors (default true). */
   links?: boolean
+  /** Print long URLs in full instead of shortening them (default false). */
+  full?: boolean
   iconSize?: number | string
   /** Icon colour (default currentColor). */
   iconColor?: string
@@ -25,10 +27,30 @@ export interface ContactListProps {
 }
 
 /**
+ * A contact value for display: long URLs shortened (unless `full`), and emails/URLs given line-break
+ * opportunities only after "/", ".", "@", "-" … (see `breakChunks`) so narrow columns never split a word.
+ */
+export function ContactText({ entry, full = false }: { entry: Pick<ContactEntry, 'key' | 'value' | 'short'>; full?: boolean }) {
+  const text = full ? entry.value : entry.short
+  if (entry.key === 'phone' || entry.key === 'location') return <>{text}</>
+  const chunks = breakChunks(text)
+  return (
+    <>
+      {chunks.map((c, i) => (
+        <Fragment key={i}>
+          {i > 0 && <wbr />}
+          {c}
+        </Fragment>
+      ))}
+    </>
+  )
+}
+
+/**
  * Contact details with optional lucide icons. Classes: .rf-contact (+ --inline/--stack/--grid),
  * .rf-contact__item, .rf-contact__icon, .rf-contact__sep, .rf-contact__text.
  */
-export function ContactList({ basics, showIcons, layout = 'inline', separator = '·', include, links = true, iconSize = '1em', iconColor, className, itemClassName, style }: ContactListProps) {
+export function ContactList({ basics, showIcons, layout = 'inline', separator = '·', include, links = true, full = false, iconSize = '1em', iconColor, className, itemClassName, style }: ContactListProps) {
   const ctx = useOptionalDocContext()
   const icons = showIcons ?? ctx?.design.showIcons ?? true
   const items = contactEntries(basics, include)
@@ -38,10 +60,12 @@ export function ContactList({ basics, showIcons, layout = 'inline', separator = 
       {items.map((c, i) => {
         const text = links && c.href ? (
           <a className="rf-contact__text rf-link" href={c.href} target="_blank" rel="noopener noreferrer">
-            {c.value}
+            <ContactText entry={c} full={full} />
           </a>
         ) : (
-          <span className="rf-contact__text">{c.value}</span>
+          <span className="rf-contact__text">
+            <ContactText entry={c} full={full} />
+          </span>
         )
         return (
           <Fragment key={c.key}>

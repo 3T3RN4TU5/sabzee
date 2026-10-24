@@ -51,8 +51,10 @@ const PANEL_KEYS: Record<string, EditorPanel> = { Digit1: 'content', Digit2: 'de
 export function useEditorShortcuts(enabled: boolean): void {
   useEffect(() => {
     if (!enabled) return
+    const offNative = trackNativeUndoFields()
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented) return
+      if (guardNativeUndo(e)) return
       const ui = useUiStore.getState()
       if (ui.modal || ui.confirm) return
       const mod = e.metaKey || e.ctrlKey
@@ -70,7 +72,6 @@ export function useEditorShortcuts(enabled: boolean): void {
       if (!mod || e.altKey) return
       const target = e.target as HTMLElement | null
       if (target?.closest?.('[data-native-undo]')) return
-      if (isTypingTarget(target) && target?.closest?.('[role="dialog"]')) return
       const k = e.key.toLowerCase()
       if (k === 'z' && !e.shiftKey) {
         e.preventDefault()
@@ -80,12 +81,72 @@ export function useEditorShortcuts(enabled: boolean): void {
         if (!resumeActions.redo()) toast('Nothing to redo')
       } else if (k === 's') {
         e.preventDefault()
-        toast('All changes are saved automatically in this browser', 'success')
+        if (useUiStore.getState().saveError) toast('Changes are NOT being saved in this browser right now — export a backup (Download → JSON)', 'error')
+        else toast('All changes are saved automatically in this browser', 'success')
       }
     }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      offNative()
+    }
   }, [enabled])
+}
+
+type TextField = HTMLInputElement | HTMLTextAreaElement
+
+/** A text field that keeps its own (browser-native) undo: `data-native-undo` or any text field in a dialog. */
+function nativeUndoField(target: EventTarget | null): TextField | null {
+  const el = target as HTMLElement | null
+  if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)) return null
+  if (el.closest('[data-native-undo]') || (isTypingTarget(el) && el.closest('[role="dialog"]'))) return el
+  return null
+}
+
+/** The focused native-undo field's state since it got focus: its value then, and how many native undos are redoable. */
+let session: { el: TextField; initial: string; undone: number } | null = null
+
+function trackNativeUndoFields(): () => void {
+  const onFocus = (e: FocusEvent) => {
+    const el = nativeUndoField(e.target)
+    session = el ? { el, initial: el.value, undone: 0 } : null
+  }
+  const onInput = (e: Event) => {
+    if (!session || e.target !== session.el) return
+    const type = (e as InputEvent).inputType
+    if (type === 'historyUndo') session.undone++
+    else if (type === 'historyRedo') session.undone = Math.max(0, session.undone - 1)
+    else session.undone = 0
+  }
+  document.addEventListener('focusin', onFocus)
+  document.addEventListener('input', onInput, true)
+  const active = nativeUndoField(document.activeElement)
+  session = active ? { el: active, initial: active.value, undone: 0 } : null
+  return () => {
+    document.removeEventListener('focusin', onFocus)
+    document.removeEventListener('input', onInput, true)
+    session = null
+  }
+}
+
+/**
+ * Ctrl/⌘+Z (and redo) in a native-undo field: let the browser undo the field's own edits, but stop
+ * it once they are exhausted — the browser's undo stack is page-wide, so the next native undo would
+ * silently change ANOTHER field (one the store doesn't know about). Returns true when handled.
+ */
+function guardNativeUndo(e: KeyboardEvent): boolean {
+  const mod = e.metaKey || e.ctrlKey
+  if (!mod || e.altKey) return false
+  const el = nativeUndoField(e.target)
+  if (!el) return false
+  const k = e.key.toLowerCase()
+  const isUndo = k === 'z' && !e.shiftKey
+  const isRedo = (k === 'z' && e.shiftKey) || k === 'y'
+  if (!isUndo && !isRedo) return true // other shortcuts (Ctrl+S…) are not ours inside these fields
+  if (!session || session.el !== el) session = { el, initial: el.value, undone: 0 }
+  if (isUndo && el.value === session.initial) e.preventDefault()
+  if (isRedo && session.undone === 0) e.preventDefault()
+  return true
 }
 
 /** Declare what Ctrl+P prints on the current screen. */

@@ -18,6 +18,7 @@ import {
   Rich,
   RichParagraphs,
   contactEntries,
+  contactGridFits,
   cx,
   displayName,
   hasPhoto,
@@ -223,7 +224,10 @@ function interestsNode(s: SectionView): ReactNode {
 export default function Compact({ data, design, main, side, headingCase, isLetter }: TemplateProps) {
   const b = data.basics
   const heading = (s: SectionView) => <h2 className={cx('cp-h', headingCase === 'normal' && 'cp-h--normal')}>{s.title}</h2>
-  const hasContact = contactEntries(b).length > 0
+  const contacts = contactEntries(b)
+  // long emails/URLs don't fit the two-column grid beside the name: put them in a row under the title instead
+  const contactsBelow = contacts.length > 0 && !contactGridFits(contacts)
+  const hasContact = contacts.length > 0
 
   const header = (
     <header className="cp-header">
@@ -231,8 +235,9 @@ export default function Compact({ data, design, main, side, headingCase, isLette
       <div className="cp-id">
         <h1 className="cp-name">{displayName(b)}</h1>
         {b.title.trim() && <div className="cp-title">{b.title}</div>}
+        {contactsBelow && <ContactList basics={b} layout="inline" className="cp-contact cp-contact--below" iconSize="0.95em" />}
       </div>
-      {hasContact && <ContactList basics={b} layout="grid" className="cp-contact" iconSize="0.95em" />}
+      {hasContact && !contactsBelow && <ContactList basics={b} layout="grid" className="cp-contact" iconSize="0.95em" />}
     </header>
   )
 

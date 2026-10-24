@@ -34,7 +34,7 @@ export function fleschReadingEase(sentences: string[]): Readability {
   for (const s of sentences) {
     const ws = words(s)
     if (!ws.length) continue
-    sentenceCount += Math.max(1, (s.match(/[.!?]+(\s|$)/g) ?? []).length)
+    sentenceCount += Math.max(1, (s.match(/(?<![.!?])[.!?]+(\s|$)/g) ?? []).length)
     wordCount += ws.length
     syllableCount += ws.reduce((n, w) => n + (/^\d/.test(w) ? 1 : countSyllables(w)), 0)
   }

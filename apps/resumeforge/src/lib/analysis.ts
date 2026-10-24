@@ -95,10 +95,10 @@ export function detectBuzzwords(text: string): string[] {
 
 /** Misspelled words / wrongly-cased tech terms (URLs and emails are ignored). */
 export function detectSpelling(text: string): { wrong: string; right: string }[] {
-  const cleaned = text.replace(/\b(?:https?:\/\/|www\.)\S+|\S+@\S+|\b[\w-]+\.(?:com|dev|io|app|org|net|ai|in|me|co)(?:\/\S*)?/gi, ' ')
+  const cleaned = text.replace(/\b(?:https?:\/\/|www\.)\S+|(?<![^\s@])[^\s@]+@\S+|\b[\w-]+\.(?:com|dev|io|app|org|net|ai|in|me|co)(?:\/\S*)?/gi, ' ')
   const found = new Map<string, string>()
   for (const tok of cleaned.split(/[^A-Za-z0-9.+#/-]+/)) {
-    const t = tok.replace(/[.,/-]+$/, '')
+    const t = tok.replace(/(?<![.,/-])[.,/-]+$/, '')
     if (SPELLING[t] && SPELLING[t] !== t) found.set(t, SPELLING[t])
   }
   return [...found].map(([wrong, right]) => ({ wrong, right }))
@@ -109,7 +109,7 @@ export function verbTense(text: string): 'past' | 'present' | null {
   if (!w) return null
   const form = VERB_FORMS.get(w)
   if (form) return form.tense
-  if (/[a-z]{3,}ed$/.test(w)) return 'past'
+  if (/(?<![a-z])[a-z]{3,}ed$/.test(w)) return 'past'
   return null
 }
 
@@ -202,9 +202,9 @@ export function analyse(data: ResumeData, opts: { pages?: number | null; now?: D
     if (weakHit) {
       weak++
       add({ rule: 'weak-verb', severity: 'warning', category: 'Language', message: `Weak opener “${openerText(x.text, weakHit)}”`, detail: short(x.text), suggestions: weakHit.suggestions, target: bt(x) })
-    } else if (VERB_FORMS.has(w) || /[a-z]{3,}ed$/.test(w)) {
+    } else if (VERB_FORMS.has(w) || /(?<![a-z])[a-z]{3,}ed$/.test(w)) {
       const base = VERB_FORMS.get(w)?.base ?? w
-      if (STRONG_VERBS.has(base) || /[a-z]{3,}ed$/.test(w)) actionCount++
+      if (STRONG_VERBS.has(base) || /(?<![a-z])[a-z]{3,}ed$/.test(w)) actionCount++
       const list = openers.get(base) ?? []
       list.push(x)
       openers.set(base, list)
