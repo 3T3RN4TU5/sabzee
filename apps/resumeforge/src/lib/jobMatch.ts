@@ -136,6 +136,37 @@ export function pickSkillsEntry(data: ResumeData, category: TermCategory | null)
   return { sectionId: s.id, entryId: e.id }
 }
 
+const GROUP_TITLE: Partial<Record<TermCategory, string>> = {
+  language: 'Languages',
+  frontend: 'Frontend',
+  backend: 'Backend',
+  database: 'Databases',
+  mobile: 'Mobile',
+  data: 'Data',
+  ml: 'Machine learning',
+  security: 'Security',
+  testing: 'Testing',
+}
+
+/**
+ * Where "Add to Skills" should put a keyword: the entry whose title fits the category; for a
+ * technical skill with no fitting group (a data skill when the groups are Languages / Frontend /
+ * Tools), a new group named after the category instead of dumping it into "Tools". A single flat
+ * skills list, or an "Other" group, still takes everything.
+ */
+export function skillsDestination(data: ResumeData, category: TermCategory | null): { sectionId: string; entryId: string } | { sectionId: string; createTitle: string } | null {
+  const sections = data.sections.filter((s) => s.kind === 'skills')
+  const s = sections.find((x) => !x.hidden && x.items.length) ?? sections.find((x) => x.items.length)
+  if (!s) return null
+  const hint = category ? ENTRY_HINTS[category] : undefined
+  const fit = hint && s.items.find((x) => hint.test(x.title))
+  if (fit) return { sectionId: s.id, entryId: fit.id }
+  const title = category ? GROUP_TITLE[category] : undefined
+  const other = s.items.find((x) => /other|misc/i.test(x.title))
+  if (title && !other && s.items.length > 1 && s.items.some((x) => x.title.trim())) return { sectionId: s.id, createTitle: title }
+  return pickSkillsEntry(data, category)
+}
+
 /** Keywords list with `label` appended (no-op when already present, case-insensitive). */
 export function withKeyword(keywords: string[], label: string): string[] {
   return keywords.some((k) => k.trim().toLowerCase() === label.trim().toLowerCase()) ? keywords : [...keywords, label.trim()]
@@ -228,7 +259,7 @@ export function extractJobInfo(jd: string): { company: string; role: string } {
     const h = new RegExp(`^(${CAPS_NAME})[ \\t]+(?:is|are)[ \\t]+(?:hiring|looking for|seeking)[ \\t]+(?:an?[ \\t]+)?([^.!?(\\n]+)`).exec(l)
     if (!h) continue
     company ||= validCompany(h[1])
-    role ||= validRole(h[2].split(/\s+(?:to|in|at|for|who|with|based|on)\s+/i)[0])
+    role ||= validRole(h[2].split(/(?<!\s)\s+(?:to|in|at|for|who|with|based|on)\s+/i)[0])
   }
   // "We are Zeta." / "We at CRED are looking for …" / "We're Acme, a …"
   if (!company) {

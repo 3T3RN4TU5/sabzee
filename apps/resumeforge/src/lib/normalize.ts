@@ -151,9 +151,22 @@ export function normalizeDoc(v: unknown): ResumeDoc {
     design: normalizeDesign(d.design),
     coverLetter: normalizeCoverLetter(d.coverLetter),
     jobDescription: str(d.jobDescription, MAX_JOB_DESCRIPTION),
-    snapshots: arr(d.snapshots)
-      .map(normalizeSnapshot)
-      .filter((s): s is Snapshot => s !== null)
-      .slice(0, 30),
+    snapshots: uniqueSnapshotIds(
+      arr(d.snapshots)
+        .map(normalizeSnapshot)
+        .filter((s): s is Snapshot => s !== null)
+        .slice(0, 30),
+    ),
   }
+}
+
+/** Snapshot ids key the stored photo references — a duplicate would resolve to the wrong photo. */
+function uniqueSnapshotIds(snaps: Snapshot[]): Snapshot[] {
+  const seen = new Set<string>()
+  return snaps.map((s) => {
+    let id = s.id
+    while (seen.has(id)) id = uid()
+    seen.add(id)
+    return id === s.id ? s : { ...s, id }
+  })
 }

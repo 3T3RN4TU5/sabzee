@@ -17,7 +17,7 @@ export interface BulletTemplate {
 
 /** Bracketed parts are placeholders — the ATS checker flags any that are left in. */
 export const BULLET_TEMPLATES: BulletTemplate[] = [
-  { name: 'XYZ (Google style)', pattern: '[What you achieved, with a number] as measured by [metric], by [what you did]', example: 'Cut checkout drop-off 18% as measured by funnel analytics, by rebuilding the payment form' },
+  { name: 'XYZ — Google style', pattern: '[What you achieved, with a number] as measured by [metric], by [what you did]', example: 'Cut checkout drop-off 18% as measured by funnel analytics, by rebuilding the payment form' },
   { name: 'STAR — result first', pattern: '[Result with a number] by [action you took] to solve [situation]', example: 'Raised test coverage from 40% to 85% by introducing Playwright suites to stop weekly regressions' },
   { name: 'Problem → action → impact', pattern: '[Action verb] [what you built/changed] to fix [problem], [impact with metric]', example: 'Rebuilt the search index to fix stale results, reducing support tickets by 30%' },
   { name: 'Scale & scope', pattern: '[Action verb] [system] serving [N users / requests] across [scope]', example: 'Operated a notification service handling 5M messages a day across 3 regions' },

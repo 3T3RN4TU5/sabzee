@@ -3,7 +3,7 @@
  * Things JSON Resume cannot express (custom sections, section titles/order/visibility) are kept
  * under `meta.resumeforge` so a ResumeForge → JSON Resume → ResumeForge round trip is lossless.
  */
-import { parseStored, toStored } from './dates.ts'
+import { parseLooseDate, parseStored, toStored } from './dates.ts'
 import { uid } from './ids.ts'
 import { emptyBasics, normalizeEntry } from './normalize.ts'
 import { createEntry, createSection, KIND_SPECS, LANGUAGE_LEVELS, SKILL_LEVELS } from './sections.ts'
@@ -165,10 +165,23 @@ export function toJsonResume(data: ResumeData): JsonResume {
 const s = (v: unknown) => (typeof v === 'string' ? v : typeof v === 'number' ? String(v) : '')
 const list = (v: unknown) => (Array.isArray(v) ? v.map(s).filter(Boolean) : [])
 const objs = (v: unknown): Json[] => (Array.isArray(v) ? v.filter((x): x is Json => !!x && typeof x === 'object') : [])
-const importDate = (v: unknown) => {
-  const ym = parseStored(s(v))
-  return ym ? toStored(ym) : s(v)
+/**
+ * JSON Resume date → stored date. Accepts ISO dates and datetimes ("2018-05-01T00:00:00Z"), keeps
+ * just the year when the month is invalid ("2020-13-01" → "2020"), maps "Present" to `present`
+ * and passes other free text through.
+ */
+export function importDateValue(v: unknown): { value: string; present: boolean } {
+  const raw = s(v).trim()
+  const iso = /^(\d{4})(?:-(\d{1,2})(?:-\d{1,2})?)?(?:[T ][\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?$/.exec(raw)
+  if (iso) {
+    const month = iso[2] ? Number(iso[2]) : 0
+    return { value: month >= 1 && month <= 12 ? toStored({ year: Number(iso[1]), month }) : iso[1], present: false }
+  }
+  const ym = parseStored(raw)
+  if (ym) return { value: toStored(ym), present: false }
+  return parseLooseDate(raw)
 }
+const importDate = (v: unknown) => importDateValue(v).value
 const importUrl = (v: unknown) => prettyUrl(s(v))
 
 export function levelFromText(text: string, kind: 'skills' | 'languages'): number {
@@ -212,8 +225,8 @@ function entryFromJson(kind: SectionKind, j: Json): Entry {
 function entryFromJsonBase(kind: SectionKind, j: Json): Entry {
   const range = () => {
     const start = importDate(j.startDate)
-    const end = importDate(j.endDate)
-    return { start, end, current: !!start && !end }
+    const end = importDateValue(j.endDate)
+    return { start, end: end.value, current: end.present || (!!start && !end.value) }
   }
   switch (kind) {
     case 'experience':
@@ -252,6 +265,22 @@ export function isJsonResume(v: unknown): v is JsonResume {
   return ['work', 'education', 'skills', 'projects', 'volunteer'].some((k) => Array.isArray(o[k])) || (!!o.basics && typeof o.basics === 'object' && ('label' in (o.basics as Json) || 'profiles' in (o.basics as Json)))
 }
 
+const KNOWN_PROFILE = /linkedin|github/i
+
+/** URLs of profiles other than LinkedIn / GitHub (Twitter, Dribbble, a blog …). */
+function extraProfiles(profiles: Json[]): string[] {
+  return profiles.filter((p) => !KNOWN_PROFILE.test(s(p.network)) && !KNOWN_PROFILE.test(s(p.url))).map((p) => importUrl(p.url)).filter(Boolean)
+}
+
+/** What a JSON Resume import cannot carry over (for the import preview). */
+export function jsonResumeWarnings(json: JsonResume): string[] {
+  const b = (json.basics ?? {}) as Json
+  const extra = objs(b.profiles).filter((p) => !KNOWN_PROFILE.test(s(p.network)) && !KNOWN_PROFILE.test(s(p.url)))
+  const hasWebsite = !!importUrl(b.url ?? b.website)
+  const dropped = extra.slice(hasWebsite ? 0 : 1).map((p) => s(p.network) || importUrl(p.url) || 'profile')
+  return dropped.length ? [`Only LinkedIn, GitHub and one website are kept — not imported: ${dropped.join(', ')}. Add them to a section if you need them.`] : []
+}
+
 export function fromJsonResume(json: JsonResume): ResumeData {
   const b = (json.basics ?? {}) as Json
   const loc = (b.location ?? {}) as Json
@@ -267,7 +296,7 @@ export function fromJsonResume(json: JsonResume): ResumeData {
     title: s(b.label),
     email: s(b.email),
     phone: s(b.phone),
-    website: importUrl(b.url ?? b.website),
+    website: importUrl(b.url ?? b.website) || extraProfiles(profiles)[0] || '',
     location: typeof b.location === 'string' ? b.location : [s(loc.city), s(loc.region), s(loc.countryCode)].filter(Boolean).join(', '),
     linkedin: profile(/linkedin/i),
     github: profile(/github/i),

@@ -22,12 +22,16 @@ export function joinList(items: string[]): string {
   return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
 }
 
+/** Area / category names that read badly as "experience in Frontend and Backend". */
+const GENERIC_SKILLS = new Set(['frontend', 'front-end', 'backend', 'back-end', 'full-stack', 'full stack', 'scalability', 'debugging', 'documentation', 'code review', 'system design', 'security', 'observability', 'startup', 'mobile', 'web', 'ui/ux'])
+
 /** Up to four skills to mention: the job description's matched skills first, then the resume's own. */
 export function letterSkills(data: ResumeData, jobDescription = ''): string[] {
+  const generic = (k: string) => GENERIC_SKILLS.has(k.trim().toLowerCase())
   const own = data.sections.filter((s) => s.kind === 'skills' && !s.hidden).flatMap((s) => s.items.flatMap((e) => e.keywords.map((k) => k.trim()).filter(Boolean)))
   const picked: string[] = []
   const add = (k: string) => {
-    if (picked.length < 4 && !picked.some((p) => p.toLowerCase() === k.toLowerCase())) picked.push(k)
+    if (picked.length < 4 && !generic(k) && !picked.some((p) => p.toLowerCase() === k.toLowerCase())) picked.push(k)
   }
   if (jobDescription.trim()) {
     const rows = matchResume(data, jobDescription).keywords.filter((k) => k.matched && k.source === 'dictionary' && k.category !== 'soft' && k.category !== 'business')
@@ -43,12 +47,16 @@ export function letterSkills(data: ResumeData, jobDescription = ''): string[] {
 function facts(data: ResumeData, jobDescription = '') {
   const exp = data.sections.find((s) => s.kind === 'experience' && !s.hidden)?.items[0]
   const skills = letterSkills(data, jobDescription)
+  // career change: name two transferable skills up front, the rest later
+  const transferable = skills.length >= 3 ? skills.slice(0, 2) : null
   const bullet = exp?.bullets.find((b) => /\d/.test(b)) ?? exp?.bullets[0] ?? ''
   return {
     title: data.basics.title || 'professional',
     company: exp?.subtitle || 'my current team',
     role: exp?.title || data.basics.title || 'my current role',
     skills: skills.length ? joinList(skills) : '[your top skills]',
+    transferable: transferable ? transferable.join(', ') : '[skill 1], [skill 2]',
+    otherSkills: transferable ? joinList(skills.slice(2)) : skills.length ? joinList(skills) : '[your top skills]',
     win: inlineToPlain(bullet).replace(/\.$/, '') || '[a measurable achievement]',
   }
 }
@@ -75,8 +83,8 @@ export function starterLetter(id: LetterStarter['id'], data: ResumeData, letter:
       greeting,
       closing: 'Sincerely,',
       body: [
-        `I am excited to apply for the **${role}** position at ${company}. Although my background is as a ${f.title}, the skills at the heart of this role — [skill 1], [skill 2] and clear communication — are ones I have practised every day.`,
-        `Most recently I ${f.win.charAt(0).toLowerCase()}${f.win.slice(1)}. Along the way I built a strong foundation in ${f.skills}, and I have been deepening it through [course, certification or project].`,
+        `I am excited to apply for the **${role}** position at ${company}. Although my background is as a ${f.title}, the skills at the heart of this role — ${f.transferable} and clear communication — are ones I have practised every day.`,
+        `Most recently I ${f.win.charAt(0).toLowerCase()}${f.win.slice(1)}. Along the way I built a strong foundation in ${f.otherSkills}, and I have been deepening it through [course, certification or project].`,
         `I learn fast, take feedback seriously and care about doing work that matters to users. I would welcome the chance to grow with ${company} and contribute from day one.`,
         'Thank you for considering my application. I look forward to the opportunity to discuss it further.',
       ].join('\n\n'),
@@ -104,10 +112,13 @@ export function letterToText(letter: CoverLetter, data: ResumeData): string {
   const b = data.basics
   const lines = [
     b.name,
+    ...(b.title.trim() ? [b.title.trim()] : []),
     [b.email, b.phone, b.location].filter(Boolean).join(' | '),
     '',
     letter.date ? formatLongDate(letter.date) : '',
     [letter.recipient, letter.recipientTitle, letter.company, letter.address].filter(Boolean).join('\n'),
+    '',
+    letter.role.trim() ? `Re: Application for ${letter.role.trim()}` : '',
     '',
     letter.greeting || 'Dear Hiring Manager,',
     '',

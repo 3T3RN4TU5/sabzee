@@ -285,6 +285,12 @@ function Preview({ loaded, name, onName, mode, onMode, activeName }: PreviewProp
               This file has no resume content — you’ll get an empty resume.
             </p>
           )}
+          {imported.warnings?.map((w) => (
+            <p key={w} className="flex gap-1.5 rounded-lg bg-amber-50 p-2 text-xs text-amber-900 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-100 dark:ring-amber-500/30" data-import-warning>
+              <AlertCircle className="mt-px size-3.5 shrink-0" aria-hidden />
+              {w}
+            </p>
+          ))}
         </div>
       </div>
 

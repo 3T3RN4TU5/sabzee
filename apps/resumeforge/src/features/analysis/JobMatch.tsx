@@ -12,6 +12,7 @@ import {
   matchLabel,
   missingByPriority,
   pickSkillsEntry,
+  skillsDestination,
   placementFor,
   SAMPLE_JD,
   withKeyword,
@@ -161,7 +162,13 @@ function MatchSummary({ result }: { result: MatchResult }) {
 
 function addToSkills(row: MatchRow, data: ResumeData) {
   const category = row.category === 'phrase' ? null : row.category
-  let pick = pickSkillsEntry(data, category)
+  const dest = skillsDestination(data, category)
+  if (dest && 'createTitle' in dest) {
+    resumeActions.addEntry(dest.sectionId, { title: dest.createTitle, keywords: [row.label] })
+    toastWithUndo(`Added “${row.label}” to a new Skills › ${dest.createTitle} group`)
+    return
+  }
+  let pick = dest ?? pickSkillsEntry(data, category)
   let created = false
   if (!pick) {
     resumeActions.addSection('skills', { withEntry: true })

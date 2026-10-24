@@ -95,8 +95,8 @@ export function gerundChainToPast(text: string): string | null {
   let rest = text
   // the chain is all gerunds ("planning and executing") or all bare verbs ("Helped migrate and test")
   const firstWord = text.match(/^[A-Za-z]+/)?.[0] ?? ''
-  const gerunds = /[a-z]{2,}ing$/i.test(firstWord)
-  const sameForm = (w: string) => (gerunds ? /[a-z]{2,}ing$/i.test(w) : VERB_FORMS.get(w.toLowerCase())?.base === w.toLowerCase())
+  const gerunds = /(?<![a-z])[a-z]{2,}ing$/i.test(firstWord)
+  const sameForm = (w: string) => (gerunds ? /(?<![a-z])[a-z]{2,}ing$/i.test(w) && !/thing$/i.test(w) : VERB_FORMS.get(w.toLowerCase())?.base === w.toLowerCase())
   for (;;) {
     const w = rest.match(/^[A-Za-z]+/)?.[0]
     const base = w ? verbBase(w) : null

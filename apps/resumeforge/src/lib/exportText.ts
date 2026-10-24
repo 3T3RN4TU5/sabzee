@@ -52,6 +52,17 @@ export function contactItems(b: Basics): { label: string; value: string; href: s
   return items
 }
 
+/**
+ * Inline links in user text, made safe for a Markdown file: scheme-less URLs get https:// (otherwise
+ * they'd be relative links) and unsafe ones (javascript:, data: …) are reduced to their text.
+ */
+export function safeInlineLinks(md: string): string {
+  return md.replace(/(?<!\\)\[([^\]\n]{0,500})\]\(((?:[^()\s]|\([^()\s]{0,200}\)){0,2048})\)/g, (_m, text: string, url: string) => {
+    const href = sanitizeUrl(url)
+    return href ? `[${text}](${href})` : text
+  })
+}
+
 const visibleSections = (data: ResumeData) => data.sections.filter((s) => !s.hidden && sectionHasContent(s))
 
 export function toMarkdown(data: ResumeData, opts: TextOptions): string {
@@ -65,7 +76,7 @@ export function toMarkdown(data: ResumeData, opts: TextOptions): string {
   for (const s of visibleSections(data)) {
     out.push('', `## ${s.title || KIND_SPECS[s.kind].label}`, '')
     if (s.kind === 'summary') {
-      out.push(s.content.trim())
+      out.push(safeInlineLinks(s.content.trim()))
       continue
     }
     if (s.kind === 'skills') {
@@ -93,8 +104,8 @@ export function toMarkdown(data: ResumeData, opts: TextOptions): string {
       const meta = [p.when, p.where, p.extra, p.link ? `[${p.link}](${sanitizeUrl(e.url) ?? ''})` : ''].filter(Boolean)
       if (meta.length) out.push(`*${meta.join(' · ')}*`)
       if (p.tags.length) out.push(`\`${p.tags.join(' · ')}\``)
-      if (p.description) out.push('', p.description)
-      if (p.bullets.length) out.push('', ...p.bullets.map((x) => `- ${x}`))
+      if (p.description) out.push('', safeInlineLinks(p.description))
+      if (p.bullets.length) out.push('', ...p.bullets.map((x) => `- ${safeInlineLinks(x)}`))
     })
   }
   return `${out.join('\n').replace(/\n{3,}/g, '\n\n').trim()}\n`
