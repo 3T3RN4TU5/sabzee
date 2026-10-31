@@ -6,7 +6,7 @@
 - **Model:** Logistic regression (elastic net) (`LogisticRegression`), no post-hoc calibration (raw probabilities had the best validation Brier), exported to JSON for in-browser inference (logistic, no trees, 55 transformed features).
 - **Pipeline:** row-wise feature engineering → `ColumnTransformer` (median imputation + standardisation for numerics, most-frequent imputation + one-hot for categoricals) → classifier → optional `CalibratedClassifierCV(FrozenEstimator(...))` fitted on the validation split (method chosen by out-of-fold Brier).
 - **Selected hyper-parameters:** C=0.1907, l1_ratio=0.7852.
-- **Author:** Jeevan ([@Jeevan2410](https://github.com/Jeevan2410)). Portfolio project — not a production system.
+- **Author:** Jeevan ([@3T3RN4TU5](https://github.com/3T3RN4TU5)). Portfolio project — not a production system.
 
 ## Intended use
 Rank existing telecom subscribers by 12-month churn risk so a retention team can decide whom to contact with an incentive. Output is a calibrated probability plus a per-customer explanation. **Not** intended for pricing, credit, or any decision that denies service.

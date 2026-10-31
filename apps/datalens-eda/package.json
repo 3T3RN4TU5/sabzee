@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "author": "Jeevan (https://github.com/Jeevan2410)",
+  "author": "Jeevan (https://github.com/3T3RN4TU5)",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

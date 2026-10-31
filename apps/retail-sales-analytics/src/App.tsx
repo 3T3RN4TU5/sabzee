@@ -128,7 +128,7 @@ export default function App() {
       <footer className="border-t border-white/[0.06] py-6 text-center text-xs text-slate-500">
         <p>
           Built by{' '}
-          <a className="text-slate-300 hover:text-white" href="https://github.com/Jeevan2410" target="_blank" rel="noreferrer">
+          <a className="text-slate-300 hover:text-white" href="https://github.com/3T3RN4TU5" target="_blank" rel="noreferrer">
             Jeevan
           </a>{' '}
           · Data: UCI Online Retail (CC BY 4.0)

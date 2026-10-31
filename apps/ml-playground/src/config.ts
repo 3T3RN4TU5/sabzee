@@ -9,4 +9,4 @@ export const PAGES = [
 export type PageId = (typeof PAGES)[number]['id']
 export const PAGE_IDS = PAGES.map((p) => p.id) as PageId[]
 
-export const REPO_URL = 'https://github.com/Jeevan2410/ml-playground'
+export const REPO_URL = 'https://github.com/3T3RN4TU5/ml-playground'

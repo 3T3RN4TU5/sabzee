@@ -4,7 +4,7 @@ import { GithubIcon } from './components/GithubIcon'
 import { fetchProfile, GitHubError, type Profile } from './lib/github'
 import { ProfileView } from './components/ProfileView'
 
-const suggestions = ['Jeevan2410', 'torvalds', 'gaearon', 'sindresorhus', 'yyx990803', 'kentcdodds']
+const suggestions = ['3T3RN4TU5', 'torvalds', 'gaearon', 'sindresorhus', 'yyx990803', 'kentcdodds']
 const HISTORY_KEY = 'gitscope:history'
 
 function loadHistory(): string[] {

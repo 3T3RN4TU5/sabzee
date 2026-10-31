@@ -12,12 +12,12 @@ export const profile = {
   ],
   location: "India",
   openToWork: true,
-  github: "Jeevan2410",
+  github: "3T3RN4TU5",
   linkedin: "",
   email: "",
   resumeBuilderUrl: "https://resumeforge-jeevan.vercel.app",
   siteUrl: "https://jeevan2410-portfolio.vercel.app",
-  repoUrl: "https://github.com/Jeevan2410/portfolio.",
+  repoUrl: "https://github.com/3T3RN4TU5/portfolio.",
 };
 
 export const skills: { group: string; items: string[] }[] = [

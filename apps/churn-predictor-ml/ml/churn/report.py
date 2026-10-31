@@ -125,7 +125,7 @@ def write_model_card(r: dict, bundle: dict, path: Path) -> None:
 - **Model:** {bundle['model_name']} (`{bundle['estimator']}`), {cal_name(r)}, exported to JSON for in-browser inference ({r['export']['model_type']}, {r['export']['n_trees'] or 'no'} trees, {r['export']['n_features_transformed']} transformed features).
 - **Pipeline:** row-wise feature engineering → `ColumnTransformer` (median imputation + standardisation for numerics, most-frequent imputation + one-hot for categoricals) → classifier → optional `CalibratedClassifierCV(FrozenEstimator(...))` fitted on the validation split (method chosen by out-of-fold Brier).
 - **Selected hyper-parameters:** {', '.join(f'{k}={v:.4g}' if isinstance(v, float) else f'{k}={v}' for k, v in sel['best_params'].items())}.
-- **Author:** Jeevan ([@Jeevan2410](https://github.com/Jeevan2410)). Portfolio project — not a production system.
+- **Author:** Jeevan ([@3T3RN4TU5](https://github.com/3T3RN4TU5)). Portfolio project — not a production system.
 
 ## Intended use
 Rank existing telecom subscribers by 12-month churn risk so a retention team can decide whom to contact with an incentive. Output is a calibrated probability plus a per-customer explanation. **Not** intended for pricing, credit, or any decision that denies service.

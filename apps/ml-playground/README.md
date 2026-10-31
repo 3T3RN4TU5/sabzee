@@ -2,7 +2,7 @@
 
 **Live demo:** [ml-playground-jeevan.vercel.app](https://ml-playground-jeevan.vercel.app)
 
-[![CI](https://github.com/Jeevan2410/ml-playground/actions/workflows/ci.yml/badge.svg)](https://github.com/Jeevan2410/ml-playground/actions/workflows/ci.yml)
+[![CI](https://github.com/3T3RN4TU5/ml-playground/actions/workflows/ci.yml/badge.svg)](https://github.com/3T3RN4TU5/ml-playground/actions/workflows/ci.yml)
 
 An interactive machine-learning lab where **every algorithm is written from scratch in TypeScript**, with no TensorFlow.js, no ONNX and no math library. It includes a reverse-mode autodiff engine with gradient-checked ops, a neural-network playground that trains live in a Web Worker, an optimizer race on classic loss surfaces, six classical classifiers, and unsupervised learning (k-means++, DBSCAN, PCA, t-SNE) on real datasets. Every result is checked by **89 automated tests**, including cross-checks against scikit-learn.
 
@@ -140,4 +140,4 @@ There are no environment variables or backend. CI (GitHub Actions) runs lint, te
 
 ## Author
 
-Built by **Jeevan** ([@Jeevan2410](https://github.com/Jeevan2410)). Licensed under MIT.
+Built by **Jeevan** ([@3T3RN4TU5](https://github.com/3T3RN4TU5)). Licensed under MIT.
