@@ -32,7 +32,7 @@ const TABS: { id: Tab; label: string; icon: typeof Code2 }[] = [
   { id: 'pivot', label: 'Pivot', icon: Table2 },
 ]
 
-const REPO_URL = 'https://github.com/Jeevan2410/datalens-eda'
+const REPO_URL = 'https://github.com/3T3RN4TU5/datalens-eda'
 
 export default function App() {
   const eng = useEngine()

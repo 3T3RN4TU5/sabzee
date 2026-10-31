@@ -24,7 +24,7 @@ const readRoute = (): RouteId => {
   return ROUTES.some((r) => r.id === h) ? (h as RouteId) : 'predict'
 }
 
-const GITHUB = 'https://github.com/Jeevan2410/churn-predictor-ml'
+const GITHUB = 'https://github.com/3T3RN4TU5/churn-predictor-ml'
 
 export interface Settings {
   role: ModelRole
@@ -124,7 +124,7 @@ export default function App() {
 
       <footer className="mt-10 flex flex-wrap justify-between gap-2 border-t border-white/[0.06] pt-4 text-xs text-slate-500">
         <span>
-          Built by Jeevan · <a className="hover:text-slate-300" href={GITHUB}>Jeevan2410/churn-predictor-ml</a>
+          Built by Jeevan · <a className="hover:text-slate-300" href={GITHUB}>3T3RN4TU5/churn-predictor-ml</a>
         </span>
         <span>IBM Telco Customer Churn dataset · scikit-learn → JSON → TypeScript inference (no server)</span>
       </footer>

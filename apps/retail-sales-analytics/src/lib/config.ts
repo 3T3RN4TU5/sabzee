@@ -1,1 +1,1 @@
-export const REPO_URL = 'https://github.com/Jeevan2410/retail-sales-analytics'
+export const REPO_URL = 'https://github.com/3T3RN4TU5/retail-sales-analytics'

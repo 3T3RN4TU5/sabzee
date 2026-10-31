@@ -1,26 +1,26 @@
 # 🚀 Jeevan's Project Portfolio
 
-[![CI](https://github.com/Jeevan2410/sabzee/actions/workflows/ci.yml/badge.svg)](https://github.com/Jeevan2410/sabzee/actions/workflows/ci.yml)
+[![CI](https://github.com/3T3RN4TU5/sabzee/actions/workflows/ci.yml/badge.svg)](https://github.com/3T3RN4TU5/sabzee/actions/workflows/ci.yml)
 
 Fifteen live projects spanning **data analysis, machine learning, scientific computing and full-stack web development** — Python, pandas, scikit-learn, SQL/DuckDB, React 19, Next.js 16 and TypeScript — each deployed on Vercel with automatic deployments on every push to `main`.
 
 | App | What it is | Stack | Live | Repo |
 | --- | --- | --- | --- | --- |
-| 🎯 **Churn Predictor ML** | End-to-end ML on IBM Telco: CV model selection, calibration, profit-optimal threshold, exact SHAP, browser inference | Python, scikit-learn, React | [Open](https://churn-predictor-ml-jeevan.vercel.app) | [`churn-predictor-ml`](https://github.com/Jeevan2410/churn-predictor-ml) |
-| 📈 **Retail Sales Analytics** | 541k real transactions: ETL + data-quality checks, DuckDB star schema, cohorts, RFM/k-means, forecasting, A/B test, CLV | Python, pandas, DuckDB SQL | [Open](https://retail-sales-analytics-jeevan.vercel.app) | [`retail-sales-analytics`](https://github.com/Jeevan2410/retail-sales-analytics) |
-| 🔍 **DataLens** | In-browser SQL analytics & automated EDA with DuckDB-WASM, profiling, chart/pivot builders, 1M-row grid | DuckDB-WASM, React | [Open](https://datalens-eda-jeevan.vercel.app) | [`datalens-eda`](https://github.com/Jeevan2410/datalens-eda) |
-| 🧠 **ML Playground** | Autograd engine + ML algorithms from scratch: neural nets, optimizers, SVM, forests, PCA, t-SNE | TypeScript, Web Workers | [Open](https://ml-playground-jeevan.vercel.app) | [`ml-playground`](https://github.com/Jeevan2410/ml-playground) |
-| 🔬 **SciSim Lab** | Verified numerical methods: RK45, symplectic integrators, N-body, PDEs, Ising, FFT, model fitting | TypeScript, numerics | [Open](https://sci-sim-lab-jeevan.vercel.app) | [`sci-sim-lab`](https://github.com/Jeevan2410/sci-sim-lab) |
-| 🤖 **AI Interview Coach** | AI mock interviews by role & level: streamed questions, rubric-scored feedback, readiness report | Next.js 16, Claude API, Zod | [Open](https://ai-interview-coach-jeevan.vercel.app) | [`ai-interview-coach`](https://github.com/Jeevan2410/ai-interview-coach) |
-| 🧑‍💻 **CodeArena** | LeetCode-style practice: CodeMirror editor, tests run in a sandboxed Web Worker, hints & progress | React, CodeMirror 6, Web Workers | [Open](https://codearena-jeevan.vercel.app) | [`codearena`](https://github.com/Jeevan2410/codearena) |
-| 📊 **AlgoViz** | Step-through sorting visualizer and pathfinding playground (BFS, Dijkstra, A*, mazes) | React, TypeScript | [Open](https://algoviz-jeevan.vercel.app) | [`algoviz`](https://github.com/Jeevan2410/algoviz) |
-| 💬 **DevChat** | Real-time chat rooms with presence, typing indicators and RLS-secured Postgres | React, Supabase Realtime | [Open](https://devchat-jeevan.vercel.app) | [`devchat`](https://github.com/Jeevan2410/devchat) |
-| 👋 **Portfolio** | Personal developer site with live GitHub stats | Next.js 16, Cache Components | [Open](https://jeevan2410-portfolio.vercel.app) | [`portfolio.`](https://github.com/Jeevan2410/portfolio.) |
-| ⚡ **TaskFlow** | Trello-style Kanban with drag & drop, labels, checklists, insights, dark mode | React, dnd-kit, Zustand | [Open](https://taskflow-kanban-jeevan.vercel.app) | [`taskflow-kanban`](https://github.com/Jeevan2410/taskflow-kanban) |
-| 💸 **FinTrack** | Personal finance dashboard: charts, budgets, CSV import/export | React, Recharts | [Open](https://fintrack-jeevan.vercel.app) | [`fintrack-dashboard`](https://github.com/Jeevan2410/fintrack-dashboard) |
-| ✨ **ResumeForge** | Resume builder: live A4 preview, 3 templates, strength score, PDF export | React, Print CSS | [Open](https://resumeforge-jeevan.vercel.app) | [`resumeforge`](https://github.com/Jeevan2410/resumeforge) |
-| 🔭 **GitScope** | GitHub profile analytics with charts and a recruiter-readiness checklist | React, GitHub API, Recharts | [Open](https://gitscope-jeevan.vercel.app) | [`gitscope`](https://github.com/Jeevan2410/gitscope) |
-| 🥬 **Sabzee** | Quick-commerce grocery store: filters, cart, coupons, checkout, order tracking, REST API | Next.js 16, Zustand | [Open](https://sabzee.vercel.app) | [`sabzee-store`](https://github.com/Jeevan2410/sabzee-store) |
+| 🎯 **Churn Predictor ML** | End-to-end ML on IBM Telco: CV model selection, calibration, profit-optimal threshold, exact SHAP, browser inference | Python, scikit-learn, React | [Open](https://churn-predictor-ml-jeevan.vercel.app) | [`churn-predictor-ml`](https://github.com/3T3RN4TU5/churn-predictor-ml) |
+| 📈 **Retail Sales Analytics** | 541k real transactions: ETL + data-quality checks, DuckDB star schema, cohorts, RFM/k-means, forecasting, A/B test, CLV | Python, pandas, DuckDB SQL | [Open](https://retail-sales-analytics-jeevan.vercel.app) | [`retail-sales-analytics`](https://github.com/3T3RN4TU5/retail-sales-analytics) |
+| 🔍 **DataLens** | In-browser SQL analytics & automated EDA with DuckDB-WASM, profiling, chart/pivot builders, 1M-row grid | DuckDB-WASM, React | [Open](https://datalens-eda-jeevan.vercel.app) | [`datalens-eda`](https://github.com/3T3RN4TU5/datalens-eda) |
+| 🧠 **ML Playground** | Autograd engine + ML algorithms from scratch: neural nets, optimizers, SVM, forests, PCA, t-SNE | TypeScript, Web Workers | [Open](https://ml-playground-jeevan.vercel.app) | [`ml-playground`](https://github.com/3T3RN4TU5/ml-playground) |
+| 🔬 **SciSim Lab** | Verified numerical methods: RK45, symplectic integrators, N-body, PDEs, Ising, FFT, model fitting | TypeScript, numerics | [Open](https://sci-sim-lab-jeevan.vercel.app) | [`sci-sim-lab`](https://github.com/3T3RN4TU5/sci-sim-lab) |
+| 🤖 **AI Interview Coach** | AI mock interviews by role & level: streamed questions, rubric-scored feedback, readiness report | Next.js 16, Claude API, Zod | [Open](https://ai-interview-coach-jeevan.vercel.app) | [`ai-interview-coach`](https://github.com/3T3RN4TU5/ai-interview-coach) |
+| 🧑‍💻 **CodeArena** | LeetCode-style practice: CodeMirror editor, tests run in a sandboxed Web Worker, hints & progress | React, CodeMirror 6, Web Workers | [Open](https://codearena-jeevan.vercel.app) | [`codearena`](https://github.com/3T3RN4TU5/codearena) |
+| 📊 **AlgoViz** | Step-through sorting visualizer and pathfinding playground (BFS, Dijkstra, A*, mazes) | React, TypeScript | [Open](https://algoviz-jeevan.vercel.app) | [`algoviz`](https://github.com/3T3RN4TU5/algoviz) |
+| 💬 **DevChat** | Real-time chat rooms with presence, typing indicators and RLS-secured Postgres | React, Supabase Realtime | [Open](https://devchat-jeevan.vercel.app) | [`devchat`](https://github.com/3T3RN4TU5/devchat) |
+| 👋 **Portfolio** | Personal developer site with live GitHub stats | Next.js 16, Cache Components | [Open](https://jeevan2410-portfolio.vercel.app) | [`portfolio.`](https://github.com/3T3RN4TU5/portfolio.) |
+| ⚡ **TaskFlow** | Trello-style Kanban with drag & drop, labels, checklists, insights, dark mode | React, dnd-kit, Zustand | [Open](https://taskflow-kanban-jeevan.vercel.app) | [`taskflow-kanban`](https://github.com/3T3RN4TU5/taskflow-kanban) |
+| 💸 **FinTrack** | Personal finance dashboard: charts, budgets, CSV import/export | React, Recharts | [Open](https://fintrack-jeevan.vercel.app) | [`fintrack-dashboard`](https://github.com/3T3RN4TU5/fintrack-dashboard) |
+| ✨ **ResumeForge** | Resume builder: live A4 preview, 3 templates, strength score, PDF export | React, Print CSS | [Open](https://resumeforge-jeevan.vercel.app) | [`resumeforge`](https://github.com/3T3RN4TU5/resumeforge) |
+| 🔭 **GitScope** | GitHub profile analytics with charts and a recruiter-readiness checklist | React, GitHub API, Recharts | [Open](https://gitscope-jeevan.vercel.app) | [`gitscope`](https://github.com/3T3RN4TU5/gitscope) |
+| 🥬 **Sabzee** | Quick-commerce grocery store: filters, cart, coupons, checkout, order tracking, REST API | Next.js 16, Zustand | [Open](https://sabzee.vercel.app) | [`sabzee-store`](https://github.com/3T3RN4TU5/sabzee-store) |
 
 ## What these projects demonstrate
 

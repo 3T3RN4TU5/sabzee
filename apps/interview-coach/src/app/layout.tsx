@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   description: DESCRIPTION,
   applicationName: "AI Interview Coach",
-  authors: [{ name: "Jeevan", url: "https://github.com/Jeevan2410" }],
+  authors: [{ name: "Jeevan", url: "https://github.com/3T3RN4TU5" }],
   openGraph: {
     title: "AI Interview Coach",
     description: DESCRIPTION,

@@ -4,7 +4,7 @@ import { Card } from '../components/ui.tsx'
 import type { Artefacts } from '../lib/data.ts'
 import { pct, usd } from '../lib/format.ts'
 
-const REPO = 'https://github.com/Jeevan2410/churn-predictor-ml'
+const REPO = 'https://github.com/3T3RN4TU5/churn-predictor-ml'
 
 function Row({ k, children }: { k: string; children: ReactNode }) {
   return (

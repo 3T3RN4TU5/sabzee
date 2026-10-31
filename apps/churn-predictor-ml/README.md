@@ -132,4 +132,4 @@ The data is the IBM *Telco Customer Churn* sample dataset ([source](https://gith
 
 ---
 
-Built by **Jeevan** · [github.com/Jeevan2410](https://github.com/Jeevan2410)
+Built by **Jeevan** · [github.com/3T3RN4TU5](https://github.com/3T3RN4TU5)

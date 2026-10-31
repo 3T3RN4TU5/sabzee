@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Machine learning from first principles in the browser: a from-scratch autograd engine, neural network playground, optimizer race and classical ML, all in TypeScript.",
-  "author": "Jeevan (https://github.com/Jeevan2410)",
+  "author": "Jeevan (https://github.com/3T3RN4TU5)",
   "license": "MIT",
   "engines": {
     "node": ">=22.18"

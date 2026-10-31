@@ -7,7 +7,7 @@
 #               OWNER=my-org ./scripts/split-repos.sh
 set -euo pipefail
 
-OWNER="${OWNER:-Jeevan2410}"
+OWNER="${OWNER:-3T3RN4TU5}"
 cd "$(git rev-parse --show-toplevel)"
 
 # app folder -> repository name (the monorepo itself is already called "sabzee")

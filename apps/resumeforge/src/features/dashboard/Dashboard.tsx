@@ -178,7 +178,7 @@ export function Dashboard() {
         <p>ResumeForge — free, open-source resume builder. Your data never leaves this device.</p>
         <p>
           Built by{' '}
-          <a href="https://github.com/Jeevan2410" target="_blank" rel="noreferrer" className="font-semibold text-slate-700 underline-offset-2 hover:underline dark:text-slate-200">
+          <a href="https://github.com/3T3RN4TU5" target="_blank" rel="noreferrer" className="font-semibold text-slate-700 underline-offset-2 hover:underline dark:text-slate-200">
             Jeevan
           </a>
         </p>

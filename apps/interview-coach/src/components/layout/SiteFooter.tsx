@@ -1,7 +1,7 @@
 import { Lock } from "lucide-react";
 import { GithubIcon } from "@/components/ui/icons";
 
-const REPO_URL = "https://github.com/Jeevan2410/sabzee/tree/main/apps/interview-coach";
+const REPO_URL = "https://github.com/3T3RN4TU5/sabzee/tree/main/apps/interview-coach";
 
 export function SiteFooter() {
   return (

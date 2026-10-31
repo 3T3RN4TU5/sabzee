@@ -152,4 +152,4 @@ retail-sales-analytics/
 
 Data: Daqing Chen, Sai Liang Sain & Kun Guo (2012), *Online Retail*, UCI Machine Learning Repository, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-Built by **Jeevan** · [github.com/Jeevan2410](https://github.com/Jeevan2410)
+Built by **Jeevan** · [github.com/3T3RN4TU5](https://github.com/3T3RN4TU5)
